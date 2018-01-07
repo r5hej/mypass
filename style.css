@@ -1,0 +1,63 @@
+:root {
+    
+}
+
+body {
+    background-color: #F5F5F5;
+}
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: center;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+
+li {
+    margin-bottom: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.container {
+    padding-top: 70px;
+}
+
+.box {
+    border: 1px solid #D1D1D1D1;
+    border-radius: 4px;
+}
+
+#bucket-wrapper {
+    background-color: white;
+}
+
+.bucket-lst {
+    overflow-y: scroll;
+    max-height: 700px;
+    background-color: white;
+}
+
+.bucket-lst > ul {
+    list-style: none;
+    margin-bottom: 0;
+}
+
+.bucket-lst > ul > li {
+    text-align: center;
+    cursor: pointer;
+}
+
+.bucket-lst > ul > li:hover {
+    background-color: #EEEEEE;
+}
+
+.bucket-table:last-child {
+    margin-bottom: 0;
+}
