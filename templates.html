@@ -1,19 +1,39 @@
-<template id="bucketTable">
-    <table class="u-full-width bucket-table">
-        <thead>
-            <th>Location</th>
-            <th>Description</th>
-            <th>Password</th>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<template id="login">
+    <div class="login">
+        <input class="u-full-width" type="text" placeholder="Username">
+        <input class="u-full-width" type="password" placeholder="Password">
+        <div class="btn" onclick="RenderManager()">Login</div>
+    </div>
 </template>
 
-<template id="bucketRow">
+<template id="manager">
+    <div class="three columns bucket-lst">
+        <div class="btn-add">Add</div>
+        <ul id="bucket-lst" class="box"></ul>
+    </div>
+    <div class="nine columns">
+        <div class="btn-add">Add</div>
+        <table class="u-full-width bucket-table box">
+            <thead>
+                <th>Location</th>
+                <th>Description</th>
+                <th>Password</th>
+                <th></th>
+            </thead>
+            <tbody id="bucket-tbody"></tbody>
+        </table>
+    </div>
+</template>
+
+<template id="bucketItem">
+    <li>{{ bucketName }}</li>
+</template>
+
+<template id="bucketTableRow">
     <tr>
         <td>{{ location }}</td>
         <td>{{ description }}</td>
         <td>{{ password }}</td>
+        <td><i class="material-icons">clear</i></td>
     </tr>
 </template>

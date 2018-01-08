@@ -1,9 +1,9 @@
 :root {
-    
+    --green: #14b208;
 }
 
 body {
-    background-color: #F5F5F5;
+    background-color: #263238;
 }
 
 th {
@@ -30,18 +30,14 @@ li {
 }
 
 .box {
-    border: 1px solid #D1D1D1D1;
+    /*border: 1px solid #D1D1D1D1;*/
     border-radius: 4px;
-}
-
-#bucket-wrapper {
     background-color: white;
 }
 
 .bucket-lst {
     overflow-y: scroll;
     max-height: 700px;
-    background-color: white;
 }
 
 .bucket-lst > ul {
@@ -52,12 +48,66 @@ li {
 .bucket-lst > ul > li {
     text-align: center;
     cursor: pointer;
+    border-bottom: 1px solid #D1D1D1D1;
+    /*font-weight: bold;*/
+}
+
+.bucket-lst > ul > li:last-child {
+    border-bottom: none;
 }
 
 .bucket-lst > ul > li:hover {
-    background-color: #EEEEEE;
+    /*background-color: #EEEEEE;*/
+    background-color: var(--green);
+    color: white;
 }
 
 .bucket-table:last-child {
     margin-bottom: 0;
+}
+
+#bucket-tbody > tr > td:last-child {
+    padding: 0;
+    width: 30px;
+}
+
+.btn,
+.btn-add {
+    border-radius: 4px;
+    background-color: var(--green);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 6px;
+    text-align: center;
+}
+
+.btn-add {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left: auto;
+    max-width: 50px;
+    right: 0;
+}
+
+.btn:hover,
+.btn-add:hover {
+    color: black;
+    background-color: #17aa0b;
+}
+
+.material-icons:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.header {
+    color: white;
+    text-align: center;
+}
+
+.login {
+    margin: auto;
+    padding: 20px;
+    max-width: 600px;
 }
