@@ -1,6 +1,8 @@
 "use strict";
 
+window.onload = RenderLogin();
 
+// Functions to render template content
 function RenderLogin() {
     let wrapper = document.getElementById('wrapper');
 
@@ -42,4 +44,37 @@ function RenderBucketLst() {
     });
 }
 
-window.onload = RenderLogin();
+// Login
+function AuthUser() {
+    let user = {username: "r5hej", password: "password"};
+    AjaxPost('/login/user/', {user: user}, function(data) {
+       console.log(data);
+    });
+}
+
+function AjaxPost(url, data, success) {
+    let params = typeof data == 'string' ? data : Object.keys(data).map(
+        function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+    ).join('&');
+
+    let xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('POST', url);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState>3 && xhr.status==200) { success(xhr.responseText); }
+    };
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(params);
+    return xhr;
+}
+
+function AjaxGet(url, success) {
+    let xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('GET', url);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+    };
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.send();
+    return xhr;
+}
