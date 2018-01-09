@@ -1,11 +1,19 @@
 "use strict";
 
 const MongoClient = require('mongodb').MongoClient;
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+let url;
+
+fs.readFile('config.json', 'utf8', function(err, data) {
+    if (err) throw err;
+    let json = JSON.parse(data);
+    url = json.mongoURL + "/mypass";
+});
 
 module.exports= {
-    AuthUser: function(url, username, password) {
+    AuthUser: function(username, password) {
         FetchUserFromDb(url, username, function(user) {
             if (user == null) {
                 console.log("user not found during login");
@@ -23,7 +31,7 @@ module.exports= {
     }
 };
 
-function FetchUserFromDb(url, username, callback) {
+function FetchUserFromDb(username, callback) {
     MongoClient.connect(url, function (err, db) {
         if (err) throw err;
         const mypass = db.db('mypass');

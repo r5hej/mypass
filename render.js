@@ -46,21 +46,35 @@ function RenderBucketLst() {
 
 // Login
 function AuthUser() {
-    let user = {username: "r5hej", password: "password"};
-    AjaxPost('/login/user/', {user: user}, function(data) {
-       console.log(data);
+    let user = {"username": "r5hej", "password": "password"};
+    // AjaxPost('/login/user', user, function(data) {
+    //    console.log(data);
+    // });
+    $.ajax({
+        url: '/login/user',
+        type: 'POST',
+        data: user,
+        success: function (response) {
+            // user = JSON.parse(JSON.stringify(response));
+            // window.location.href = "citizenadmin.html";
+            console.log("request send");
+        },
+        error: function (response) {
+            console.log("Login attempt failed");
+        }
     });
 }
+
 
 function AjaxPost(url, data, success) {
     let params = typeof data == 'string' ? data : Object.keys(data).map(
         function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
     ).join('&');
-
     let xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+
     xhr.open('POST', url);
     xhr.onreadystatechange = function() {
-        if (xhr.readyState>3 && xhr.status==200) { success(xhr.responseText); }
+        if (xhr.readyState > 3 && xhr.status == 200) { success(xhr.responseText); }
     };
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
