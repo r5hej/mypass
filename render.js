@@ -1,31 +1,37 @@
 "use strict";
 
-window.onload = RenderLogin();
+const templateFile = "templates.html";
+window.onload = renderLogin();
+
+let currentUser;
+let buckets;
 
 // Functions to render template content
-function RenderLogin() {
+function renderLogin() {
     let wrapper = document.getElementById('wrapper');
 
-    JsT.get('templates.html', function(templates) {
+    JsT.get(templateFile, function(templates) {
         wrapper.innerHTML = templates.login.render();
+        document.getElementById('login-btn').addEventListener('click', authUser);
     });
 }
 
-function RenderManager() {
+function renderManager() {
     let wrapper = document.getElementById('wrapper');
 
-    JsT.get('templates.html', function(templates) {
+    JsT.get(templateFile, function(templates) {
         wrapper.innerHTML = templates.manager.render();
 
-        RenderBucketLst();
-        RenderTable();
+        fetchBuckets(renderBucketLst);
+        // renderBucketLst();
+        renderTable();
     });
 }
 
-function RenderTable() {
+function renderTable() {
     let table = document.getElementById('bucket-tbody');
 
-    JsT.get('templates.html', function(templates) {
+    JsT.get(templateFile, function(templates) {
         table.innerHTML += templates.bucketTableRow.render({
             location: "facebook",
             description: "noget med facebook",
@@ -34,61 +40,95 @@ function RenderTable() {
     });
 }
 
-function RenderBucketLst() {
+function renderBucketLst() {
     let lst = document.getElementById('bucket-lst');
 
-    JsT.get('templates.html', function(templates) {
-        lst.innerHTML += templates.bucketItem.render({
-            bucketName: "fisk"
+    JsT.get(templateFile, function(templates) {
+        lst.innerHTML = "";
+        buckets.forEach(item => {
+            lst.innerHTML += templates.bucketItem.render({
+                bucketName: item.name
+            });
         });
     });
 }
 
 // Login
-function AuthUser() {
-    let user = {"username": "r5hej", "password": "password"};
-    // AjaxPost('/login/user', user, function(data) {
-    //    console.log(data);
-    // });
-    $.ajax({
-        url: '/login/user',
-        type: 'POST',
-        data: user,
-        success: function (response) {
-            // user = JSON.parse(JSON.stringify(response));
-            // window.location.href = "citizenadmin.html";
-            console.log("request send");
-        },
-        error: function (response) {
-            console.log("Login attempt failed");
+function authUser() {
+    let user = new Object();
+    user.username = document.getElementsByName('username')[0].value;
+    user.password = document.getElementsByName('password')[0].value;
+
+    ajaxPost('/login/user', JSON.stringify(user), data => {
+        let json = JSON.parse(data);
+        if (json.response === 200) {
+            currentUser = json.user;
+            renderManager();
+        } else {
+            console.log("login failed");
         }
+    }, function(data) {
+        console.log("Couldn't connect to server");
+    });
+}
+
+// buckets
+function fetchBuckets(callback) {
+    ajaxPost('/bucket', JSON.stringify({"username": currentUser.username}), data => {
+        buckets = JSON.parse(data);
+        if (callback !== undefined) { callback(); }
+    }, data => {
+        console.log("couldn't get bucket");
+    });
+}
+
+function addBucket(username, bucketname, passwords) {
+    let bucket = new Object();
+    bucket.username = username;
+    bucket.name = bucketname;
+    bucket.passwords = passwords;
+
+    ajaxPost('/bucket/add', JSON.stringify(bucket), data => {
+        console.log("bucket added");
+        // if (json.response === 200) {
+        buckets.push(bucket);
+        // }
+    }, data => {
+        console.log("couldn't add bucket");
     });
 }
 
 
-function AjaxPost(url, data, success) {
-    let params = typeof data == 'string' ? data : Object.keys(data).map(
-        function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
-    ).join('&');
-    let xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
 
-    xhr.open('POST', url);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState > 3 && xhr.status == 200) { success(xhr.responseText); }
+// Wrapper functions
+function ajaxPost(url, data, success, error) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                success(xhr.responseText);
+            } else {
+                error(xhr.responseText);
+            }
+        }
     };
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send(params);
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send(data);
     return xhr;
 }
 
-function AjaxGet(url, success) {
-    let xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    xhr.open('GET', url);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+function ajaxGet(url, success, error) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                success(xhr.responseText);
+            } else {
+                error(xhr.responseText);
+            }
+        }
     };
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.send();
+    xhr.open('GET', url, true);
     return xhr;
 }
