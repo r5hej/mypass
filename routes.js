@@ -11,7 +11,6 @@ const app = express();
 app.use(formidable());
 app.use(express.static('public'));
 
-app.use(express.static(__dirname));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false}));
 
