@@ -2,10 +2,14 @@
 
 const express = require('express');
 const bodyparser = require('body-parser');
-const app = express();
+const formidable = require('express-formidable');
 const auth = require('./authentication.js');
 const buckets = require('./buckets.js');
 const path = require('path');
+
+const app = express();
+app.use(formidable());
+app.use(express.static('public'));
 
 app.use(express.static(__dirname));
 app.use(bodyparser.json());
@@ -15,9 +19,14 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
-// login
-app.get('/login', (req, res) => {
-    res.sendFile('index.html');
+
+app.post('/login', (req, res) => {
+    auth.authUser(req.fields.username, req.fields.password, result => {
+        if (result)
+            res.send(result);
+        else
+            res.sendStatus(401);
+    });
 });
 
 app.post('/login/user', (req, res) => {

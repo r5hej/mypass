@@ -12,16 +12,16 @@ fs.readFile('config.json', 'utf8', function(err, data) {
     url = json.mongoURL + "/mypass";
 });
 
-module.exports = {
-    authUser: function(username, password, callback) {
-        let result;
-        fetchUserFromDb(username, function(user) {
-            (user != null && bcrypt.compareSync(password, user.password)) ? result = user : result = null;
-            callback(result);
-        });
-    },
-    addNewUser: (username, password) => addNewUser(username, password)
-};
+
+function authUser(username, password, callback) {
+    fetchUserFromDb(username, user => {
+        if (!user)
+            callback(null);
+        else
+            bcrypt.compare(password, user.password, (err, res) => callback((!err && res) ? user : null));
+    });
+}
+
 
 function fetchUserFromDb(username, callback) {
     MongoClient.connect(url, function (err, db) {
@@ -36,29 +36,32 @@ function fetchUserFromDb(username, callback) {
     });
 }
 
-function hashPassword(password) {
-    let salt = bcrypt.genSaltSync(saltRounds);
-    let hash = bcrypt.hashSync(password, salt);
-    return hash;
+function hashPassword(password, callback) {
+    bcrypt.genSalt(saltRounds, (err, salt) => {
+        bcrypt.hash(password, salt, callback);
+    });
 }
 
-function AadNewUser(username, password) {
-    MongoClient.connect(url, function(err, db) {
+function addNewUser(username, password) {
+    MongoClient.connect(url, (err, db) => {
         if (err) throw err;
         const mypass = db.db('mypass');
-
-        let user = {
-            username: username,
-            password: HashPassword(password)
-        };
-
-        mypass.collection("users").insertOne(user, function(err, res) {
+        hashPassword(password, (err, hash) => {
             if (err) throw err;
-            db.close();
+            let user = {
+                username: username,
+                password: hash
+            };
+            mypass.collection("users").insertOne(user, (err, res) => {
+                if (err) throw err;
+                db.close();
+            });
         });
     });
 }
 
+
+// unused?
 function addPassword(user, password) {
     MongoClient.connect(url, function (err, db) {
         if (err) throw err;
@@ -70,3 +73,10 @@ function addPassword(user, password) {
         })
     });
 }
+
+
+
+module.exports = {
+    authUser,
+    addNewUser
+};
