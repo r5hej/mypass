@@ -24,19 +24,29 @@ function renderManager() {
 
         fetchBuckets(renderBucketLst);
         // renderBucketLst();
-        renderTable();
+        document.getElementById('add-bucket-btn').addEventListener('click', () => {
+            showModal("bucket");
+        });
+        document.getElementById('add-password-btn').addEventListener('click', () => {
+            showModal("passwords");
+        });
     });
 }
 
-function renderTable() {
+function renderTable(bucket) {
     let table = document.getElementById('bucket-tbody');
+    let bucketArray = [];
+    !Array.isArray(bucket.passwords) ? bucketArray.push(bucket.passwords) : bucketArray = bucket.passwords;
 
     JsT.get(templateFile, function(templates) {
-        table.innerHTML += templates.bucketTableRow.render({
-            location: "facebook",
-            description: "noget med facebook",
-            password: "123456"
-        });
+        table.innerHTML = "";
+        for (let i = 0; i < bucketArray.length; i++) {
+            table.innerHTML += templates.bucketTableRow.render({
+                location: bucketArray[i].location,
+                description: bucketArray[i].description,
+                password: bucketArray[i].password
+            });
+        }
     });
 }
 
@@ -50,7 +60,52 @@ function renderBucketLst() {
                 bucketName: item.name
             });
         });
+        lst.addEventListener('click', clickedBucketLstChild);
     });
+}
+
+function clickedBucketLstChild(e) {
+    if (e.target === e.currentTarget) {
+        return;
+    }
+    let bucket = buckets.find(item => item.name === e.target.innerText);
+    renderTable(bucket);
+    e.stopPropagation();
+}
+
+// Modal functions
+function showModal(btn) {
+    let modal = document.getElementById(btn === "bucket" ? "add-bucket-modal" : "add-password-modal");
+    modal.style.opacity = "1";
+    modal.style.pointerEvents = "auto";
+
+    // close button
+    // modal.getElementsByClassName('modal-close close')[0].addEventListener('click', () => closeModal(btn));
+    // // add button
+    // modal.getElementsByClassName('btn-add')[0].addEventListener('click', () => addBtnHandler(btn));
+}
+
+function addBtnHandler(btn) {
+    if (btn === "bucket") {
+        addBucket((res, bucket) => {
+            // if (res.response === 200) {
+            buckets.push(bucket);
+            closeModal(btn);
+            renderBucketLst();
+            // }
+        });
+    } else {
+        addPassword(() => {
+            closeModal(btn);
+            renderTable();
+        });
+    }
+}
+
+function closeModal(btn) {
+    let modal = document.getElementById(btn === "bucket" ? "add-bucket-modal" : "add-password-modal");
+    modal.style.opacity = "0";
+    modal.style.pointerEvents = "none";
 }
 
 // Login
@@ -82,22 +137,24 @@ function fetchBuckets(callback) {
     });
 }
 
-function addBucket(username, bucketname, passwords) {
+function addBucket(callback) {
     let bucket = new Object();
-    bucket.username = username;
-    bucket.name = bucketname;
-    bucket.passwords = passwords;
+    bucket.username = currentUser.username;
+    bucket.name = document.querySelector('input[name=new-bucket-name]').value;
+    bucket.passwords = [];
 
     ajaxPost('/bucket/add', JSON.stringify(bucket), data => {
-        console.log("bucket added");
-        // if (json.response === 200) {
-        buckets.push(bucket);
-        // }
+        callback(data, bucket);
     }, data => {
         console.log("couldn't add bucket");
     });
 }
 
+
+// password
+function addPassword(callback) {
+
+}
 
 
 // Wrapper functions
