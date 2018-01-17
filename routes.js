@@ -1,22 +1,19 @@
 "use strict";
 
 const express = require('express');
-const bodyparser = require('body-parser');
+// const bodyparser = require('body-parser');
 const formidable = require('express-formidable');
 const auth = require('./authentication.js');
 const buckets = require('./buckets.js');
 const path = require('path');
 
 const app = express();
-app.use(formidable());
 app.use(express.static('public'));
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(formidable());
 
-app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({ extended: false}));
-
-app.get('/', (req, res) => {
-    res.redirect('/login');
-});
+// app.use(bodyparser.json());
+// app.use(bodyparser.urlencoded({ extended: false}));
 
 
 app.post('/login', (req, res) => {
