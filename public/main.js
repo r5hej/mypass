@@ -19,13 +19,18 @@ function renderLogin() {
 function renderManager() {
     let wrapper = document.getElementById('wrapper');
 
-    JsT.get(templateFile, function(templates) {
-        wrapper.innerHTML = templates.manager.render();
+    wrapper.innerHTML = templates.manager.render();
+    fetchBuckets(renderBucketLst);
+    renderTable();
 
-        fetchBuckets(renderBucketLst);
-        // renderBucketLst();
-        renderTable();
-    });
+
+    // JsT.get(templateFile, function(templates) {
+    //     wrapper.innerHTML = templates.manager.render();
+    //
+    //     fetchBuckets(renderBucketLst);
+    //     // renderBucketLst();
+    //     renderTable();
+    // });
 }
 
 function renderTable() {
@@ -59,6 +64,7 @@ function authUser(ev) {
     let form = new FormData(this);
     postForm("/login", form, user => {
         console.log("logged in:", user);
+        renderManager();
     }, (err, resp) => {
         console.log("could not log in:", resp);
     });

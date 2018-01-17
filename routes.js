@@ -14,10 +14,6 @@ app.use(express.static('public'));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false}));
 
-app.get('/', (req, res) => {
-    res.redirect('/login');
-});
-
 
 app.post('/login', (req, res) => {
     auth.authUser(req.fields.username, req.fields.password, result => {
