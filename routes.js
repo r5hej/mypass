@@ -19,32 +19,24 @@ app.use(formidable());
 app.post('/login', (req, res) => {
     auth.authUser(req.fields.username, req.fields.password, result => {
         if (result)
-            res.send(result);
+            buckets.getUsersBuckets(req.fields.username, buckets => {
+                res.send(buckets);
+            });
         else
             res.sendStatus(401);
     });
 });
 
-app.post('/login/user', (req, res) => {
-    let user = req.body;
-    auth.authUser(user.username, user.password, function(result) {
-        result == null?
-            res.send(JSON.stringify({"response": 401})) :
-            res.send(JSON.stringify({"response": 200, "user": result}));
-    });
-});
-
-// buckets
-app.post('/bucket', (req, res) => {
-    buckets.getUsersBuckets(req.body.username, (result) => {
-        res.send(result);
-    });
-});
 
 app.post('/bucket/add', (req, res) => {
-    let bucket = req.body;
-    buckets.addNewBucket(bucket, result => {
-        res.send({"response": result.result.ok === 1 ? 200 : null})
+    buckets.addNewBucket(req.fields, result => {
+        res.send(JSON.stringify(result ? "success" : "failed"));
+    });
+});
+
+app.post('/bucket/update', (req, res) => {
+    buckets.updateBucket(req.fields, result => {
+        res.send(JSON.stringify(result ? "success" : "failed"));
     });
 });
 

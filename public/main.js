@@ -1,7 +1,6 @@
 "use strict";
 
 const templateFile = "templates.html";
-
 let currentUser;
 let buckets;
 let templates;
@@ -10,50 +9,36 @@ let wrapper = document.getElementById("wrapper");
 
 // Functions to render template content
 function renderLogin() {
-    let wrapper = document.getElementById('wrapper');
-
     wrapper.innerHTML = templates.login.render();
     document.getElementById('login-form').addEventListener('submit', authUser);
 }
 
 function renderManager() {
-    let wrapper = document.getElementById('wrapper');
-
     wrapper.innerHTML = templates.manager.render();
-    fetchBuckets(renderBucketLst);
-    renderTable();
-
-
-    // JsT.get(templateFile, function(templates) {
-    //     wrapper.innerHTML = templates.manager.render();
-    //
-    //     fetchBuckets(renderBucketLst);
-    //     // renderBucketLst();
-    //     renderTable();
-    // });
+    renderBucketLst();
+    document.getElementById('bucket-lst').on('click', 'li', renderTable);
 }
 
-function renderTable() {
+function renderTable(e) {
     let table = document.getElementById('bucket-tbody');
+    let bucket = buckets.find(item => item.name === e.target.innerText);
 
-    JsT.get(templateFile, function(templates) {
+    for (let i = 0; i < bucket.passwords.length; i++) {
         table.innerHTML += templates.bucketTableRow.render({
-            location: "facebook",
-            description: "noget med facebook",
-            password: "123456"
+            location: passwords[i].location,
+            description: passwords[i].description,
+            password: passwords[i].password
         });
-    });
+    }
 }
 
 function renderBucketLst() {
     let lst = document.getElementById('bucket-lst');
 
-    JsT.get(templateFile, function(templates) {
-        lst.innerHTML = "";
-        buckets.forEach(item => {
-            lst.innerHTML += templates.bucketItem.render({
-                bucketName: item.name
-            });
+    lst.innerHTML = "";
+    buckets.forEach(item => {
+        lst.innerHTML += templates.bucketItem.render({
+            bucketName: item.name
         });
     });
 }
@@ -62,8 +47,14 @@ function renderBucketLst() {
 function authUser(ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    postForm("/login", form, user => {
-        console.log("logged in:", user);
+    postForm("/login", form, resp => {
+        currentUser = {
+            username: form.get('username'),
+            password : form.get('password')
+        };
+
+        console.log("logged in:", currentUser.username);
+        buckets = JSON.parse(resp);
         renderManager();
     }, (err, resp) => {
         console.log("could not log in:", resp);
@@ -71,26 +62,39 @@ function authUser(ev) {
 }
 
 // buckets
-function fetchBuckets(callback) {
-    ajaxPost('/bucket', JSON.stringify({"username": currentUser.username}), data => {
-        buckets = JSON.parse(data);
-        if (callback !== undefined) { callback(); }
+function updateBucket() {
+    let bucket = buckets.find(item => item.owner === "r5hej");
+    console.log(bucket.name);
+    ajaxPost('/bucket/update', JSON.stringify(bucket), data => {
+        console.log(data);
+        if (data === "success")
+            console.log("bucket updated");
+        else
+            console.log("bucket update failed");
     }, data => {
-        console.log("couldn't get bucket");
+            console.log("bucket update failed");
     });
 }
 
-function addBucket(username, bucketname, passwords) {
-    let bucket = new Object();
-    bucket.username = username;
-    bucket.name = bucketname;
-    bucket.passwords = passwords;
+function addBucket(bucketname) {
+    if (!bucketname) {
+        console.log("No given name for new bucket");
+        return;
+    }
+
+    let bucket = {
+        owner: currentUser.username,
+        name: bucketname,
+        passwords: []
+    };
 
     ajaxPost('/bucket/add', JSON.stringify(bucket), data => {
-        console.log("bucket added");
-        // if (json.response === 200) {
-        buckets.push(bucket);
-        // }
+        if (data === "success") {
+            console.log("bucket added");
+            buckets.push(bucket);
+        }
+        else
+            console.log("bucket was not added");
     }, data => {
         console.log("couldn't add bucket");
     });

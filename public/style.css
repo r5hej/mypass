@@ -1,5 +1,6 @@
 :root {
     --green: #14b208;
+    --green-hover: #17aa0b;
 }
 
 body {
@@ -72,6 +73,21 @@ li {
     width: 30px;
 }
 
+input.btn-submit[type=submit] {
+    background: var(--green);
+    border: none;
+    letter-spacing: unset;
+    text-transform: none;
+    font-weight: bold;
+    font-size: unset;
+    color: white;
+}
+
+input.btn-submit[type=submit]:hover {
+    background: var(--green-hover);
+    color: black;
+}
+
 .btn,
 .btn-add {
     border-radius: 4px;
@@ -94,7 +110,7 @@ li {
 .btn:hover,
 .btn-add:hover {
     color: black;
-    background-color: #17aa0b;
+    background-color: var(--green-hover);
 }
 
 .material-icons:hover {
