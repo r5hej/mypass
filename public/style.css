@@ -78,7 +78,8 @@ form {
     width: 30px;
 }
 
-input.btn-submit[type=submit] {
+input.btn-submit[type=submit],
+input.btn-submit[type=button] {
     background: var(--green);
     border: none;
     letter-spacing: unset;
@@ -89,7 +90,8 @@ input.btn-submit[type=submit] {
     margin-bottom: 0;
 }
 
-input.btn-submit[type=submit]:hover {
+input.btn-submit[type=submit]:hover,
+input.btn-submit[type=button]:hover {
     background: var(--green-hover);
     color: black;
 }
@@ -175,6 +177,7 @@ input.btn-submit[type=submit]:hover {
     transform: translate(-50%, -50%);
     padding: 10px;
     border-radius: 4px;
+    max-width: 450px;
 }
 figure.modalsjs-view {
     margin: 0;
@@ -224,7 +227,7 @@ figure.modalsjs-view {
 
 .modalsjs-bgc {
     /*background-color: #E0E0E0;*/
-    background: white;
+    background-color: white;
 }
 
 
@@ -238,7 +241,7 @@ figure.modalsjs-view {
 }
 
 .dropdown-content {
-    display: none;
+    display: block;
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;

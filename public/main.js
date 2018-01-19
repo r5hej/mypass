@@ -70,15 +70,22 @@ function renderBucketLst() {
     });
 }
 
-function renderDropdown(ev) {
-    // let lst = ev.target.parentNode;
-    let lst = ev.target;
-    lst.innerHTML = templates.dropdown.render();
+function renderDropdown(ev1) {
+    let dropdown = ev1.target.parentNode;
+    dropdown.getElementsByClassName('dropdown')[0].innerHTML = templates.dropdown.render();
 
-    document.getElementById('dropdown-content').classList.toggle("show-dropdown");
+    let row = ev1.target.parentNode.parentNode;
     document.getElementById('dropdown-lst').on('click', 'li', ev => {
-        if (ev.target.innerText === "Delete") {
-            deleteRowFromBucketModal();
+        switch (ev.target.innerText) {
+            case "Delete":
+                deleteRowFromBucketModal(row);
+                break;
+
+            case "Edit":
+                break;
+
+            case "Show":
+                break;
         }
     });
 }
@@ -104,12 +111,12 @@ function addPasswordModal() {
     });
 }
 
-function deleteRowFromBucketModal() {
+function deleteRowFromBucketModal(row) {
     ModalsJs.open(templates.deleteRowModal.render());
     document.getElementById('deleteConfirmationForm').on('click', 'input', ev => {
         ev.preventDefault();
         if (ev.target.value === "Yes")
-            deleteRowFromBucket();
+            deleteRowFromBucket(row);
         ModalsJs.close();
     });
 }
@@ -184,8 +191,16 @@ function addPassword(form) {
     renderTable();
 }
 
-function deleteRowFromBucket() {
-    console.log("delete row");
+function deleteRowFromBucket(row) {
+    let location = row.querySelector('td[name=location]').innerText;
+    let bucketIndex;
+    activeBucket.passwords.findIndex((item, index) => {
+        if (item.location === location)
+            bucketIndex = index;
+    });
+
+    activeBucket.passwords.splice(bucketIndex, 1);
+    renderTable();
 }
 
 // Wrapper functions
@@ -243,15 +258,11 @@ JsT.get(templateFile, tmpl => {
 });
 
 // needs fixing
-window.onclick = function(event) {
-    if (!event.target.matches('i.material-icons')) {
-
-        let dropdowns = document.getElementsByClassName("dropdown-content");
+window.onclick = function(ev) {
+    if (!ev.target.matches('i.material-icons')) {
+        let dropdowns = document.getElementsByClassName("dropdown");
         for (let i = 0; i < dropdowns.length; i++) {
-            let openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show-dropdown')) {
-                openDropdown.classList.remove('show-dropdown');
-            }
+            dropdowns[i].innerHTML = "";
         }
     }
 };

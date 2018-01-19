@@ -9,6 +9,8 @@
 <template id="manager">
     <div class="three columns bucket-lst">
         <div class="btn-row">
+            <!--<div class="btn-update">Delete</div>-->
+            <!--<div class="btn-update">Update</div>-->
             <div id="add-bucket-btn" class="btn-add">Add</div>
         </div>
         <ul id="bucket-lst" class="u-full-width box"></ul>
@@ -38,12 +40,12 @@
 
 <template id="bucketTableRow">
     <tr>
-        <td>{{ location }}</td>
-        <td>{{ description }}</td>
-        <td>{{ password }}</td>
+        <td name="location">{{ location }}</td>
+        <td name="description">{{ description }}</td>
+        <td name="password">{{ password }}</td>
         <td class="hasDropdown">
-            <div class="dropdown"></div>
             <i class="material-icons">more_horiz</i>
+            <div class="dropdown"></div>
         </td>
     </tr>
 </template>
@@ -51,7 +53,7 @@
 <template id="bucketModal">
     <h5>Add a new bucket</h5>
     <form id="add-bucket-form">
-        <input class="u-full-width" type="text" name="bucketName" placeholder="Bucketname" required="required">
+        <input class="u-full-width" type="text" name="bucketName" placeholder="Bucket name" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
@@ -77,6 +79,7 @@
 <template id="dropdown">
     <div id="dropdown-content" class="dropdown-content">
         <ul id="dropdown-lst">
+            <li>Show</li>
             <li>Edit</li>
             <li>Delete</li>
         </ul>
