@@ -30,7 +30,8 @@ app.post('/login', (req, res) => {
 
 app.post('/bucket/add', (req, res) => {
     buckets.addNewBucket(req.fields, result => {
-        res.send(JSON.stringify(result ? "success" : "failed"));
+        console.log(result.ops[0]._id);
+        res.send(JSON.stringify(result ? result.ops[0]._id : "failed"))
     });
 });
 

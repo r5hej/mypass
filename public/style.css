@@ -1,6 +1,7 @@
 :root {
     --green: #14b208;
     --green-hover: #17aa0b;
+    --red-hover: #b71c1c;
 }
 
 body {
@@ -24,6 +25,10 @@ li {
     margin-bottom: 0;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+
+form {
+    margin-bottom: 0;
 }
 
 .container {
@@ -81,6 +86,7 @@ input.btn-submit[type=submit] {
     font-weight: bold;
     font-size: unset;
     color: white;
+    margin-bottom: 0;
 }
 
 input.btn-submit[type=submit]:hover {
@@ -89,17 +95,20 @@ input.btn-submit[type=submit]:hover {
 }
 
 .btn,
+.btn-update,
 .btn-add {
     border-radius: 4px;
     background-color: var(--green);
     color: white;
     font-weight: bold;
     cursor: pointer;
-    padding: 6px;
+    padding: 6px 10px 6px 10px;
     text-align: center;
 }
 
+.btn-update,
 .btn-add {
+    display: inline-block;
     margin-bottom: 10px;
     margin-top: 10px;
     margin-left: auto;
@@ -107,14 +116,23 @@ input.btn-submit[type=submit]:hover {
     right: 0;
 }
 
+.btn-update {
+    margin-right: 10px;
+}
+
 .btn:hover,
+.btn-update:hover,
 .btn-add:hover {
     color: black;
     background-color: var(--green-hover);
 }
 
+.btn-row {
+    float: right;
+}
+
 .material-icons:hover {
-    color: red;
+    color: #616161;
     cursor: pointer;
 }
 
@@ -130,53 +148,139 @@ input.btn-submit[type=submit]:hover {
 }
 
 /*modal */
-.modal-window {
+.modalsjs-container {
     position: fixed;
-    background-color: rgba(255, 255, 255, 0.15);
+    z-index: 999;
+    left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    left: 0;
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    transition: all 0.3s;
 }
 
-.modal-window > div {
-    width: 400px;
-    position: relative;
-    margin: 10% auto;
-    padding: 2rem;
-    background: #fff;
-    color: #444;
+.modalsjs-backblur {
+    position: fixed;
+    background-color: #0b0b0b;
+    opacity: 0.4;
+    height: 100%;
+    width: 100%;
+}
+
+.modalsjs-view {
+    z-index: 1000;
+    position: fixed;
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+    left: 50%;
+    top: 25%;
+    /*top: 50%;*/
+    transform: translate(-50%, -50%);
+    padding: 10px;
     border-radius: 4px;
-    box-shadow: 10px 10px 39px -8px rgba(0,0,0,0.75);
+}
+figure.modalsjs-view {
+    margin: 0;
 }
 
-.modal-window header {
-    font-weight: bold;
+.modalsjs-shadow {
+    -webkit-box-shadow: 0 0 24px 0 rgba(0,0,0,0.75);
+    -moz-box-shadow: 0 0 24px 0 rgba(0,0,0,0.75);
+    box-shadow: 0 0 24px 0 rgba(0,0,0,0.75);
 }
 
-.modal-close {
-    /*color: #aaa;*/
-    line-height: 50px;
-    /*font-size: 80%;*/
+.modalsjs-closebutton {
+    /*margin-top: -5px;*/
+    /*margin-right: -5px;*/
+    margin-left: 50px;
+    /*color: #9E9E9E;*/
+    float: right;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: background-color 150ms;
+    font-size: 1.8rem;
+    line-height: 1.2rem;
+}
+
+.modalsjs-closebutton:hover{
+    transition: color 200ms;
+    color: #616161;
+    /*color: red;*/
+}
+
+.modalsjs-warning-text {
+    display: block;
+    margin-bottom: 15px;
+}
+.modalsjs-warning-yes, .modalsjs-warning-no {
+    float: right;
+    margin-left: 8px;
+}
+
+.modalsjs-content {
+    min-width: 300px;
+    min-height: 100px;
+}
+
+.modalsjs-bgc {
+    /*background-color: #E0E0E0;*/
+    background: white;
+}
+
+
+/* maybe delete, dropdown */
+/* The container <div> - needed to position the dropdown content */
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
     position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    /*overflow: auto;*/
+    /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+    box-shadow: 8px 8px 45px -5px rgba(0,0,0,0.75);
+    z-index: 1;
+    border-radius: 4px;
     right: 0;
-    text-align: center;
-    top: 0;
-    width: 70px;
-    /*text-decoration: none;*/
 }
 
-/*.modal-close:hover {*/
-/*color: #000;*/
-/*}*/
+.dropdown-content > ul {
+    margin-bottom: 0;
+}
 
-.modal-window h1 {
-    font-size: 150%;
-    margin: 0 0 15px;
+.dropdown-content > ul > li:hover {
+    background-color: var(--green-hover);
+    color: white;
+    cursor: pointer;
+}
+
+.dropdown-content > ul > li:hover:first-child {
+    border-radius: 4px 4px 0 0;
+}
+
+.dropdown-content > ul > li:hover:last-child {
+    background: var(--red-hover);
+    border-radius: 0 0 4px 4px;
+}
+
+.dropdown-content > ul > li {
+    color: black;
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #D1D1D1D1;
+}
+
+.dropdown-content > ul > li:last-child {
+    border-bottom: 0;
+}
+
+.show-dropdown {
+    display: block;
 }

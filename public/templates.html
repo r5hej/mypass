@@ -2,17 +2,22 @@
     <form id="login-form" class="login">
         <input class="u-full-width" name="username" type="text" placeholder="Username" required="required">
         <input class="u-full-width" name="password" type="password" placeholder="Password" required="required">
-        <input class="u-full-width btn-submit" type="submit" value="Login" class="button-primary">
+        <input class="u-full-width btn-submit" type="submit" value="Login">
     </form>
 </template>
 
 <template id="manager">
     <div class="three columns bucket-lst">
-        <div id="add-bucket-btn" class="btn-add">Add</div>
-        <ul id="bucket-lst" class="box"></ul>
+        <div class="btn-row">
+            <div id="add-bucket-btn" class="btn-add">Add</div>
+        </div>
+        <ul id="bucket-lst" class="u-full-width box"></ul>
     </div>
     <div class="nine columns">
-        <div id="add-password-btn" class="btn-add">Add</div>
+        <div class="btn-row">
+            <div id="update-bucket-btn" class="btn-update">Update</div>
+            <div id="add-password-btn" class="btn-add">Add</div>
+        </div>
         <table class="u-full-width bucket-table box">
             <thead>
             <tr>
@@ -36,6 +41,44 @@
         <td>{{ location }}</td>
         <td>{{ description }}</td>
         <td>{{ password }}</td>
-        <td><i class="material-icons">clear</i></td>
+        <td class="hasDropdown">
+            <div class="dropdown"></div>
+            <i class="material-icons">more_horiz</i>
+        </td>
     </tr>
+</template>
+
+<template id="bucketModal">
+    <h5>Add a new bucket</h5>
+    <form id="add-bucket-form">
+        <input class="u-full-width" type="text" name="bucketName" placeholder="Bucketname" required="required">
+        <input class="u-full-width btn-submit" type="submit" value="Add">
+    </form>
+</template>
+
+<template id="passwordModal">
+    <h5>Add a new password</h5>
+    <form id="add-password-form">
+        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required">
+        <input class="u-full-width" type="text" name="description" placeholder="Description">
+        <input class="u-full-width" type="text" name="password" placeholder="Password" required="required">
+        <input class="u-full-width btn-submit" type="submit" value="Add">
+    </form>
+</template>
+
+<template id="deleteRowModal">
+    <h5>Are you sure?</h5>
+    <form id="deleteConfirmationForm">
+        <input class="six columns btn-submit" type="button" value="No">
+        <input class="six columns btn-submit" type="button" value="Yes">
+    </form>
+</template>
+
+<template id="dropdown">
+    <div id="dropdown-content" class="dropdown-content">
+        <ul id="dropdown-lst">
+            <li>Edit</li>
+            <li>Delete</li>
+        </ul>
+    </div>
 </template>
