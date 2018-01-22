@@ -1,10 +1,14 @@
 "use strict";
 
 const templateFile = "templates.html";
+const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
+// const hiddenString = "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull";
 let currentUser;
 let buckets;
 let templates;
 let activeBucket;
+let isActiveDropdown = false;
+let isEditableContent = false;
 let wrapper = document.getElementById("wrapper");
 
 
@@ -30,7 +34,6 @@ function renderManager() {
         }
 
         activeBucket = bucket;
-
         for (let node of lst.childNodes) {
             if (node.innerText === activeBucket.name) {
                 node.style.backgroundColor = "#14b208";
@@ -53,7 +56,8 @@ function renderTable() {
         table.innerHTML += templates.bucketTableRow.render({
             location: activeBucket.passwords[i].location,
             description: activeBucket.passwords[i].description,
-            password: activeBucket.passwords[i].password
+            password: hiddenPwd
+            // password: activeBucket.passwords[i].password
         });
     }
     table.on('click', 'i.material-icons', renderDropdown);
@@ -72,6 +76,7 @@ function renderBucketLst() {
 
 function renderDropdown(ev1) {
     let dropdown = ev1.target.parentNode;
+    isActiveDropdown = true;
     dropdown.getElementsByClassName('dropdown')[0].innerHTML = templates.dropdown.render();
 
     let row = ev1.target.parentNode.parentNode;
@@ -82,9 +87,11 @@ function renderDropdown(ev1) {
                 break;
 
             case "Edit":
+                makeRowEditable(row);
                 break;
 
-            case "Show":
+            case "Show/Hide":
+                toggleShowHide(row);
                 break;
         }
     });
@@ -151,6 +158,32 @@ function updateBucket() {
     });
 }
 
+function toggleShowHide(row) {
+    let pwdField = row.querySelector('td[name=password]');
+
+    if (!(pwdField.innerText === hiddenPwd)) {
+        pwdField.innerText = hiddenPwd;
+        return;
+    }
+
+    let location = row.querySelector('td[name=location]').innerText;
+    let password = activeBucket.passwords.find(item => item.location === location).password;
+
+    pwdField.innerText = password;
+}
+
+
+function updateActiveBucketRow(row) {
+    let location = row.querySelector('td[name=location]').innerText;
+    let desc = row.querySelector('td[name=description]').innerText;
+    let password = row.querySelector('td[name=password]').innerText;
+    let index = activeBucket.passwords.findIndex(item => item.location === location);
+
+    activeBucket.passwords[index].location = location;
+    activeBucket.passwords[index].description = desc;
+    activeBucket.passwords[index].password = password;
+}
+
 function addBucket(bucketname) {
     if (!bucketname) {
         console.log("No name given for new bucket");
@@ -201,6 +234,13 @@ function deleteRowFromBucket(row) {
 
     activeBucket.passwords.splice(bucketIndex, 1);
     renderTable();
+}
+
+function makeRowEditable(row) {
+    row.querySelector('td[name=location]').setAttribute('contenteditable', 'true');
+    row.querySelector('td[name=description]').setAttribute('contenteditable', 'true');
+    row.querySelector('td[name=password]').setAttribute('contenteditable', 'true');
+    isEditableContent = true;
 }
 
 // Wrapper functions
@@ -259,10 +299,23 @@ JsT.get(templateFile, tmpl => {
 
 // needs fixing
 window.onclick = function(ev) {
-    if (!ev.target.matches('i.material-icons')) {
-        let dropdowns = document.getElementsByClassName("dropdown");
-        for (let i = 0; i < dropdowns.length; i++) {
-            dropdowns[i].innerHTML = "";
+    if (isActiveDropdown) {
+        if (!ev.target.matches('i.material-icons')) {
+            let dropdowns = document.getElementsByClassName("dropdown");
+            for (let i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].innerHTML = "";
+            }
+            isActiveDropdown = false;
+        }
+    }
+    if (isEditableContent) {
+        if (!ev.target.matches('td[contenteditable=true]') && !ev.target.matches('ul#dropdown-lst > li')) {
+            let cells = document.querySelectorAll('td[contenteditable=true]');
+            for (let i = 0; i < cells.length; i++) {
+                cells[i].removeAttribute('contenteditable');
+            }
+            isEditableContent = false;
+            updateActiveBucketRow(cells[0].parentNode);
         }
     }
 };
