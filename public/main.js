@@ -2,8 +2,7 @@
 
 const templateFile = "templates.html";
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
-// const hiddenString = "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull";
-let currentUser;
+let currentUser = {};
 let buckets;
 let templates;
 let activeBucket;
@@ -15,34 +14,12 @@ let wrapper = document.getElementById("wrapper");
 // Functions to render template content
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
-    document.getElementById('login-form').addEventListener('submit', authUser);
+    document.getElementById('login-form').addEventListener('submit', login);
 }
 
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
     renderBucketLst();
-    document.getElementById('bucket-lst').on('click', 'li', ev => {
-        let bucket = buckets.find(item => item.name === ev.target.innerText);
-
-        let lst = document.getElementById('bucket-lst');
-        if (activeBucket) {
-            for (let node of lst.childNodes) {
-                if (node.innerText === activeBucket.name) {
-                    node.removeAttribute('style');
-                }
-            }
-        }
-
-        activeBucket = bucket;
-        for (let node of lst.childNodes) {
-            if (node.innerText === activeBucket.name) {
-                node.style.backgroundColor = "#14b208";
-                node.style.color = "white";
-            }
-        }
-
-        renderTable();
-    });
     document.getElementById('add-bucket-btn').addEventListener('click', addBucketModal);
     document.getElementById('update-bucket-btn').addEventListener('click', updateBucket);
     document.getElementById('add-password-btn').addEventListener('click', addPasswordModal);
@@ -50,28 +27,42 @@ function renderManager() {
 
 function renderTable() {
     let table = document.getElementById('bucket-tbody');
-    table.innerHTML = "";
 
+    let html = "";
     for (let i = 0; i < activeBucket.passwords.length; i++) {
-        table.innerHTML += templates.bucketTableRow.render({
+        html += templates.bucketTableRow.render({
             location: activeBucket.passwords[i].location,
             description: activeBucket.passwords[i].description,
             password: hiddenPwd
             // password: activeBucket.passwords[i].password
         });
     }
+    table.innerHTML = html;
     table.on('click', 'i.material-icons', renderDropdown);
 }
 
 function renderBucketLst() {
     let lst = document.getElementById('bucket-lst');
-
-    lst.innerHTML = "";
-    buckets.forEach(item => {
-        lst.innerHTML += templates.bucketItem.render({
-            bucketName: item.name
-        });
+    let html = "";
+    buckets.forEach(bucket => {
+        html += templates.bucketItem.render(bucket);
     });
+    lst.innerHTML = html;
+
+    lst.on('click', 'li', ev => {
+        let element = ev.target;
+        let bucket = buckets.find(item => item._id === element.dataset.id);
+        console.log(bucket);
+
+        if (activeBucket)
+            lst.querySelector(".selected").classList.remove("selected");
+
+        activeBucket = bucket;
+        element.classList.add("selected");
+
+        renderTable();
+    });
+
 }
 
 function renderDropdown(ev1) {
@@ -82,11 +73,11 @@ function renderDropdown(ev1) {
     let row = ev1.target.parentNode.parentNode;
     document.getElementById('dropdown-lst').on('click', 'li', ev => {
         switch (ev.target.innerText) {
-            case "Delete":
+            case "delete_forever":
                 deleteRowFromBucketModal(row);
                 break;
 
-            case "Edit":
+            case "mode_edit":
                 makeRowEditable(row);
                 break;
 
@@ -113,8 +104,7 @@ function addPasswordModal() {
     let form = document.getElementById('add-password-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
-        let formData = new FormData(form);
-        addPassword(formData);
+        addPassword(new FormData(form));
     });
 }
 
@@ -128,33 +118,58 @@ function deleteRowFromBucketModal(row) {
     });
 }
 
-// Login
-function authUser(ev) {
+function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    postForm("/login", form, resp => {
-        currentUser = {
-            username: form.get('username'),
-            password : form.get('password')
-        };
-
-        console.log("logged in:", currentUser.username);
-        buckets = JSON.parse(resp);
-        renderManager();
-    }, (err, resp) => {
-        console.log("could not log in:", resp);
+    currentUser.username = form.get("username");
+    currentUser.password = form.get("password");
+    postForm("/login", form, () => {
+        loadBuckets();
+    }, () => {
+        this.reset();
     });
 }
 
+function logout() {
+    ajaxPost("/logout", null, () => {
+        buckets = [];
+        activeBucket = null;
+        currentUser = {};
+        renderLogin();
+    }, () => console.log("could not log out"))
+
+}
+
 // buckets
+function loadBuckets() {
+    ajaxGet("/buckets", resp => {
+        buckets = JSON.parse(resp);
+        renderManager();
+    }, () => {
+        renderLogin();
+    });
+}
+
 function updateBucket() {
-    ajaxPost('/bucket/update', JSON.stringify(activeBucket), data => {
-        if (data === "success")
-            console.log("bucket updated");
-        else
-            console.log("bucket update failed");
+    ajaxPost('/buckets/update', JSON.stringify(activeBucket), data => {
+        console.log("bucket updated");
     }, data => {
             console.log("bucket update failed");
+    });
+}
+function addBucket(bucketname)  {
+    let bucket = {
+        name: bucketname,
+        passwords: []
+    };
+
+    ModalsJs.close();
+    ajaxPost('/buckets/add', JSON.stringify(bucket), data => {
+        bucket = JSON.parse(data);
+        buckets.push(bucket);
+        renderBucketLst();
+    }, () => {
+        console.log("couldn't add bucket");
     });
 }
 
@@ -184,32 +199,6 @@ function updateActiveBucketRow(row) {
     activeBucket.passwords[index].password = password;
 }
 
-function addBucket(bucketname) {
-    if (!bucketname) {
-        console.log("No name given for new bucket");
-        return;
-    }
-
-    let bucket = {
-        owner: currentUser.username,
-        name: bucketname,
-        passwords: []
-    };
-
-    ModalsJs.close();
-    ajaxPost('/bucket/add', JSON.stringify(bucket), data => {
-        if (data !== "failed") {
-            console.log("bucket added");
-            bucket._id = data;
-            buckets.push(bucket);
-            renderBucketLst();
-        }
-        else
-            console.log("bucket was not added");
-    }, data => {
-        console.log("couldn't add bucket");
-    });
-}
 
 function addPassword(form) {
     let newPwd = {
@@ -243,6 +232,12 @@ function makeRowEditable(row) {
     isEditableContent = true;
 }
 
+function createElement(tag, cls, html) {
+    let element = document.createElement(tag);
+    element.className = cls;
+    if (html) element.innerHTML = html;
+    return element;
+}
 // Wrapper functions
 function postForm(url, form, success, error) {
     let xhr = new XMLHttpRequest();
@@ -279,22 +274,25 @@ function ajaxPost(url, data, success, error) {
 
 function ajaxGet(url, success, error) {
     let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
+    xhr.open("GET", url, true);
+    xhr.onload = function (e) {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 success(xhr.responseText);
             } else {
-                error(xhr.responseText);
+                error(xhr.statusText);
             }
         }
     };
-    xhr.open('GET', url, true);
-    return xhr;
+    xhr.onerror = function (e) {
+        error(xhr.statusText);
+    };
+    xhr.send(null);
 }
 
 JsT.get(templateFile, tmpl => {
     templates = tmpl;
-    renderLogin();
+    loadBuckets();
 });
 
 // needs fixing

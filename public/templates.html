@@ -35,7 +35,7 @@
 </template>
 
 <template id="bucketItem">
-    <li>{{ bucketName }}</li>
+    <li data-id="{{ _id }}">{{ name }}</li>
 </template>
 
 <template id="bucketTableRow">
@@ -80,8 +80,8 @@
     <div id="dropdown-content" class="dropdown-content">
         <ul id="dropdown-lst">
             <li>Show/Hide</li>
-            <li>Edit</li>
-            <li>Delete</li>
+            <li class="material-icons">mode_edit</li>
+            <li class="material-icons">delete_forever</li>
         </ul>
     </div>
 </template>

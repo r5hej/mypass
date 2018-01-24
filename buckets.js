@@ -16,12 +16,12 @@ async function getUsersBuckets(username) {
     return bucketArray;
 }
 
-async function updateBucket(data,) {
+async function updateBucket(data, username) {
     let db = await MongoClient.connect(config.mongoURL);
     let collection = db.db("mypass").collection("buckets");
     let newData = {
         $set: {
-            owner: data.owner,
+            owner: username,
             name: data.name,
             passwords: data.passwords
         }
@@ -33,13 +33,14 @@ async function updateBucket(data,) {
 }
 
 // needs to return bucket id
-async function addNewBucket(bucket) {
+async function addNewBucket(bucket, username) {
     let db = await MongoClient.connect(config.mongoURL);
     let collection = db.db("mypass").collection("buckets");
-    let result = await collection.insertOne(bucket).toArray();
+    bucket.owner = username;
+    let result = await collection.insertOne(bucket);
 
     db.close();
-    return result;
+    return result.ops[0];
 }
 
 

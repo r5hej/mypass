@@ -46,6 +46,10 @@ form {
     min-height: 34px;
     max-height: 700px;
 }
+#bucket-lst li.selected {
+    background-color: #14b208;
+    color: white;
+}
 
 .bucket-lst > ul {
     list-style: none;
@@ -143,7 +147,7 @@ input.btn-submit[type=button]:hover {
     text-align: center;
 }
 
-.login {
+#login-form {
     margin: auto;
     padding: 20px;
     max-width: 600px;
@@ -286,4 +290,30 @@ figure.modalsjs-view {
 
 .show-dropdown {
     display: block;
+}
+
+#loading {
+    color: #dcdcdc;
+    font-size: 60px;
+    z-index: 2;
+    position: fixed;
+    left: calc(50% - 30px);
+    top: calc(30% - 30px);
+    transform: translate(-50%, -50%);
+    animation-name: spin;
+    animation-duration: 1000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
 }
