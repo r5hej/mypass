@@ -21,7 +21,8 @@
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "express-formidable": "^1.0.0",
+    "express-yields": "^1.1.2",
     "mongodb": "^3.0.1"
-    "express-formidable": "^1.0.0"
   }
 }

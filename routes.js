@@ -1,40 +1,37 @@
 "use strict";
 
 const express = require('express');
-// const bodyparser = require('body-parser');
+const yields = require('express-yields');
 const formidable = require('express-formidable');
 const auth = require('./authentication.js');
 const buckets = require('./buckets.js');
-const path = require('path');
 
 const app = express();
 app.use(express.static('public'));
-// app.use(express.static(path.join(__dirname, 'public')));
 app.use(formidable());
 
-// app.use(bodyparser.json());
-// app.use(bodyparser.urlencoded({ extended: false}));
-
-
-app.post('/login', (req, res) => {
-    auth.authUser(req.fields.username, req.fields.password, result => {
-        if (result)
-            buckets.getUsersBuckets(req.fields.username, buckets => {
-                res.send(buckets);
-            });
-        else
-            res.sendStatus(401);
-    });
+app.post('/login', async (req, res) => {
+    console.log("login", req.fields.username);
+    let user = await auth.authUser(req.fields.username, req.fields.password);
+    console.log(user.username);
+    if (user){
+        let bucketData = await buckets.getUsersBuckets(user.username);
+        res.send(bucketData);
+    }
+    else
+        res.sendStatus(401);
 });
 
-
-app.post('/bucket/add', (req, res) => {
+app.post('/bucket/add', async (req, res) => {
+    let bucket = await buckets.addNewBucket(req.fields);
+    if (bucket)
+        res.send(bucket.ops[0]._id);
     buckets.addNewBucket(req.fields, result => {
         res.send(JSON.stringify(result ? result.ops[0]._id : "failed"))
     });
 });
 
-app.post('/bucket/update', (req, res) => {
+app.post('/bucket/update', async (req, res) => {
     buckets.updateBucket(req.fields, result => {
         res.send(JSON.stringify(result ? "success" : "failed"));
     });
