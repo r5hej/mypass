@@ -23,6 +23,10 @@ function renderManager() {
     document.getElementById('add-bucket-btn').addEventListener('click', addBucketModal);
     document.getElementById('update-bucket-btn').addEventListener('click', updateBucket);
     document.getElementById('add-password-btn').addEventListener('click', addPasswordModal);
+    let table = document.getElementById('bucket-tbody');
+
+    table.on('click', 'i.more-button', renderDropdown);
+    table.on('click', 'i.show-password', toggleShowHide);
 }
 
 function renderTable() {
@@ -38,8 +42,6 @@ function renderTable() {
         });
     }
     table.innerHTML = html;
-    table.on('click', 'i.dropdown', renderDropdown);
-    table.on('click', 'i.show-password', toggleShowHide);
 }
 
 function renderBucketLst() {
@@ -80,10 +82,6 @@ function renderDropdown(ev1) {
 
             case "mode_edit":
                 makeRowEditable(row);
-                break;
-
-            case "Show/Hide":
-                // toggleShowHide(row);
                 break;
         }
     });
@@ -185,7 +183,6 @@ function toggleShowHide(ev) {
 
     let location = row.querySelector('td[name=location]').innerText;
     let password = activeBucket.passwords.find(item => item.location === location).password;
-
     pwdField.innerText = password;
 }
 
@@ -300,8 +297,8 @@ JsT.get(templateFile, tmpl => {
 // needs fixing
 window.onclick = function(ev) {
     if (isActiveDropdown) {
-        if (!ev.target.matches('i.dropdown')) {
-            let dropdowns = document.getElementsByClassName("dropdown");
+        if (!ev.target.matches('i.more-button')) {
+            let dropdowns = document.getElementsByClassName('dropdown');
             for (let i = 0; i < dropdowns.length; i++) {
                 dropdowns[i].innerHTML = "";
             }

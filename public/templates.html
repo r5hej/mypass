@@ -42,9 +42,9 @@
     <tr>
         <td name="location">{{ location }}</td>
         <td name="description">{{ description }}</td>
-        <td name="password"><span name="password">{{ password }}</span><i class="material-icons show-password">remove_red_eye</i></td>
+        <td><span name="password">{{ password }}</span><i class="material-icons show-password">remove_red_eye</i></td>
         <td>
-            <i class="material-icons dropdown">more_horiz</i>
+            <i class="material-icons more-button">more_horiz</i>
             <div class="dropdown"></div>
         </td>
     </tr>
@@ -79,7 +79,6 @@
 <template id="dropdown">
     <div id="dropdown-content" class="dropdown-content">
         <ul id="dropdown-lst">
-            <li>Show/Hide</li>
             <li class="material-icons">mode_edit</li>
             <li class="material-icons">delete_forever</li>
         </ul>
