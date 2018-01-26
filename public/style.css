@@ -153,6 +153,10 @@ input.btn-submit[type=button]:hover {
     max-width: 600px;
 }
 
+.show-password {
+    float: right;
+}
+
 /*modal */
 .modalsjs-container {
     position: fixed;
@@ -183,6 +187,7 @@ input.btn-submit[type=button]:hover {
     border-radius: 4px;
     max-width: 450px;
 }
+
 figure.modalsjs-view {
     margin: 0;
 }
@@ -233,11 +238,6 @@ figure.modalsjs-view {
     /*background-color: #E0E0E0;*/
     background-color: white;
 }
-
-
-/* maybe delete, dropdown */
-/* The container <div> - needed to position the dropdown content */
-
 
 .dropdown {
     position: relative;

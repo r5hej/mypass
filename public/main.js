@@ -38,7 +38,8 @@ function renderTable() {
         });
     }
     table.innerHTML = html;
-    table.on('click', 'i.material-icons', renderDropdown);
+    table.on('click', 'i.dropdown', renderDropdown);
+    table.on('click', 'i.show-password', toggleShowHide);
 }
 
 function renderBucketLst() {
@@ -82,7 +83,7 @@ function renderDropdown(ev1) {
                 break;
 
             case "Show/Hide":
-                toggleShowHide(row);
+                // toggleShowHide(row);
                 break;
         }
     });
@@ -173,8 +174,9 @@ function addBucket(bucketname)  {
     });
 }
 
-function toggleShowHide(row) {
-    let pwdField = row.querySelector('td[name=password]');
+function toggleShowHide(ev) {
+    let row = ev.target.parentNode.parentNode;
+    let pwdField = row.querySelector('span[name=password]');
 
     if (!(pwdField.innerText === hiddenPwd)) {
         pwdField.innerText = hiddenPwd;
@@ -298,7 +300,7 @@ JsT.get(templateFile, tmpl => {
 // needs fixing
 window.onclick = function(ev) {
     if (isActiveDropdown) {
-        if (!ev.target.matches('i.material-icons')) {
+        if (!ev.target.matches('i.dropdown')) {
             let dropdowns = document.getElementsByClassName("dropdown");
             for (let i = 0; i < dropdowns.length; i++) {
                 dropdowns[i].innerHTML = "";
