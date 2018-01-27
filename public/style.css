@@ -4,7 +4,9 @@
     --red-hover: #b71c1c;
 }
 
-body {
+body, html {
+    height: 100%;
+    width: 100%;
     background-color: #263238;
 }
 
@@ -316,4 +318,39 @@ figure.modalsjs-view {
 @keyframes spin {
     from {transform:rotate(0deg);}
     to {transform:rotate(360deg);}
+}
+
+
+.dropdown-menu {
+    user-select: none;
+    position: fixed;
+}
+.dropdown-menu {
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+    padding: 0;
+}
+
+/* Each of the items in the list */
+.dropdown-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all .3s ease;
+    user-select: none;
+}
+
+.dropdown-menu li:hover {
+    background-color: #DEF;
+}
+
+.dropdown-menu.active {
+    display: inherit;
 }

@@ -10,7 +10,7 @@ let isActiveDropdown = false;
 let isEditableContent = false;
 let wrapper = document.getElementById("wrapper");
 
-
+let dropdown = false;
 // Functions to render template content
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
@@ -25,9 +25,30 @@ function renderManager() {
     document.getElementById('add-password-btn').addEventListener('click', addPasswordModal);
     let table = document.getElementById('bucket-tbody');
 
+    dropdown = document.getElementById("bucket-dropdown");
+    dropdown.on("click", "li", ev => {
+        let id = dropdown.item;
+        switch (ev.target.dataset.action){
+            case "name":
+                console.log(id, "edit name");
+                break;
+            case "delete":
+                console.log(id, "delete");
+                break;
+        }
+        dropdown.classList.remove("active");
+        dropdown.item = null;
+    });
+    document.body.addEventListener("click", () => {
+        if (dropdown.item !== null){
+            dropdown.classList.remove("active");
+            dropdown.item = null
+        }
+    });
     table.on('click', 'i.more-button', renderDropdown);
     table.on('click', 'i.show-password', toggleShowHide);
 }
+
 
 function renderTable() {
     let table = document.getElementById('bucket-tbody');
@@ -65,7 +86,13 @@ function renderBucketLst() {
 
         renderTable();
     });
-
+    lst.on("contextmenu", "li", ev => {
+        ev.preventDefault();
+        dropdown.style.top = ev.pageY + "px";
+        dropdown.style.left = ev.pageX + "px";
+        dropdown.classList.add("active");
+        dropdown.item = ev.target.dataset.id;
+    });
 }
 
 function renderDropdown(ev1) {
@@ -117,9 +144,13 @@ function deleteRowFromBucketModal(row) {
     });
 }
 
+let enc, dec;
 function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
+    let pwd = form.get("password");
+    enc = s => s;
+    dec = s => s;
     currentUser.username = form.get("username");
     currentUser.password = form.get("password");
     postForm("/login", form, () => {
@@ -206,8 +237,7 @@ function addPassword(form) {
         password: form.get('password')
     };
 
-    let bucket = buckets.find(item => item._id === activeBucket._id);
-    bucket.passwords.push(newPwd);
+    activeBucket.passwords.push(newPwd);
     ModalsJs.close();
     renderTable();
 }

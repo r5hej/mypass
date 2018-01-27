@@ -12,6 +12,11 @@
             <!--<div class="btn-update">Delete</div>-->
             <!--<div class="btn-update">Update</div>-->
             <div id="add-bucket-btn" class="btn-add">Add</div>
+
+            <ul id="bucket-dropdown" class="dropdown-menu inactive">
+                <li data-action="name">Edit bucket name</li>
+                <li data-action="delete">Delete bucket</li>
+            </ul>
         </div>
         <ul id="bucket-lst" class="u-full-width box"></ul>
     </div>
@@ -63,6 +68,7 @@
     <form id="add-password-form">
         <input class="u-full-width" type="text" name="location" placeholder="Location" required="required">
         <input class="u-full-width" type="text" name="description" placeholder="Description">
+        <input class="u-full-width" type="text" name="username" placeholder="Username" required="required">
         <input class="u-full-width" type="text" name="password" placeholder="Password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
@@ -83,4 +89,9 @@
             <li class="material-icons">delete_forever</li>
         </ul>
     </div>
+</template>
+
+<template id="dropdown2">
+    <li data-action="name">Edit bucket name</li>
+    <li data-action="delete">Delete bucket</li>
 </template>
