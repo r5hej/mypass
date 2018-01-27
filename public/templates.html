@@ -9,11 +9,9 @@
 <template id="manager">
     <div class="three columns bucket-lst">
         <div class="btn-row">
-            <!--<div class="btn-update">Delete</div>-->
-            <!--<div class="btn-update">Update</div>-->
             <div id="add-bucket-btn" class="btn-add">Add</div>
 
-            <ul id="bucket-dropdown" class="dropdown-menu inactive">
+            <ul id="bucket-dropdown" class="dropdown-menu">
                 <li data-action="name">Edit bucket name</li>
                 <li data-action="delete">Delete bucket</li>
             </ul>
@@ -31,11 +29,15 @@
                 <th>Location</th>
                 <th>Description</th>
                 <th>Password</th>
-                <th></th>
+                <th style="width: 34px;"></th>
             </tr>
             </thead>
             <tbody id="bucket-tbody"></tbody>
         </table>
+        <ul id="password-dropdown" class="dropdown-menu">
+            <li data-action="edit" class="material-icons">mode_edit</li>
+            <li data-action="delete" class="material-icons">delete_forever</li>
+        </ul>
     </div>
 </template>
 
@@ -47,10 +49,12 @@
     <tr>
         <td name="location">{{ location }}</td>
         <td name="description">{{ description }}</td>
-        <td><span name="password">{{ password }}</span><i class="material-icons show-password">remove_red_eye</i></td>
+        <td>
+            <span name="password">{{ password }}</span>
+            <i class="material-icons show-password">remove_red_eye</i>
+        </td>
         <td>
             <i class="material-icons more-button">more_horiz</i>
-            <div class="dropdown"></div>
         </td>
     </tr>
 </template>

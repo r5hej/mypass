@@ -10,20 +10,45 @@ let isActiveDropdown = false;
 let isEditableContent = false;
 let wrapper = document.getElementById("wrapper");
 
-let dropdown = false;
+let dropdown, passwordDropdown;
 // Functions to render template content
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
     document.getElementById('login-form').addEventListener('submit', login);
 }
-
+let mainTable, bucketList;
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
-    renderBucketLst();
     document.getElementById('add-bucket-btn').addEventListener('click', addBucketModal);
     document.getElementById('update-bucket-btn').addEventListener('click', updateBucket);
     document.getElementById('add-password-btn').addEventListener('click', addPasswordModal);
-    let table = document.getElementById('bucket-tbody');
+
+    bucketList = document.getElementById('bucket-lst');
+    bucketList.on('click', 'li', ev => {
+        let element = ev.target;
+        let bucket = buckets.find(item => item._id === element.dataset.id);
+        console.log(bucket);
+
+        if (activeBucket)
+            bucketList.querySelector(".selected").classList.remove("selected");
+
+        activeBucket = bucket;
+        element.classList.add("selected");
+
+        renderTable();
+    });
+    bucketList.on("contextmenu", "li", ev => {
+        ev.preventDefault();
+        dropdown.style.top = ev.pageY + "px";
+        dropdown.style.left = ev.pageX + "px";
+        dropdown.classList.add("active");
+        dropdown.item = ev.target.dataset.id;
+    });
+
+    const hideDropdown = (element) => {
+        element.classList.remove("active");
+        element.item = undefined
+    };
 
     dropdown = document.getElementById("bucket-dropdown");
     dropdown.on("click", "li", ev => {
@@ -36,82 +61,64 @@ function renderManager() {
                 console.log(id, "delete");
                 break;
         }
-        dropdown.classList.remove("active");
-        dropdown.item = null;
+        hideDropdown(dropdown);
     });
-    document.body.addEventListener("click", () => {
-        if (dropdown.item !== null){
-            dropdown.classList.remove("active");
-            dropdown.item = null
+
+    passwordDropdown = document.getElementById("password-dropdown");
+    passwordDropdown.on("click", "li", ev => {
+        let id = dropdown.item;
+        switch (ev.target.dataset.action){
+            case "edit":
+                console.log(id, "edit row");
+                break;
+            case "delete":
+                console.log(id, "delete");
+                break;
         }
+        hideDropdown(passwordDropdown);
     });
-    table.on('click', 'i.more-button', renderDropdown);
-    table.on('click', 'i.show-password', toggleShowHide);
+
+
+
+    document.body.addEventListener("click", ev => {
+        if (dropdown.item !== undefined)
+            hideDropdown(dropdown);
+        if (passwordDropdown.item !== undefined)
+            hideDropdown(passwordDropdown);
+    });
+
+    mainTable = document.getElementById('bucket-tbody');
+    mainTable.on("click", ".more-button", ev => {
+        event.stopPropagation();
+        passwordDropdown.style.top = ev.pageY + "px";
+        passwordDropdown.style.left = ev.pageX + "px";
+        passwordDropdown.classList.add("active");
+        passwordDropdown.item = "dawdasdadawdas";
+    });
+    // mainTable.on('click', 'i.more-button', renderDropdown);
+    mainTable.on('click', 'i.show-password', toggleShowHide);
+    renderBucketLst();
 }
 
 
 function renderTable() {
-    let table = document.getElementById('bucket-tbody');
-
     let html = "";
     for (let i = 0; i < activeBucket.passwords.length; i++) {
         html += templates.bucketTableRow.render({
             location: activeBucket.passwords[i].location,
             description: activeBucket.passwords[i].description,
             password: hiddenPwd
-            // password: activeBucket.passwords[i].password
         });
     }
-    table.innerHTML = html;
+    mainTable.innerHTML = html;
 }
 
 function renderBucketLst() {
-    let lst = document.getElementById('bucket-lst');
     let html = "";
     buckets.forEach(bucket => {
         html += templates.bucketItem.render(bucket);
     });
-    lst.innerHTML = html;
-
-    lst.on('click', 'li', ev => {
-        let element = ev.target;
-        let bucket = buckets.find(item => item._id === element.dataset.id);
-        console.log(bucket);
-
-        if (activeBucket)
-            lst.querySelector(".selected").classList.remove("selected");
-
-        activeBucket = bucket;
-        element.classList.add("selected");
-
-        renderTable();
-    });
-    lst.on("contextmenu", "li", ev => {
-        ev.preventDefault();
-        dropdown.style.top = ev.pageY + "px";
-        dropdown.style.left = ev.pageX + "px";
-        dropdown.classList.add("active");
-        dropdown.item = ev.target.dataset.id;
-    });
-}
-
-function renderDropdown(ev1) {
-    let dropdown = ev1.target.parentNode;
-    isActiveDropdown = true;
-    dropdown.getElementsByClassName('dropdown')[0].innerHTML = templates.dropdown.render();
-
-    let row = ev1.target.parentNode.parentNode;
-    document.getElementById('dropdown-lst').on('click', 'li', ev => {
-        switch (ev.target.innerText) {
-            case "delete_forever":
-                deleteRowFromBucketModal(row);
-                break;
-
-            case "mode_edit":
-                makeRowEditable(row);
-                break;
-        }
-    });
+    bucketList.innerHTML = html;
 }
 
 // Modals
@@ -143,7 +150,6 @@ function deleteRowFromBucketModal(row) {
         ModalsJs.close();
     });
 }
-
 let enc, dec;
 function login(ev) {
     ev.preventDefault();
