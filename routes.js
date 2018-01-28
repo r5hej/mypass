@@ -4,8 +4,16 @@ const express = require('express');
 const session = require('express-session');
 const yields = require('express-yields');
 const formidable = require('express-formidable');
-const auth = require('./authentication.js');
-const buckets = require('./buckets.js');
+// const auth = require('./authentication.js');
+// const buckets = require('./buckets.js');
+const models = require("./models");
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+async function hashPassword(password) {
+    let salt = bcrypt.genSalt(saltRounds);
+    return await bcrypt.hash(password, salt);
+}
 
 const app = express();
 app.use(express.static('public'));
@@ -31,8 +39,8 @@ const sessAuth = function(req, res, next) {
 
 
 app.post('/login', async (req, res) => {
-    let user = await auth.authUser(req.fields.username, req.fields.password);
-    if (user){
+    let user = await models.User.findOne({username: req.fields.username});
+    if (user && await bcrypt.compare(req.fields.password, user.password)){
         req.session.username = user.username;
         res.send("OK");
     }
@@ -42,24 +50,35 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/buckets', sessAuth, async (req, res) => {
-    let bucketData = await buckets.getUsersBuckets(req.session.username);
+    let bucketData = await models.Bucket.find({owner: req.session.username});
+    bucketData.forEach(b => delete b.owner);
     res.send(bucketData);
 });
 
 app.post('/logout', sessAuth, async (req, res) => {
     req.session.destroy();
-    res.send("logout success!");
+    res.send("OK");
 });
 
 app.post('/buckets/add', sessAuth, async (req, res) => {
-    let bucket = await buckets.addNewBucket(req.fields, req.session.username);
+    let bucket = new models.Bucket(req.fields, true);
+    bucket.owner = req.session.username;
+    await bucket.save();
     console.log(bucket);
     res.send(bucket);
 });
 
 app.post('/buckets/update', sessAuth, async (req, res) => {
-    let result = await buckets.updateBucket(req.fields, req.session.username);
-    res.send(result);
+    let bucket = await models.Bucket.findOne(req.fields._id);
+    bucket.name = req.fields.name;
+    bucket.credentials = req.fields.credentials;
+    let saved = await bucket.save();
+    // let result = await buckets.updateBucket(req.fields, req.session.username);
+    res.send(saved);
+});
+app.post('/buckets/delete', sessAuth, async (req, res) => {
+    await models.Bucket.delete({_id: req.fields._id});
+    res.send("OK");
 });
 
 app.listen(3000, () => {

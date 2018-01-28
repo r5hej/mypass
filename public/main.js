@@ -3,7 +3,7 @@
 const templateFile = "templates.html";
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let currentUser = {};
-let buckets;
+let buckets, bucketMap;
 let templates;
 let activeBucket;
 let isActiveDropdown = false;
@@ -26,15 +26,10 @@ function renderManager() {
     bucketList = document.getElementById('bucket-lst');
     bucketList.on('click', 'li', ev => {
         let element = ev.target;
-        let bucket = buckets.find(item => item._id === element.dataset.id);
-        console.log(bucket);
-
         if (activeBucket)
             bucketList.querySelector(".selected").classList.remove("selected");
-
-        activeBucket = bucket;
+        activeBucket = bucketMap.get(element.dataset.id);
         element.classList.add("selected");
-
         renderTable();
     });
     bucketList.on("contextmenu", "li", ev => {
@@ -53,12 +48,17 @@ function renderManager() {
     dropdown = document.getElementById("bucket-dropdown");
     dropdown.on("click", "li", ev => {
         let id = dropdown.item;
+        let form = new FormData();
+        form.set("_id", id);
         switch (ev.target.dataset.action){
             case "name":
                 console.log(id, "edit name");
                 break;
             case "delete":
-                console.log(id, "delete");
+                postForm("buckets/delete", form, () => {
+                    ev.target.parentNode.removeChild(ev.target);
+                    bucketMap.delete(id);
+                });
                 break;
         }
         hideDropdown(dropdown);
@@ -103,10 +103,10 @@ function renderManager() {
 
 function renderTable() {
     let html = "";
-    for (let i = 0; i < activeBucket.passwords.length; i++) {
+    for (let i = 0; i < activeBucket.credentials.length; i++) {
         html += templates.bucketTableRow.render({
-            location: activeBucket.passwords[i].location,
-            description: activeBucket.passwords[i].description,
+            location: activeBucket.credentials[i].location,
+            description: activeBucket.credentials[i].description,
             password: hiddenPwd
         });
     }
@@ -115,8 +115,8 @@ function renderTable() {
 
 function renderBucketLst() {
     let html = "";
-    buckets.forEach(bucket => {
-        html += templates.bucketItem.render(bucket);
+    bucketMap.forEach(kvp => {
+        html += templates.bucketItem.render(kvp);
     });
     bucketList.innerHTML = html;
 }
@@ -133,7 +133,7 @@ function addBucketModal() {
 }
 
 function addPasswordModal() {
-    ModalsJs.open(templates.passwordModal.render());
+    ModalsJs.open(templates.passwordModal.render(), {warning: true});
     let form = document.getElementById('add-password-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
@@ -180,6 +180,10 @@ function logout() {
 function loadBuckets() {
     ajaxGet("/buckets", resp => {
         buckets = JSON.parse(resp);
+        bucketMap = new Map();
+        for (let i = 0; i < buckets.length; i++) {
+            bucketMap.set(buckets[i]._id, buckets[i]);
+        }
         renderManager();
     }, () => {
         renderLogin();
@@ -196,7 +200,7 @@ function updateBucket() {
 function addBucket(bucketname)  {
     let bucket = {
         name: bucketname,
-        passwords: []
+        credentials: []
     };
 
     ModalsJs.close();
@@ -219,7 +223,7 @@ function toggleShowHide(ev) {
     }
 
     let location = row.querySelector('td[name=location]').innerText;
-    let password = activeBucket.passwords.find(item => item.location === location).password;
+    let password = activeBucket.credentials.find(item => item.location === location).password;
     pwdField.innerText = password;
 }
 
@@ -228,11 +232,11 @@ function updateActiveBucketRow(row) {
     let location = row.querySelector('td[name=location]').innerText;
     let desc = row.querySelector('td[name=description]').innerText;
     let password = row.querySelector('td[name=password]').innerText;
-    let index = activeBucket.passwords.findIndex(item => item.location === location);
+    let index = activeBucket.credentials.findIndex(item => item.location === location);
 
-    activeBucket.passwords[index].location = location;
-    activeBucket.passwords[index].description = desc;
-    activeBucket.passwords[index].password = password;
+    activeBucket.credentials[index].location = location;
+    activeBucket.credentials[index].description = desc;
+    activeBucket.credentials[index].password = password;
 }
 
 
@@ -243,20 +247,20 @@ function addPassword(form) {
         password: form.get('password')
     };
 
-    activeBucket.passwords.push(newPwd);
-    ModalsJs.close();
+    activeBucket.credentials.push(newPwd);
+    ModalsJs.close(true);
     renderTable();
 }
 
 function deleteRowFromBucket(row) {
     let location = row.querySelector('td[name=location]').innerText;
     let bucketIndex;
-    activeBucket.passwords.findIndex((item, index) => {
+    activeBucket.credentials.findIndex((item, index) => {
         if (item.location === location)
             bucketIndex = index;
     });
 
-    activeBucket.passwords.splice(bucketIndex, 1);
+    activeBucket.credentials.splice(bucketIndex, 1);
     renderTable();
 }
 
@@ -267,12 +271,6 @@ function makeRowEditable(row) {
     isEditableContent = true;
 }
 
-function createElement(tag, cls, html) {
-    let element = document.createElement(tag);
-    element.className = cls;
-    if (html) element.innerHTML = html;
-    return element;
-}
 // Wrapper functions
 function postForm(url, form, success, error) {
     let xhr = new XMLHttpRequest();
@@ -331,24 +329,24 @@ JsT.get(templateFile, tmpl => {
 });
 
 // needs fixing
-window.onclick = function(ev) {
-    if (isActiveDropdown) {
-        if (!ev.target.matches('i.more-button')) {
-            let dropdowns = document.getElementsByClassName('dropdown');
-            for (let i = 0; i < dropdowns.length; i++) {
-                dropdowns[i].innerHTML = "";
-            }
-            isActiveDropdown = false;
-        }
-    }
-    if (isEditableContent) {
-        if (!ev.target.matches('td[contenteditable=true]') && !ev.target.matches('ul#dropdown-lst > li')) {
-            let cells = document.querySelectorAll('td[contenteditable=true]');
-            for (let i = 0; i < cells.length; i++) {
-                cells[i].removeAttribute('contenteditable');
-            }
-            isEditableContent = false;
-            updateActiveBucketRow(cells[0].parentNode);
-        }
-    }
-};
+// window.onclick = function(ev) {
+//     if (isActiveDropdown) {
+//         if (!ev.target.matches('i.more-button')) {
+//             let dropdowns = document.getElementsByClassName('dropdown');
+//             for (let i = 0; i < dropdowns.length; i++) {
+//                 dropdowns[i].innerHTML = "";
+//             }
+//             isActiveDropdown = false;
+//         }
+//     }
+//     if (isEditableContent) {
+//         if (!ev.target.matches('td[contenteditable=true]') && !ev.target.matches('ul#dropdown-lst > li')) {
+//             let cells = document.querySelectorAll('td[contenteditable=true]');
+//             for (let i = 0; i < cells.length; i++) {
+//                 cells[i].removeAttribute('contenteditable');
+//             }
+//             isEditableContent = false;
+//             updateActiveBucketRow(cells[0].parentNode);
+//         }
+//     }
+// };

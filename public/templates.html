@@ -12,8 +12,10 @@
             <div id="add-bucket-btn" class="btn-add">Add</div>
 
             <ul id="bucket-dropdown" class="dropdown-menu">
-                <li data-action="name">Edit bucket name</li>
-                <li data-action="delete">Delete bucket</li>
+                <!--<li data-action="name">Edit bucket name</li>-->
+                <!--<li data-action="delete">Delete bucket</li>-->
+                <li data-action="name" class="material-icons">mode_edit</li>
+                <li data-action="delete" class="material-icons">delete_forever</li>
             </ul>
         </div>
         <ul id="bucket-lst" class="u-full-width box"></ul>
@@ -43,6 +45,10 @@
 
 <template id="bucketItem">
     <li data-id="{{ _id }}">{{ name }}</li>
+</template>
+
+<template id="editBucketName">
+
 </template>
 
 <template id="bucketTableRow">
