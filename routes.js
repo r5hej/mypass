@@ -2,7 +2,7 @@
 
 const express = require('express');
 const session = require('express-session');
-const yields = require('express-yields');
+//const yields = require('express-yields');
 const formidable = require('express-formidable');
 // const auth = require('./authentication.js');
 // const buckets = require('./buckets.js');
@@ -69,7 +69,7 @@ app.post('/buckets/add', sessAuth, async (req, res) => {
 });
 
 app.post('/buckets/update', sessAuth, async (req, res) => {
-    let bucket = await models.Bucket.findOne(req.fields._id);
+    let bucket = await models.Bucket.findOne({_id: req.fields._id});
     bucket.name = req.fields.name;
     bucket.credentials = req.fields.credentials;
     let saved = await bucket.save();
