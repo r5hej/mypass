@@ -180,24 +180,12 @@ function logout() {
 function loadBuckets() {
     ajaxGet("/categories", resp => {
         let categories = JSON.parse(resp);
-        ajaxGet("/credentials", resp => {
-            let credentials = JSON.parse(resp);
-            map = Object.create(null);
-            for (let i = 0; i < categories.length; i++){
-                let category = categories[i];
-                category.credentials = credentials.filter(c => c.category_id === category._id);
-                map[category._id] = category;
-            }
-            console.log(map);
-            renderManager();
-        }, () => {
-            renderLogin();
-        });
-
-        bucketMap = new Map();
-        for (let i = 0; i < buckets.length; i++) {
-            bucketMap.set(buckets[i]._id, buckets[i]);
+        map = Object.create(null);
+        for (let i = 0; i < categories.length; i++){
+            let category = categories[i];
+            map[category._id] = category;
         }
+        console.log(map);
         renderManager();
     }, () => {
         renderLogin();
