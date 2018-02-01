@@ -6,7 +6,7 @@ let UserSchema = new mongoose.Schema({
 });
 
 let CredentialSchema = new mongoose.Schema({
-    category_id: ObjectId,
+    category_id: mongoose.Schema.Types.ObjectId,
     location: String,
     description: String,
     username: String,
