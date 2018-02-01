@@ -6,28 +6,28 @@ let UserSchema = new mongoose.Schema({
 });
 
 let CredentialSchema = new mongoose.Schema({
+    category_id: ObjectId,
     location: String,
     description: String,
     username: String,
     password: String
 });
 
-let BucketSchema = new mongoose.Schema({
+let CategorySchema = new mongoose.Schema({
     owner: String,
     name: String,
-    credentials: [CredentialSchema]
 });
 
 
 
 let User = mongoose.model('User', UserSchema);
 let Credential = mongoose.model('Credential', CredentialSchema);
-let Bucket = mongoose.model('Item', BucketSchema);
+let Category = mongoose.model('Item', CategorySchema);
 
 mongoose.connect('mongodb://localhost/mypass');
 
 module.exports = {
     User,
-    Bucket,
+    Category,
     Credential
 };
