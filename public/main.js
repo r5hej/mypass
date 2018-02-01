@@ -66,13 +66,12 @@ function renderManager() {
 
     passwordDropdown = document.getElementById("password-dropdown");
     passwordDropdown.on("click", "li", ev => {
-        let id = dropdown.item;
         switch (ev.target.dataset.action){
             case "edit":
-                console.log(id, "edit row");
+                makeRowEditable(passwordDropdown.item);
                 break;
             case "delete":
-                console.log(id, "delete");
+                deleteRowFromBucketModal(passwordDropdown.item);
                 break;
         }
         hideDropdown(passwordDropdown);
@@ -93,7 +92,7 @@ function renderManager() {
         passwordDropdown.style.top = ev.pageY + "px";
         passwordDropdown.style.left = ev.pageX + "px";
         passwordDropdown.classList.add("active");
-        passwordDropdown.item = "dawdasdadawdas";
+        passwordDropdown.item = ev.target.parentNode.parentNode;
     });
     // mainTable.on('click', 'i.more-button', renderDropdown);
     mainTable.on('click', 'i.show-password', toggleShowHide);
@@ -254,12 +253,7 @@ function addPassword(form) {
 
 function deleteRowFromBucket(row) {
     let location = row.querySelector('td[name=location]').innerText;
-    let bucketIndex;
-    activeBucket.credentials.findIndex((item, index) => {
-        if (item.location === location)
-            bucketIndex = index;
-    });
-
+    let bucketIndex = activeBucket.credentials.findIndex(item => item.location === location);
     activeBucket.credentials.splice(bucketIndex, 1);
     renderTable();
 }
@@ -327,26 +321,3 @@ JsT.get(templateFile, tmpl => {
     templates = tmpl;
     loadBuckets();
 });
-
-// needs fixing
-// window.onclick = function(ev) {
-//     if (isActiveDropdown) {
-//         if (!ev.target.matches('i.more-button')) {
-//             let dropdowns = document.getElementsByClassName('dropdown');
-//             for (let i = 0; i < dropdowns.length; i++) {
-//                 dropdowns[i].innerHTML = "";
-//             }
-//             isActiveDropdown = false;
-//         }
-//     }
-//     if (isEditableContent) {
-//         if (!ev.target.matches('td[contenteditable=true]') && !ev.target.matches('ul#dropdown-lst > li')) {
-//             let cells = document.querySelectorAll('td[contenteditable=true]');
-//             for (let i = 0; i < cells.length; i++) {
-//                 cells[i].removeAttribute('contenteditable');
-//             }
-//             isEditableContent = false;
-//             updateActiveBucketRow(cells[0].parentNode);
-//         }
-//     }
-// };

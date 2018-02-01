@@ -30,6 +30,7 @@
             <tr>
                 <th>Location</th>
                 <th>Description</th>
+                <th>Username</th>
                 <th>Password</th>
                 <th style="width: 44px;"></th>
             </tr>
@@ -52,12 +53,11 @@
 </template>
 
 <template id="bucketTableRow">
-    <tr>
+    <tr data-id="{{ _id }}">
         <td name="location">{{ location }}</td>
         <td name="description">{{ description }}</td>
-        <td>
-            <span name="password">{{ password }}</span>
-        </td>
+        <td name="password">{{ username }}</td>
+        <td name="password">{{ password }}</td>
         <td>
             <i class="material-icons more-button">more_horiz</i>
             <i class="material-icons show-password">remove_red_eye</i>
