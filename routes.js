@@ -49,22 +49,27 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-app.get('/credentials', sessAuth, async (req, res) => {
-
-});
 app.post('/credential', sessAuth, async (req, res) => {
-
+    let credential = new models.Category(req.fields, true);
+    await credential.save();
+    res.send(credential);
 });
+
 app.delete('/credential', sessAuth, async (req, res) => {
-
+    let deleted = await models.Credential.remove({_id: req.fields._id});
+    res.send(deleted);
 });
+
 app.put('/credential', sessAuth, async (req, res) => {
+    let credential = await models.Credential.findOne({_id: req.fields._id});
+    credential.location = req.fields.location;
+    credential.description = req.fields.description;
+    credential.username = req.fields.username;
+    credential.password = req.fields.password;
 
+    let saved = await credential.save();
+    res.send(saved);
 });
-
-
-
 
 app.get('/categories', sessAuth, async (req, res) => {
     let categories = await models.Category.find({owner: req.session.username});
@@ -74,16 +79,19 @@ app.get('/categories', sessAuth, async (req, res) => {
     }
     res.send(categories);
 });
+
 app.post('/category', sessAuth, async (req, res) => {
     let category = new models.Category(req.fields, true);
     category.owner = req.session.username;
     await category.save();
     res.send(category);
 });
+
 app.delete('/category', sessAuth, async (req, res) => {
     let deleted = await models.Category.remove({_id: req.fields._id});
     res.send(deleted);
 });
+
 app.put('/category', sessAuth, async (req, res) => {
     let category = await models.Category.findOne({_id: req.fields._id});
     category.name = req.fields.name;
