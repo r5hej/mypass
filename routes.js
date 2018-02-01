@@ -49,6 +49,34 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
+app.get('/credentials', sessAuth, async (req, res) => {
+
+});
+app.post('/credential', sessAuth, async (req, res) => {
+
+});
+app.delete('/credential', sessAuth, async (req, res) => {
+
+});
+app.put('/credential', sessAuth, async (req, res) => {
+
+});
+
+
+app.get('/categories', sessAuth, async (req, res) => {
+
+});
+app.post('/category', sessAuth, async (req, res) => {
+
+});
+app.delete('/category', sessAuth, async (req, res) => {
+
+});
+app.put('/category', sessAuth, async (req, res) => {
+
+});
+
 app.get('/buckets', sessAuth, async (req, res) => {
     let bucketData = await models.Bucket.find({owner: req.session.username});
     bucketData.forEach(b => delete b.owner);
