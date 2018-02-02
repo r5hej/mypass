@@ -64,10 +64,11 @@ app.put('/credential', sessAuth, async (req, res) => {
 });
 
 app.get('/categories', sessAuth, async (req, res) => {
-    let categories = await models.Category.find({owner: req.session.username});
+    let categories = await models.Category.find({owner: req.session.username}).lean();
     for (let i = 0; i < categories.length; i++){
-        categories[i].credentials = await models.Credential.find({credential_id: categories[i]._id});
-        delete categories[i].owner;
+        let category = categories[i];
+        category.credentials = await models.Credential.find({category_id: category._id}).lean();
+        delete category.owner;
     }
     res.send(categories);
 });

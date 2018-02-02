@@ -28,7 +28,7 @@ function renderManager() {
         let element = ev.target;
         if (activeCategory)
             bucketList.querySelector(".selected").classList.remove("selected");
-        activeCategory = bucketMap.get(element.dataset.id);
+        activeCategory = map[element.dataset.id].category;
         element.classList.add("selected");
         renderTable();
     });
@@ -130,7 +130,12 @@ function addCategoryModal() {
         ModalsJs.close();
         postForm('/category', formData, data => {
             data = JSON.parse(data);
-            map[data._id] = data;
+            data.credentials = [];
+            categories.push(data);
+            map[data._id] = {
+                category: data,
+                map: Object.create(null)
+            };
             renderCategories();
         }, () => {
             console.log("couldn't add category");
@@ -199,9 +204,11 @@ let categories, map;
 function loadBuckets() {
     ajaxGet("/categories", resp => {
         categories = JSON.parse(resp);
+        console.log(categories);
         map = Object.create(null);
         for (let i = 0; i < categories.length; i++){
             let category = categories[i];
+            console.log(category);
             let tCreds = Object.create(null);
             for (let j = 0; j < category.credentials.length; j++){
                 let credential = category.credentials[j];
