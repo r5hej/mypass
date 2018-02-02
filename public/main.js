@@ -5,7 +5,7 @@ const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let currentUser = {};
 let buckets, bucketMap;
 let templates;
-let activeBucket;
+let activeCategory;
 let isActiveDropdown = false;
 let isEditableContent = false;
 let wrapper = document.getElementById("wrapper");
@@ -20,16 +20,16 @@ function renderLogin() {
 let mainTable, bucketList;
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
-    document.getElementById('add-bucket-btn').addEventListener('click', addBucketModal);
+    document.getElementById('add-bucket-btn').addEventListener('click', addCategoryModal);
     document.getElementById('update-bucket-btn').addEventListener('click', updateBucket);
     document.getElementById('add-password-btn').addEventListener('click', addPasswordModal);
 
     bucketList = document.getElementById('bucket-lst');
     bucketList.on('click', 'li', ev => {
         let element = ev.target;
-        if (activeBucket)
+        if (activeCategory)
             bucketList.querySelector(".selected").classList.remove("selected");
-        activeBucket = bucketMap.get(element.dataset.id);
+        activeCategory = bucketMap.get(element.dataset.id);
         element.classList.add("selected");
         renderTable();
     });
@@ -97,47 +97,64 @@ function renderManager() {
     });
     // mainTable.on('click', 'i.more-button', renderDropdown);
     mainTable.on('click', 'i.show-password', toggleShowHide);
-    renderBucketLst();
+    renderCategories();
 }
 
 
 function renderTable() {
     let html = "";
-    for (let i = 0; i < activeBucket.credentials.length; i++) {
+    for (let i = 0; i < activeCategory.credentials.length; i++) {
         html += templates.bucketTableRow.render({
-            location: activeBucket.credentials[i].location,
-            description: activeBucket.credentials[i].description,
+            location: activeCategory.credentials[i].location,
+            description: activeCategory.credentials[i].description,
             password: hiddenPwd
         });
     }
     mainTable.innerHTML = html;
 }
 
-function renderBucketLst() {
+function renderCategories() {
     let html = "";
-    bucketMap.forEach(kvp => {
-        html += templates.bucketItem.render(kvp);
-    });
+    for (let category in map){
+        html += templates.bucketItem.render(map[category]);
+    }
     bucketList.innerHTML = html;
 }
 
 // Modals
-function addBucketModal() {
+function addCategoryModal() {
     ModalsJs.open(templates.bucketModal.render());
     let form = document.getElementById('add-bucket-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
         let formData = new FormData(form);
-        addBucket(formData.get('bucketName'));
+        ModalsJs.close();
+        postForm('/category', formData, data => {
+            data = JSON.parse(data);
+            map[data._id] = data;
+            renderCategories();
+        }, () => {
+            console.log("couldn't add category");
+        });
+        renderTable();
     });
 }
 
 function addPasswordModal() {
     ModalsJs.open(templates.passwordModal.render(), {warning: true});
     let form = document.getElementById('add-password-form');
+    let cId = activeCategory._id;
     form.addEventListener('submit', ev => {
         ev.preventDefault();
-        addPassword(new FormData(form));
+        let formData = new FormData(form);
+        ModalsJs.close();
+        postForm('/credential', formData, data => {
+            data = JSON.parse(data);
+            map[cId][data._id] = data;
+            renderCategories();
+        }, () => {
+            console.log("couldn't add credential");
+        });
     });
 }
 
@@ -151,6 +168,7 @@ function deleteRowFromBucketModal(row) {
     });
 }
 let enc, dec;
+
 function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
@@ -169,7 +187,7 @@ function login(ev) {
 function logout() {
     ajaxPost("/logout", null, () => {
         buckets = [];
-        activeBucket = null;
+        activeCategory = null;
         currentUser = {};
         renderLogin();
     }, () => console.log("could not log out"))
@@ -177,14 +195,26 @@ function logout() {
 }
 
 // buckets
+let categories, map;
+
 function loadBuckets() {
     ajaxGet("/categories", resp => {
-        let categories = JSON.parse(resp);
+        categories = JSON.parse(resp);
         map = Object.create(null);
         for (let i = 0; i < categories.length; i++){
             let category = categories[i];
-            map[category._id] = category;
+            let tCreds = Object.create(null);
+            for (let j = 0; j < category.credentials.length; j++){
+                let credential = category.credentials[j];
+                tCreds[credential._id] = credential;
+            }
+
+            map[category._id] = {
+                category,
+                map: tCreds
+            };
         }
+        console.log(categories);
         console.log(map);
         renderManager();
     }, () => {
@@ -193,31 +223,16 @@ function loadBuckets() {
 }
 
 function updateBucket() {
-    ajaxPost('/buckets/update', JSON.stringify(activeBucket), data => {
+    ajaxPost('/buckets/update', JSON.stringify(activeCategory), data => {
         console.log("bucket updated");
     }, data => {
             console.log("bucket update failed");
     });
 }
-function addBucket(bucketname)  {
-    let bucket = {
-        name: bucketname,
-        credentials: []
-    };
-
-    ModalsJs.close();
-    ajaxPost('/buckets/add', JSON.stringify(bucket), data => {
-        bucket = JSON.parse(data);
-        buckets.push(bucket);
-        renderBucketLst();
-    }, () => {
-        console.log("couldn't add bucket");
-    });
-}
 
 function toggleShowHide(ev) {
     let row = ev.target.parentNode.parentNode;
-    let pwdField = row.querySelector('span[name=password]');
+    let pwdField = row.querySelector('td[name=password]');
 
     if (!(pwdField.innerText === hiddenPwd)) {
         pwdField.innerText = hiddenPwd;
@@ -225,7 +240,7 @@ function toggleShowHide(ev) {
     }
 
     let location = row.querySelector('td[name=location]').innerText;
-    let password = activeBucket.credentials.find(item => item.location === location).password;
+    let password = activeCategory.credentials.find(item => item.location === location).password;
     pwdField.innerText = password;
 }
 
@@ -234,30 +249,19 @@ function updateActiveBucketRow(row) {
     let location = row.querySelector('td[name=location]').innerText;
     let desc = row.querySelector('td[name=description]').innerText;
     let password = row.querySelector('td[name=password]').innerText;
-    let index = activeBucket.credentials.findIndex(item => item.location === location);
+    let index = activeCategory.credentials.findIndex(item => item.location === location);
 
-    activeBucket.credentials[index].location = location;
-    activeBucket.credentials[index].description = desc;
-    activeBucket.credentials[index].password = password;
+    activeCategory.credentials[index].location = location;
+    activeCategory.credentials[index].description = desc;
+    activeCategory.credentials[index].password = password;
 }
 
 
-function addPassword(form) {
-    let newPwd = {
-        location: form.get('location'),
-        description: form.get('description'),
-        password: form.get('password')
-    };
-
-    activeBucket.credentials.push(newPwd);
-    ModalsJs.close(true);
-    renderTable();
-}
 
 function deleteRowFromBucket(row) {
     let location = row.querySelector('td[name=location]').innerText;
-    let bucketIndex = activeBucket.credentials.findIndex(item => item.location === location);
-    activeBucket.credentials.splice(bucketIndex, 1);
+    let bucketIndex = activeCategory.credentials.findIndex(item => item.location === location);
+    activeCategory.credentials.splice(bucketIndex, 1);
     renderTable();
 }
 
