@@ -4,8 +4,6 @@ const express = require('express');
 const session = require('express-session');
 //const yields = require('express-yields');
 const formidable = require('express-formidable');
-// const auth = require('./authentication.js');
-// const buckets = require('./buckets.js');
 const models = require("./models");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -49,22 +47,27 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
-app.get('/credentials', sessAuth, async (req, res) => {
-
-});
 app.post('/credential', sessAuth, async (req, res) => {
-
+    let credential = new models.Category(req.fields, true);
+    await credential.save();
+    res.send(credential);
 });
+
 app.delete('/credential', sessAuth, async (req, res) => {
-
+    let deleted = await models.Credential.remove({_id: req.fields._id});
+    res.send(deleted);
 });
+
 app.put('/credential', sessAuth, async (req, res) => {
+    let credential = await models.Credential.findOne({_id: req.fields._id});
+    credential.location = req.fields.location;
+    credential.description = req.fields.description;
+    credential.username = req.fields.username;
+    credential.password = req.fields.password;
 
+    let saved = await credential.save();
+    res.send(saved);
 });
-
-
-
 
 app.get('/categories', sessAuth, async (req, res) => {
     let categories = await models.Category.find({owner: req.session.username});
@@ -74,57 +77,25 @@ app.get('/categories', sessAuth, async (req, res) => {
     }
     res.send(categories);
 });
+
 app.post('/category', sessAuth, async (req, res) => {
     let category = new models.Category(req.fields, true);
     category.owner = req.session.username;
     await category.save();
     res.send(category);
 });
+
 app.delete('/category', sessAuth, async (req, res) => {
     let deleted = await models.Category.remove({_id: req.fields._id});
     res.send(deleted);
 });
+
 app.put('/category', sessAuth, async (req, res) => {
     let category = await models.Category.findOne({_id: req.fields._id});
     category.name = req.fields.name;
     let saved = await category.save();
     res.send(saved);
 });
-
-
-
-//
-// app.get('/buckets', sessAuth, async (req, res) => {
-//     let bucketData = await models.Bucket.find({owner: req.session.username});
-//     bucketData.forEach(b => delete b.owner);
-//     res.send(bucketData);
-// });
-//
-// app.post('/logout', sessAuth, async (req, res) => {
-//     req.session.destroy();
-//     res.send("OK");
-// });
-//
-// app.post('/buckets/add', sessAuth, async (req, res) => {
-//     let bucket = new models.Bucket(req.fields, true);
-//     bucket.owner = req.session.username;
-//     await bucket.save();
-//     console.log(bucket);
-//     res.send(bucket);
-// });
-//
-// app.post('/buckets/update', sessAuth, async (req, res) => {
-//     let bucket = await models.Bucket.findOne({_id: req.fields._id});
-//     bucket.name = req.fields.name;
-//     bucket.credentials = req.fields.credentials;
-//     let saved = await bucket.save();
-//     // let result = await buckets.updateBucket(req.fields, req.session.username);
-//     res.send(saved);
-// });
-// app.post('/buckets/delete', sessAuth, async (req, res) => {
-//     await models.Bucket.delete({_id: req.fields._id});
-//     res.send("OK");
-// });
 
 app.listen(3000, () => {
     console.log("Server started on port 3000");
