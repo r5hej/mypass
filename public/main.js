@@ -9,7 +9,6 @@ let activeCategory;
 let isActiveDropdown = false;
 let isEditableContent = false;
 let wrapper = document.getElementById("wrapper");
-let map;
 
 let dropdown, passwordDropdown;
 // Functions to render template content

@@ -48,7 +48,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/credential', sessAuth, async (req, res) => {
-    let credential = new models.Category(req.fields, true);
+    let credential = new models.Credential(req.fields, true);
     await credential.save();
     res.send(credential);
 });
@@ -59,13 +59,7 @@ app.delete('/credential', sessAuth, async (req, res) => {
 });
 
 app.put('/credential', sessAuth, async (req, res) => {
-    let credential = await models.Credential.findOne({_id: req.fields._id});
-    credential.location = req.fields.location;
-    credential.description = req.fields.description;
-    credential.username = req.fields.username;
-    credential.password = req.fields.password;
-
-    let saved = await credential.save();
+    let saved = await models.Credential.update({_id: req.fields._id}, req.fields);
     res.send(saved);
 });
 
