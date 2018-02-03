@@ -47,6 +47,11 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/logout', sessAuth, async (req, res) => {
+    req.session.destroy();
+    res.send("OK");
+});
+
 app.post('/credential', sessAuth, async (req, res) => {
     let credential = new models.Credential(req.fields, true);
     await credential.save();
@@ -70,6 +75,7 @@ app.get('/categories', sessAuth, async (req, res) => {
         category.credentials = await models.Credential.find({category_id: category._id}).lean();
         delete category.owner;
     }
+    // res.send(JSON.stringify(categories));
     res.send(categories);
 });
 

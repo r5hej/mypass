@@ -22,8 +22,9 @@ function renderManager() {
     categoryList = document.getElementById('bucket-lst');
     categoryList.on('click', 'li', ev => {
         let element = ev.target;
-        if (activeCategory)
+        if (activeCategory) {
             categoryList.querySelector(".selected").classList.remove("selected");
+        }
         activeCategory = map.get(element.dataset.id).category;
         element.classList.add("selected");
         renderTable();
@@ -52,8 +53,9 @@ function renderManager() {
                 break;
             case "delete":
                 sendForm('DELETE', "category", form, () => {
-                    // ev.target.parentNode.removeChild(ev.target);
-                    // bucketMap.delete(id);
+                    let index = categories.findIndex(item => item._id === form.get('_id'));
+                    categories.splice(index, 1);
+                    renderCategories();
                 });
                 break;
         }
@@ -110,6 +112,18 @@ function renderCategories() {
     let html = "";
     categories.forEach(c => html += templates.bucketItem.render(c));
     categoryList.innerHTML = html;
+
+    if (activeCategory === undefined) {
+        return;
+    }
+
+    let elements = categoryList.getElementsByTagName('li');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].dataset.id === activeCategory._id) {
+            elements[i].classList.add("selected");
+            break;
+        }
+    }
 }
 
 // Modals
@@ -122,7 +136,7 @@ function categoryModal(category) {
     form.addEventListener('submit', ev => {
         ev.preventDefault();
         let formData = new FormData(form);
-        if (category){ // update existing
+        if (category) { // update existing
             formData.set("_id", category._id);
             sendForm('PUT', "/category", formData, () => {
                 map.get(category._id).category.name = formData.get("name");
@@ -188,23 +202,22 @@ function deleteCredentialModal(row, catId, credId) {
 function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    let pwd = form.get("password");
-    currentUser.username = form.get("username");
-    currentUser.password = form.get("password");
+    // let pwd = form.get("password");
     sendForm('POST', "/login", form, () => {
         loadBuckets();
     }, () => {
         this.reset();
-    });
+    }, false);
 }
 function logout() {
-    postJson("/logout", null, () => {
+    postRequest("/logout", null, resp => {
         categories = [];
         map = null;
         activeCategory = null;
         renderLogin();
-    });
-
+    }, resp => {
+        console.log("logout failed");
+    }, false);
 }
 
 function loadBuckets() {
@@ -247,13 +260,16 @@ function deleteRowFromBucket(row) {
     renderTable();
 }
 
-function sendForm(method, url, form, success, error) {
+function sendForm(method, url, form, success, error, json=true) {
     let xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
 
     xhr.onload = function(e) {
         if (xhr.readyState === 4 && xhr.status === 200)
-            success(JSON.parse(xhr.responseText));
+            if (json)
+                success(JSON.parse(xhr.responseText));
+            else
+                success(xhr.responseText);
         else
             error(e, xhr.statusText);
     };
@@ -262,12 +278,15 @@ function sendForm(method, url, form, success, error) {
     };
     xhr.send(form);
 }
-function postJson(url, data, success, error) {
+function postRequest(url, data, success, error, json=true) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                success(JSON.parse(xhr.responseText));
+                if (json)
+                    success(JSON.parse(xhr.responseText));
+                else
+                    success(xhr.responseText);
             } else {
                 error(xhr.responseText);
             }
