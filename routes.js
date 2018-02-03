@@ -81,14 +81,13 @@ app.post('/category', sessAuth, async (req, res) => {
 });
 
 app.delete('/category', sessAuth, async (req, res) => {
-    let deleted = await models.Category.remove({_id: req.fields._id});
-    res.send(deleted);
+    let deletedCat = await models.Category.remove({_id: req.fields._id});
+    let deletedCreds = await models.Credential.remove({category_id: req.fields._id});
+    res.send(deletedCat && deletedCreds);
 });
 
 app.put('/category', sessAuth, async (req, res) => {
-    let category = await models.Category.findOne({_id: req.fields._id});
-    category.name = req.fields.name;
-    let saved = await category.save();
+    let saved = await models.Category.update({_id: req.fields._id}, req.fields);
     res.send(saved);
 });
 

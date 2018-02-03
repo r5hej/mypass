@@ -22,8 +22,9 @@
     </div>
     <div class="nine columns">
         <div class="btn-row">
-            <div id="update-bucket-btn" class="btn-update">Update</div>
+            <!--<div id="update-bucket-btn" class="btn-update">Update</div>-->
             <div id="add-password-btn" class="btn-add">Add</div>
+            <div id="logout-btn" class="btn-add">Logout</div>
         </div>
         <table class="u-full-width bucket-table box">
             <thead>
@@ -53,10 +54,10 @@
 </template>
 
 <template id="bucketTableRow">
-    <tr data-id="{{ _id }}">
-        <td name="location">{{ location }}</td>
-        <td name="description">{{ description }}</td>
-        <td name="password">{{ username }}</td>
+    <tr data-id="{{ credential._id }}">
+        <td name="location">{{ credential.location }}</td>
+        <td name="description">{{ credential.description }}</td>
+        <td name="username">{{ credential.username }}</td>
         <td name="password">{{ password }}</td>
         <td>
             <i class="material-icons more-button">more_horiz</i>
@@ -65,24 +66,24 @@
     </tr>
 </template>
 
-<template id="bucketModal">
-    <h5>Add a new bucket</h5>
+<template id="categoryModal">
+    <h5>{{ title }}</h5>
     <form id="add-bucket-form">
-        <input class="u-full-width" type="text" name="bucketName" placeholder="Bucket name" required="required">
+        <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" value="{{ category.name }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
 
-<template id="passwordModal">
-    <h5>Add a new password</h5>
+<script type="text/template" id="credentialModal">
+    <h5>{{ title }}</h5>
     <form id="add-password-form">
-        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ location }}">
-        <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ description }}">
-        <input class="u-full-width" type="text" name="username" placeholder="Username" required="required" value="{{ username }}">
-        <input class="u-full-width" type="text" name="password" placeholder="Password" required="required" value="{{ password }}">
+        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
+        <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ credential.description }}">
+        <input class="u-full-width" type="text" name="username" placeholder="Username" required="required" value="{{ credential.username }}">
+        <input class="u-full-width" type="text" name="password" placeholder="Password" required="required" value="{{ credential.password }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
-</template>
+</script>
 
 <template id="deleteRowModal">
     <h5>Are you sure?</h5>
