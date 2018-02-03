@@ -43,45 +43,45 @@ form {
     background-color: white;
 }
 
-#bucket-lst {
+#category-lst {
     overflow-y: scroll;
     min-height: 34px;
     max-height: 700px;
 }
-#bucket-lst li.selected {
+#category-lst li.selected {
     background-color: #14b208;
     color: white;
 }
 
-.bucket-lst > ul {
+.category-lst > ul {
     list-style: none;
     margin-bottom: 0;
 }
 
-.bucket-lst > ul > li {
+.category-lst > ul > li {
     text-align: center;
     cursor: pointer;
     border-bottom: 1px solid #D1D1D1D1;
     /*font-weight: bold;*/
 }
 
-.bucket-lst > ul > li:last-child {
+.category-lst > ul > li:last-child {
     border-bottom: none;
 }
 
-.bucket-lst > ul > li:hover {
+.category-lst > ul > li:hover {
     /*background-color: #EEEEEE;*/
     background-color: var(--green);
     color: white;
 }
-.bucket-table {
+.credential-table {
     table-layout: fixed;
 }
-.bucket-table:last-child {
+.credential-table:last-child {
     margin-bottom: 0;
 }
 
-#bucket-tbody > tr > td:last-child {
+#credentials-tbody > tr > td:last-child {
     padding: 0;
     width: 30px;
 }

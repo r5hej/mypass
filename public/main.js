@@ -15,11 +15,11 @@ function renderLogin() {
 }
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
-    document.getElementById('add-bucket-btn').addEventListener('click', () => categoryModal());
+    document.getElementById('add-category-btn').addEventListener('click', () => categoryModal());
     document.getElementById('logout-btn').addEventListener('click', () => logout());
-    document.getElementById('add-password-btn').addEventListener('click', () => credentialModal());
+    document.getElementById('add-credential-btn').addEventListener('click', () => credentialModal());
 
-    categoryList = document.getElementById('bucket-lst');
+    categoryList = document.getElementById('category-lst');
     categoryList.on('click', 'li', ev => {
         let element = ev.target;
         if (activeCategory) {
@@ -42,7 +42,7 @@ function renderManager() {
         element.item = undefined
     };
 
-    categoryDropdown = document.getElementById("bucket-dropdown");
+    categoryDropdown = document.getElementById("category-dropdown");
     categoryDropdown.on("click", "li", ev => {
         let id = categoryDropdown.item;
         let form = new FormData();
@@ -62,7 +62,7 @@ function renderManager() {
         hideDropdown(categoryDropdown);
     });
 
-    credentialDropdown = document.getElementById("password-dropdown");
+    credentialDropdown = document.getElementById("credential-dropdown");
     credentialDropdown.on("click", "li", ev => {
         let catWrap = map.get(activeCategory._id);
         let catMap = catWrap.map;
@@ -85,7 +85,7 @@ function renderManager() {
             hideDropdown(credentialDropdown);
     });
 
-    mainTable = document.getElementById('bucket-tbody');
+    mainTable = document.getElementById('credentials-tbody');
     mainTable.on("click", ".more-button", ev => {
         event.stopPropagation();
         credentialDropdown.style.top = ev.pageY + "px";
@@ -101,7 +101,7 @@ function renderTable() {
         return;
     let html = "";
     for (let i = 0; i < activeCategory.credentials.length; i++) {
-        html += templates.bucketTableRow.render({
+        html += templates.credentialTableRow.render({
             credential: activeCategory.credentials[i],
             password: hiddenPwd
         });
@@ -110,7 +110,7 @@ function renderTable() {
 }
 function renderCategories() {
     let html = "";
-    categories.forEach(c => html += templates.bucketItem.render(c));
+    categories.forEach(c => html += templates.categoryItem.render(c));
     categoryList.innerHTML = html;
 
     if (activeCategory === undefined) {
@@ -132,7 +132,7 @@ function categoryModal(category) {
         title: !!category ? "Edit category" : "Add a new category",
         category: category
     }));
-    let form = document.getElementById('add-bucket-form');
+    let form = document.getElementById('add-category-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
         let formData = new FormData(form);
@@ -165,7 +165,7 @@ function credentialModal(creds) {
         title: !!creds ? "Edit credential" : "Add a new credential",
         credential: creds
     }), { warning: true });
-    let form = document.getElementById('add-password-form');
+    let form = document.getElementById('add-credential-form');
     let catId = activeCategory._id;
     form.addEventListener('submit', ev => {
         ev.preventDefault();

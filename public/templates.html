@@ -7,26 +7,26 @@
 </template>
 
 <template id="manager">
-    <div class="three columns bucket-lst">
+    <div class="three columns category-lst">
         <div class="btn-row">
-            <div id="add-bucket-btn" class="btn-add">Add</div>
+            <div id="add-category-btn" class="btn-add">Add</div>
 
-            <ul id="bucket-dropdown" class="dropdown-menu">
+            <ul id="category-dropdown" class="dropdown-menu">
                 <!--<li data-action="name">Edit bucket name</li>-->
                 <!--<li data-action="delete">Delete bucket</li>-->
                 <li data-action="name" class="material-icons">mode_edit</li>
                 <li data-action="delete" class="material-icons">delete_forever</li>
             </ul>
         </div>
-        <ul id="bucket-lst" class="u-full-width box"></ul>
+        <ul id="category-lst" class="u-full-width box"></ul>
     </div>
     <div class="nine columns">
         <div class="btn-row">
             <!--<div id="update-bucket-btn" class="btn-update">Update</div>-->
-            <div id="add-password-btn" class="btn-add">Add</div>
+            <div id="add-credential-btn" class="btn-add">Add</div>
             <div id="logout-btn" class="btn-add">Logout</div>
         </div>
-        <table class="u-full-width bucket-table box">
+        <table class="u-full-width credential-table box">
             <thead>
             <tr>
                 <th>Location</th>
@@ -36,24 +36,20 @@
                 <th style="width: 44px;"></th>
             </tr>
             </thead>
-            <tbody id="bucket-tbody"></tbody>
+            <tbody id="credentials-tbody"></tbody>
         </table>
-        <ul id="password-dropdown" class="dropdown-menu">
+        <ul id="credential-dropdown" class="dropdown-menu">
             <li data-action="edit" class="material-icons">mode_edit</li>
             <li data-action="delete" class="material-icons">delete_forever</li>
         </ul>
     </div>
 </template>
 
-<template id="bucketItem">
+<template id="categoryItem">
     <li data-id="{{ _id }}">{{ name }}</li>
 </template>
 
-<template id="editBucketName">
-
-</template>
-
-<template id="bucketTableRow">
+<template id="credentialTableRow">
     <tr data-id="{{ credential._id }}">
         <td name="location">{{ credential.location }}</td>
         <td name="description">{{ credential.description }}</td>
@@ -68,7 +64,7 @@
 
 <template id="categoryModal">
     <h5>{{ title }}</h5>
-    <form id="add-bucket-form">
+    <form id="add-category-form">
         <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" value="{{ category.name }}" autofocus>
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
@@ -76,7 +72,7 @@
 
 <script type="text/template" id="credentialModal">
     <h5>{{ title }}</h5>
-    <form id="add-password-form">
+    <form id="add-credential-form">
         <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
         <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ credential.description }}">
         <input class="u-full-width" type="text" name="username" placeholder="Username" required="required" value="{{ credential.username }}">
@@ -91,18 +87,4 @@
         <input class="six columns btn-submit" type="button" value="No">
         <input class="six columns btn-submit" type="button" value="Yes">
     </form>
-</template>
-
-<template id="dropdown">
-    <div id="dropdown-content" class="dropdown-content">
-        <ul id="dropdown-lst">
-            <li class="material-icons">mode_edit</li>
-            <li class="material-icons">delete_forever</li>
-        </ul>
-    </div>
-</template>
-
-<template id="dropdown2">
-    <li data-action="name">Edit bucket name</li>
-    <li data-action="delete">Delete bucket</li>
 </template>
