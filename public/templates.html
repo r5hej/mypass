@@ -51,10 +51,10 @@
 
 <template id="credentialTableRow">
     <tr data-id="{{ credential._id }}">
-        <td name="location">{{ credential.location }}</td>
-        <td name="description">{{ credential.description }}</td>
-        <td name="username">{{ credential.username }}</td>
-        <td name="password">{{ password }}</td>
+        <td data-type="location">{{ credential.location }}</td>
+        <td data-type="description">{{ credential.description }}</td>
+        <td data-type="username">{{ credential.username }}</td>
+        <td data-type="password">{{ password }}</td>
         <td>
             <i class="material-icons more-button">more_horiz</i>
             <i class="material-icons show-password">remove_red_eye</i>

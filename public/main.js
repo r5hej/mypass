@@ -244,7 +244,7 @@ function loadBuckets() {
 
 function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
-    let pwdField = row.querySelector('td[name=password]');
+    let pwdField = row.querySelector('td[data-type=password');
     let credId = row.dataset.id;
 
     if (!(pwdField.innerText === hiddenPwd))
@@ -254,7 +254,7 @@ function togglePassword(ev) {
 }
 
 function deleteRowFromBucket(row) {
-    let location = row.querySelector('td[name=location]').innerText;
+    let location = row.querySelector('td[data-type=location]').innerText;
     let bucketIndex = activeCategory.credentials.findIndex(item => item.location === location);
     activeCategory.credentials.splice(bucketIndex, 1);
     renderTable();
