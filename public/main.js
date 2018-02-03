@@ -52,11 +52,7 @@ function renderManager() {
                 categoryModal(map.get(id).category);
                 break;
             case "delete":
-                sendForm('DELETE', "category", form, () => {
-                    let index = categories.findIndex(item => item._id === form.get('_id'));
-                    categories.splice(index, 1);
-                    renderCategories();
-                });
+                deleteCategory(form);
                 break;
         }
         hideDropdown(categoryDropdown);
@@ -72,7 +68,7 @@ function renderManager() {
                 credentialModal(catMap.get(credId));
                 break;
             case "delete":
-                deleteCredentialModal(credentialDropdown.item, catWrap, );
+                deleteCredential(credentialDropdown.item, catWrap, );
                 break;
         }
         hideDropdown(credentialDropdown);
@@ -158,6 +154,7 @@ function categoryModal(category) {
         }
     });
 }
+
 function credentialModal(creds) {
     if (!activeCategory)
         return;
@@ -189,12 +186,34 @@ function credentialModal(creds) {
         }
     });
 }
-function deleteCredentialModal(row, catId, credId) {
-    ModalsJs.open(templates.deleteRowModal.render());
+function deleteCredential(row, catId, credId) {
+    confirmationModal(() => {
+        let form = new FormData();
+        form.set("_id", row.dataset.id);
+        sendForm('DELETE', "credential", form, () => {
+            let index = activeCategory.credentials.findIndex(item => item._id === row.dataset.id);
+            activeCategory.credentials.splice(index, 1);
+            renderTable();
+        });
+    });
+}
+
+function deleteCategory(form) {
+    confirmationModal(() => {
+        sendForm('DELETE', "category", form, () => {
+            let index = categories.findIndex(item => item._id === form.get('_id'));
+            categories.splice(index, 1);
+            renderCategories();
+        });
+    });
+}
+
+function confirmationModal(callback) {
+    ModalsJs.open(templates.deleteConfirmationModal.render());
     document.getElementById('deleteConfirmationForm').on('click', 'input', ev => {
         ev.preventDefault();
         if (ev.target.value === "Yes")
-            deleteRowFromBucket(row);
+            callback();
         ModalsJs.close();
     });
 }
@@ -251,13 +270,6 @@ function togglePassword(ev) {
         pwdField.innerText = hiddenPwd;
     else
         pwdField.innerText = map.get(activeCategory._id).map.get(credId).password;
-}
-
-function deleteRowFromBucket(row) {
-    let location = row.querySelector('td[data-type=location]').innerText;
-    let bucketIndex = activeCategory.credentials.findIndex(item => item.location === location);
-    activeCategory.credentials.splice(bucketIndex, 1);
-    renderTable();
 }
 
 function sendForm(method, url, form, success, error, json=true) {
