@@ -53,23 +53,23 @@ form {
     color: white;
 }
 
-.category-lst > ul {
+.category-lst ul {
     list-style: none;
     margin-bottom: 0;
 }
 
-.category-lst > ul > li {
+.category-lst li {
     text-align: center;
     cursor: pointer;
     border-bottom: 1px solid #D1D1D1D1;
     /*font-weight: bold;*/
 }
 
-.category-lst > ul > li:last-child {
+.category-lst li:last-child {
     border-bottom: none;
 }
 
-.category-lst > ul > li:hover {
+.category-lst li:hover {
     /*background-color: #EEEEEE;*/
     background-color: var(--green);
     color: white;
@@ -81,7 +81,7 @@ form {
     margin-bottom: 0;
 }
 
-#credentials-tbody > tr > td:last-child {
+#credentials-tbody td:last-child {
     padding: 0;
     width: 30px;
 }
