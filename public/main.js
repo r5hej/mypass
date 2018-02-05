@@ -1,5 +1,34 @@
 "use strict";
 
+function createCryptoFuncs(password) {
+    let hash = sha256(password);
+    let keyBytes = aesjs.utils.utf8.toBytes(hash).slice(0, 32); // 32 bytes for AES256
+    return {
+        enc: plainStr => {
+            let strBytes = aesjs.utils.utf8.toBytes(plainStr);
+            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
+            let encryptedBytes = aesCtr.encrypt(strBytes);
+            return aesjs.utils.hex.fromBytes(encryptedBytes);
+        },
+        dec: hexStr => {
+            let encryptedBytes = aesjs.utils.hex.toBytes(hexStr);
+            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
+            let decryptedBytes = aesCtr.decrypt(encryptedBytes);
+            return aesjs.utils.utf8.fromBytes(decryptedBytes);
+        }
+    }
+}
+
+let crypto = createCryptoFuncs("ib");
+
+let encText = crypto.enc("The quick brown fox jumps over the lazy brown dog");
+console.log("enc", encText);
+crypto = createCryptoFuncs("ib");
+let decText = crypto.dec(encText);
+console.log("dec", decText);
+
+
+
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let templates;
 let activeCategory;
