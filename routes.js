@@ -64,7 +64,7 @@ app.delete('/credential', sessAuth, async (req, res) => {
 });
 
 app.put('/credential', sessAuth, async (req, res) => {
-    let saved = await models.Credential.update({_id: req.fields._id}, req.fields);
+    let saved = await models.Credential.findOneAndUpdate({_id: req.fields._id}, req.fields).lean();
     res.send(saved);
 });
 

@@ -1,39 +1,11 @@
 "use strict";
 
-function createCryptoFuncs(password) {
-    let hash = sha256(password);
-    let keyBytes = aesjs.utils.utf8.toBytes(hash).slice(0, 32); // 32 bytes for AES256
-    return {
-        enc: plainStr => {
-            let strBytes = aesjs.utils.utf8.toBytes(plainStr);
-            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
-            let encryptedBytes = aesCtr.encrypt(strBytes);
-            return aesjs.utils.hex.fromBytes(encryptedBytes);
-        },
-        dec: hexStr => {
-            let encryptedBytes = aesjs.utils.hex.toBytes(hexStr);
-            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
-            let decryptedBytes = aesCtr.decrypt(encryptedBytes);
-            return aesjs.utils.utf8.fromBytes(decryptedBytes);
-        }
-    }
-}
-
-let crypto = createCryptoFuncs("ib");
-
-let encText = crypto.enc("The quick brown fox jumps over the lazy brown dog");
-console.log("enc", encText);
-crypto = createCryptoFuncs("ib");
-let decText = crypto.dec(encText);
-console.log("dec", decText);
-
-
 
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let templates;
 let activeCategory;
 
-let categories, map;
+let categories, map, crypto;
 let wrapper = document.getElementById("wrapper");
 let categoryDropdown, credentialDropdown;
 let mainTable, categoryList;
@@ -161,10 +133,12 @@ function categoryModal(category) {
     form.addEventListener('submit', ev => {
         ev.preventDefault();
         let formData = new FormData(form);
+        let name = formData.get("name");
+        encryptFormFields(formData, ["name"]);
         if (category) { // update existing
             formData.set("_id", category._id);
             sendForm('PUT', "/category", formData, () => {
-                map.get(category._id).category.name = formData.get("name");
+                map.get(category._id).category.name = name;
                 ModalsJs.close();
                 renderCategories();
             });
@@ -172,6 +146,7 @@ function categoryModal(category) {
         else { // add new
             sendForm('POST', '/category', formData, data => {
                 data.credentials = [];
+                data.name = name;
                 categories.push(data);
                 map.set(data._id, {
                     category: data,
@@ -185,27 +160,37 @@ function categoryModal(category) {
 }
 
 function credentialModal(creds) {
+    console.log("cred modal", creds, templates.credentialModal);
     if (!activeCategory)
         return;
     ModalsJs.open(templates.credentialModal.render({
         title: !!creds ? "Edit credential" : "Add a new credential",
-        credential: creds
+        credential: !!creds ? {
+            username: creds.username,
+            password: crypto.dec(creds.password),
+            location: creds.location,
+            description: creds.description
+        } : undefined
     }), { warning: true });
-    let form = document.getElementById('add-credential-form');
     let catId = activeCategory._id;
+    console.log(catId);
+    let form = document.getElementById('add-credential-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
         let formData = new FormData(form);
+        encryptFormFields(formData, ["username", "password", "location", "description"]);
         formData.set("category_id", catId);
         if (creds){
             sendForm('PUT', '/credential', formData, data => {
-                Object.assign(map.get(catId).map.get(data._id), data);
+                decryptFields(data, ["username", "location", "description"]);
+                Object.assign(creds, data);
                 ModalsJs.close(true);
                 renderTable();
             });
         }
         else {
             sendForm('POST', '/credential', formData, data => {
+                decryptFields(data, ["username", "location", "description"]);
                 let categoryWrapper = map.get(catId);
                 categoryWrapper.category.credentials.push(data);
                 categoryWrapper.map.set(data._id, data);
@@ -215,6 +200,7 @@ function credentialModal(creds) {
         }
     });
 }
+
 function deleteCredential(row, catId, credId) {
     confirmationModal(() => {
         let form = new FormData();
@@ -247,10 +233,19 @@ function confirmationModal(callback) {
     });
 }
 
+function decryptionPasswordModal(cb) {
+    ModalsJs.open(templates.decryptPasswordModal.render());
+    let form = document.getElementById("decrypt-password-form");
+    form.addEventListener("submit", ev => {
+        ev.preventDefault();
+        cb(form.querySelector("input[type=password]").value);
+        ModalsJs.close();
+    })
+}
+
 function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    // let pwd = form.get("password");
     sendForm('POST', "/login", form, () => {
         loadBuckets();
     }, () => {
@@ -262,6 +257,7 @@ function logout() {
         categories = [];
         map = null;
         activeCategory = null;
+        crypto = null;
         renderLogin();
     }, resp => {
         console.log("logout failed");
@@ -270,24 +266,45 @@ function logout() {
 
 function loadBuckets() {
     getJson("/categories", cats => {
-        categories = cats;
-        map = new Map();
-        for (let i = 0; i < cats.length; i++){
-            let category = cats[i];
-            let tCreds = new Map();
-            for (let j = 0; j < category.credentials.length; j++){
-                let credential = category.credentials[j];
-                tCreds.set(credential._id, credential);
+        decryptionPasswordModal(password => {
+            console.log(password);
+            crypto = createCryptoFuncs(password);
+            categories = cats;
+            map = new Map();
+            for (let i = 0; i < cats.length; i++){
+                let category = cats[i];
+                decryptFields(category, ["name"]);
+                let tCreds = new Map();
+                for (let j = 0; j < category.credentials.length; j++){
+                    let credential = category.credentials[j];
+                    decryptFields(credential, ["username", "location", "description"]);
+                    tCreds.set(credential._id, credential);
+                }
+                map.set(category._id, {
+                    category,
+                    map: tCreds
+                });
             }
-            map.set(category._id, {
-                category,
-                map: tCreds
-            });
-        }
-        renderManager();
+            renderManager();
+        });
+
     }, () => {
         renderLogin();
     });
+}
+
+function encryptFormFields(form, fields) {
+    for (let i = 0; i < fields.length; i++) {
+        let value = crypto.enc(form.get(fields[i]));
+        form.set(fields[i], value);
+    }
+}
+
+function decryptFields(obj, fields) {
+    for (let i = 0; i < fields.length; i++) {
+        if (obj[fields[i]])
+            obj[fields[i]] = crypto.dec(obj[fields[i]]);
+    }
 }
 
 function togglePassword(ev) {
@@ -298,17 +315,36 @@ function togglePassword(ev) {
     if (!(pwdField.innerText === hiddenPwd))
         pwdField.innerText = hiddenPwd;
     else
-        pwdField.innerText = map.get(activeCategory._id).map.get(credId).password;
+        pwdField.innerText = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
 }
 
+function createCryptoFuncs(password) {
+    let hash = sha256(password);
+    let keyBytes = aesjs.utils.utf8.toBytes(hash).slice(0, 32); // 32 bytes for AES256
+    return {
+        enc: plainStr => {
+            let strBytes = aesjs.utils.utf8.toBytes(plainStr);
+            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
+            let encryptedBytes = aesCtr.encrypt(strBytes);
+            return aesjs.utils.hex.fromBytes(encryptedBytes);
+        },
+        dec: hexStr => {
+            let encryptedBytes = aesjs.utils.hex.toBytes(hexStr);
+            let aesCtr = new aesjs.ModeOfOperation.ctr(keyBytes, new aesjs.Counter(5));
+            let decryptedBytes = aesCtr.decrypt(encryptedBytes);
+            return aesjs.utils.utf8.fromBytes(decryptedBytes);
+        }
+    }
+}
 function sendForm(method, url, form, success, error, json=true) {
     let xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
 
     xhr.onload = function(e) {
         if (xhr.readyState === 4 && xhr.status === 200)
-            if (json)
+            if (json){
                 success(JSON.parse(xhr.responseText));
+            }
             else
                 success(xhr.responseText);
         else
