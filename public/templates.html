@@ -1,6 +1,6 @@
 <template id="login">
     <form id="login-form" class="login">
-        <input class="u-full-width" autofocus="autofocus" name="username" type="text" placeholder="Username" required="required">
+        <input class="u-full-width" name="username" autofocus="autofocus" type="text" placeholder="Username" required="required">
         <input class="u-full-width" name="password" type="password" placeholder="Password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Login">
     </form>
@@ -14,8 +14,8 @@
         <ul id="category-lst" class="u-full-width box"></ul>
     </div>
     <ul id="category-dropdown" class="dropdown-menu">
-        <li data-action="name" class="material-icons">mode_edit</li>
-        <li data-action="delete" class="material-icons">delete_forever</li>
+        <li data-action="name" class="material-icons" title="Edit category">mode_edit</li>
+        <li data-action="delete" class="material-icons" title="Delete category">delete_forever</li>
     </ul>
     <div class="nine columns">
         <div class="btn-row">
@@ -36,8 +36,8 @@
         </table>
     </div>
     <ul id="credential-dropdown" class="dropdown-menu">
-        <li data-action="edit" class="material-icons">mode_edit</li>
-        <li data-action="delete" class="material-icons">delete_forever</li>
+        <li data-action="edit" class="material-icons" title="Edit credential">mode_edit</li>
+        <li data-action="delete" class="material-icons" title="Delete credential">delete_forever</li>
     </ul>
 </template>
 
@@ -49,11 +49,11 @@
     <tr data-id="{{ credential._id }}">
         <td data-type="location">{{ credential.location }}</td>
         <td data-type="description">{{ credential.description }}</td>
-        <td data-type="username">{{ credential.username }}</td>
-        <td data-type="password">{{ password }}</td>
+        <td data-type="username" title="Click to copy">{{ credential.username }}</td>
+        <td data-type="password" title="Click to copy">{{ password }}</td>
         <td>
-            <i class="material-icons more-button">more_horiz</i>
-            <i class="material-icons show-password">remove_red_eye</i>
+            <i class="material-icons more-button" title="More options">more_horiz</i>
+            <i class="material-icons show-password" title="Toggle show password">remove_red_eye</i>
         </td>
     </tr>
 </template>
@@ -61,7 +61,7 @@
 <template id="categoryModal">
     <h5>{{ title }}</h5>
     <form id="add-category-form">
-        <input class="u-full-width" type="text" autofocus="autofocus" name="name" placeholder="Category name" required="required" value="{{ category.name }}">
+        <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" value="{{ category.name }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
@@ -69,7 +69,7 @@
 <template id="credentialModal">
     <h5>{{ title }}</h5>
     <form id="add-credential-form">
-        <input class="u-full-width" type="text" autofocus="autofocus" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
+        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
         <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ credential.description }}">
         <input class="u-full-width" type="text" name="username" placeholder="Username" value="{{ credential.username }}">
         <input class="u-full-width" type="text" name="password" placeholder="Password" required="required" value="{{ credential.password }}">
@@ -80,7 +80,7 @@
 <template id="decryptPasswordModal">
     <h5>{{ title }}</h5>
     <form id="decrypt-password-form">
-        <input class="u-full-width" autofocus="autofocus" type="password" name="password" required="required">
+        <input class="u-full-width" type="password" name="password" required="required">
         <input class="six columns btn-submit" type="submit" style="float:right;" value="OK">
     </form>
 </template>

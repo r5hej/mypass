@@ -80,6 +80,9 @@ form {
     margin-bottom: 0;
 }
 
+#credentials-tbody td {
+    user-select: none;
+}
 #credentials-tbody td:last-child {
     padding: 0;
     width: 30px;
@@ -230,6 +233,13 @@ input.btn-submit[type=button]:hover {
 td i {
     user-select: none;
 }
-td[data-type=password]:hover {
+td[data-type=password]:hover, td[data-type=username]:hover {
     cursor: pointer;
+}
+td[data-type=password], td[data-type=username] {
+    transition: background-color 300ms;
+}
+td[data-type=password]:active, td[data-type=username]:active {
+    background-color: rgba(80, 80, 80, 0.1);
+    transition: background-color 100ms;
 }

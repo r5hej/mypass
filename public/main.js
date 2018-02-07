@@ -84,18 +84,34 @@ function renderManager() {
 
     mainTable = document.getElementById('credentials-tbody');
     mainTable.on("click", ".more-button", ev => {
-        event.stopPropagation();
+        ev.stopPropagation();
         credentialDropdown.style.top = ev.pageY + "px";
         credentialDropdown.style.left = ev.pageX + "px";
         credentialDropdown.classList.add("active");
         credentialDropdown.item = ev.target.parentNode.parentNode;
     });
+
+    let copyTarget = document.createElement("textarea");
     mainTable.on("click", "td[data-type=password]", ev => {
-        event.stopPropagation();
+        ev.stopPropagation();
         let credId = ev.target.parentNode.dataset.id;
         let password = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
-        console.log(credId, password);
-        // copy password to clipboard
+        wrapper.appendChild(copyTarget);
+        copyTarget.textContent = password;
+        copyTarget.select();
+        document.execCommand("copy");
+        copyTarget.textContent = "";
+        wrapper.removeChild(copyTarget);
+    });
+    mainTable.on("click", "td[data-type=username]", ev => {
+        ev.stopPropagation();
+        let credId = ev.target.parentNode.dataset.id;
+        wrapper.appendChild(copyTarget);
+        copyTarget.textContent = map.get(activeCategory._id).map.get(credId).username;
+        copyTarget.select();
+        document.execCommand("copy");
+        copyTarget.textContent = "";
+        wrapper.removeChild(copyTarget);
     });
     mainTable.on('click', 'i.show-password', togglePassword);
     renderCategories();
@@ -117,13 +133,14 @@ function renderCategories() {
     categories.forEach(c => html += templates.categoryItem.render(c));
     categoryList.innerHTML = html;
 
-    if (activeCategory === undefined) {
+    if (!activeCategory) {
         return;
     }
 
     let elements = categoryList.getElementsByTagName('li');
+    console.log(elements);
     for (let i = 0; i < elements.length; i++) {
-        if (elements[i].dataset.id === activeCategory._id) {
+        if (elements[i].dataset && elements[i].dataset.id === activeCategory._id) {
             elements[i].classList.add("selected");
             break;
         }
@@ -260,9 +277,9 @@ function login(ev) {
 function logout() {
     postRequest("/logout", null, resp => {
         categories = [];
-        map = null;
-        activeCategory = null;
-        crypto = null;
+        map = undefined;
+        activeCategory = undefined;
+        crypto = undefined;
         renderLogin();
     }, resp => {
         console.log("logout failed");
@@ -316,11 +333,12 @@ function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
     let pwdField = row.querySelector('td[data-type=password');
     let credId = row.dataset.id;
-
-    if (!(pwdField.innerText === hiddenPwd))
+    if (!(pwdField.innerText === hiddenPwd)){
         pwdField.innerText = hiddenPwd;
-    else
+    }
+    else{
         pwdField.innerText = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
+    }
 }
 
 function createCryptoFuncs(password) {
