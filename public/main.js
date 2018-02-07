@@ -90,6 +90,13 @@ function renderManager() {
         credentialDropdown.classList.add("active");
         credentialDropdown.item = ev.target.parentNode.parentNode;
     });
+    mainTable.on("click", "td[data-type=password]", ev => {
+        event.stopPropagation();
+        let credId = ev.target.parentNode.dataset.id;
+        let password = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
+        console.log(credId, password);
+        // copy password to clipboard
+    });
     mainTable.on('click', 'i.show-password', togglePassword);
     renderCategories();
 }
@@ -160,7 +167,6 @@ function categoryModal(category) {
 }
 
 function credentialModal(creds) {
-    console.log("cred modal", creds, templates.credentialModal);
     if (!activeCategory)
         return;
     ModalsJs.open(templates.credentialModal.render({
@@ -173,7 +179,6 @@ function credentialModal(creds) {
         } : undefined
     }), { warning: true });
     let catId = activeCategory._id;
-    console.log(catId);
     let form = document.getElementById('add-credential-form');
     form.addEventListener('submit', ev => {
         ev.preventDefault();
@@ -233,8 +238,8 @@ function confirmationModal(callback) {
     });
 }
 
-function decryptionPasswordModal(cb) {
-    ModalsJs.open(templates.decryptPasswordModal.render());
+function decryptionPasswordModal(title, cb) {
+    ModalsJs.open(templates.decryptPasswordModal.render({ title }));
     let form = document.getElementById("decrypt-password-form");
     form.addEventListener("submit", ev => {
         ev.preventDefault();
@@ -266,8 +271,8 @@ function logout() {
 
 function loadBuckets() {
     getJson("/categories", cats => {
-        decryptionPasswordModal(password => {
-            console.log(password);
+        let title = (cats.length === 0) ? "Create encryption password" : "Enter decryption password";
+        decryptionPasswordModal(title, password => {
             crypto = createCryptoFuncs(password);
             categories = cats;
             map = new Map();

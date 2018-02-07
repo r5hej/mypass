@@ -62,7 +62,6 @@ form {
     text-align: center;
     cursor: pointer;
     border-bottom: 1px solid #D1D1D1D1;
-    /*font-weight: bold;*/
 }
 
 .category-lst li:last-child {
@@ -70,12 +69,12 @@ form {
 }
 
 .category-lst li:hover {
-    /*background-color: #EEEEEE;*/
     background-color: var(--green);
     color: white;
 }
 .credential-table {
     table-layout: fixed;
+    border-collapse: collapse;
 }
 .credential-table:last-child {
     margin-bottom: 0;
@@ -157,70 +156,12 @@ input.btn-submit[type=button]:hover {
     max-width: 600px;
 }
 
-
-/*.categoryDropdown {*/
-    /*position: relative;*/
-    /*display: inline-block;*/
-/*}*/
-
-/*.categoryDropdown-content {*/
-    /*display: block;*/
-    /*position: absolute;*/
-    /*background-color: #f9f9f9;*/
-    /*min-width: 160px;*/
-    /*!*overflow: auto;*!*/
-    /*!*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*!*/
-    /*box-shadow: 8px 8px 45px -5px rgba(0,0,0,0.75);*/
-    /*z-index: 1;*/
-    /*border-radius: 4px;*/
-    /*right: 0;*/
-/*}*/
-
-/*.categoryDropdown-content > ul {*/
-    /*margin-bottom: 0;*/
-/*}*/
-
-/*.categoryDropdown-content > ul > li:hover {*/
-    /*background-color: var(--green-hover);*/
-    /*color: white;*/
-    /*cursor: pointer;*/
-/*}*/
-
-/*.categoryDropdown-content > ul > li:hover:first-child {*/
-    /*border-radius: 4px 4px 0 0;*/
-/*}*/
-
-/*.categoryDropdown-content > ul > li:hover:last-child {*/
-    /*background: var(--red-hover);*/
-    /*border-radius: 0 0 4px 4px;*/
-/*}*/
-
-/*.categoryDropdown-content > ul > li {*/
-    /*color: black;*/
-    /*padding: 5px 10px;*/
-    /*text-decoration: none;*/
-    /*display: block;*/
-    /*border-bottom: 1px solid #D1D1D1D1;*/
-/*}*/
-
-/*.categoryDropdown-content > ul > li:last-child {*/
-    /*border-bottom: 0;*/
-/*}*/
-
-/*.show-categoryDropdown {*/
-    /*display: block;*/
-/*}*/
-
-
-
 .show-password {
-    /*margin-left: 10px;*/
     margin-left: 5px;
     margin-right: 5px;
     float: right;
 }
 .more-button {
-    /*margin-left: 10px;*/
     float: right;
 }
 
@@ -275,6 +216,7 @@ input.btn-submit[type=button]:hover {
     list-style-type: none;
     transition: all .3s ease;
     user-select: none;
+    display: block;
 }
 
 .dropdown-menu li:hover {
@@ -287,4 +229,7 @@ input.btn-submit[type=button]:hover {
 
 td i {
     user-select: none;
+}
+td[data-type=password]:hover {
+    cursor: pointer;
 }

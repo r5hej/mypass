@@ -1,6 +1,6 @@
 <template id="login">
     <form id="login-form" class="login">
-        <input class="u-full-width" name="username" type="text" placeholder="Username" required="required">
+        <input class="u-full-width" autofocus="autofocus" name="username" type="text" placeholder="Username" required="required">
         <input class="u-full-width" name="password" type="password" placeholder="Password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Login">
     </form>
@@ -10,19 +10,15 @@
     <div class="three columns category-lst">
         <div class="btn-row">
             <div id="add-category-btn" class="top-btn">Add</div>
-
-            <ul id="category-dropdown" class="dropdown-menu">
-                <!--<li data-action="name">Edit bucket name</li>-->
-                <!--<li data-action="delete">Delete bucket</li>-->
-                <li data-action="name" class="material-icons">mode_edit</li>
-                <li data-action="delete" class="material-icons">delete_forever</li>
-            </ul>
         </div>
         <ul id="category-lst" class="u-full-width box"></ul>
     </div>
+    <ul id="category-dropdown" class="dropdown-menu">
+        <li data-action="name" class="material-icons">mode_edit</li>
+        <li data-action="delete" class="material-icons">delete_forever</li>
+    </ul>
     <div class="nine columns">
         <div class="btn-row">
-            <!--<div id="update-bucket-btn" class="btn-update">Update</div>-->
             <div id="add-credential-btn" class="top-btn left-align">Add</div>
             <div id="logout-btn" class="top-btn right-align">Logout</div>
         </div>
@@ -38,11 +34,11 @@
             </thead>
             <tbody id="credentials-tbody"></tbody>
         </table>
-        <ul id="credential-dropdown" class="dropdown-menu">
-            <li data-action="edit" class="material-icons">mode_edit</li>
-            <li data-action="delete" class="material-icons">delete_forever</li>
-        </ul>
     </div>
+    <ul id="credential-dropdown" class="dropdown-menu">
+        <li data-action="edit" class="material-icons">mode_edit</li>
+        <li data-action="delete" class="material-icons">delete_forever</li>
+    </ul>
 </template>
 
 <template id="categoryItem">
@@ -65,7 +61,7 @@
 <template id="categoryModal">
     <h5>{{ title }}</h5>
     <form id="add-category-form">
-        <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" value="{{ category.name }}" autofocus>
+        <input class="u-full-width" type="text" autofocus="autofocus" name="name" placeholder="Category name" required="required" value="{{ category.name }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
@@ -73,7 +69,7 @@
 <template id="credentialModal">
     <h5>{{ title }}</h5>
     <form id="add-credential-form">
-        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
+        <input class="u-full-width" type="text" autofocus="autofocus" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
         <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ credential.description }}">
         <input class="u-full-width" type="text" name="username" placeholder="Username" value="{{ credential.username }}">
         <input class="u-full-width" type="text" name="password" placeholder="Password" required="required" value="{{ credential.password }}">
@@ -82,10 +78,10 @@
 </template>
 
 <template id="decryptPasswordModal">
-    <h5>Decryption password</h5>
+    <h5>{{ title }}</h5>
     <form id="decrypt-password-form">
-        <input type="password" name="password" required="required">
-        <input class="six columns btn-submit" type="submit" value="OK">
+        <input class="u-full-width" autofocus="autofocus" type="password" name="password" required="required">
+        <input class="six columns btn-submit" type="submit" style="float:right;" value="OK">
     </form>
 </template>
 
