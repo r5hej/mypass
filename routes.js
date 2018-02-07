@@ -27,7 +27,7 @@ app.use(session({
 }));
 
 
-const sessAuth = function(req, res, next) {
+const sessAuth = function (req, res, next) {
     if (req.session && req.session.username)
         return next();
     else {
@@ -35,14 +35,30 @@ const sessAuth = function(req, res, next) {
     }
 };
 
+app.get('/register', async (req, res) => {
+    res.sendFile(__dirname + '/public/register.html');
+});
+
+app.post('/register', async (req, res) => {
+    let user = await models.User.findOne({username: req.fields.username});
+    if (user) {
+        res.send('400');
+        return;
+    }
+
+    let hashed = await bcrypt.hash(req.fields.password, saltRounds);
+    let newUser = new models.User({username: req.fields.username, password: hashed}, true);
+    newUser.save();
+    res.send('200');
+});
 
 app.post('/login', async (req, res) => {
     let user = await models.User.findOne({username: req.fields.username});
-    if (user && await bcrypt.compare(req.fields.password, user.password)){
+    if (user && await bcrypt.compare(req.fields.password, user.password)) {
         req.session.username = user.username;
         res.send("OK");
     }
-    else{
+    else {
         res.sendStatus(401);
     }
 });
@@ -70,7 +86,7 @@ app.put('/credential', sessAuth, async (req, res) => {
 
 app.get('/categories', sessAuth, async (req, res) => {
     let categories = await models.Category.find({owner: req.session.username}).lean();
-    for (let i = 0; i < categories.length; i++){
+    for (let i = 0; i < categories.length; i++) {
         let category = categories[i];
         category.credentials = await models.Credential.find({category_id: category._id}).lean();
         delete category.owner;

@@ -19,8 +19,8 @@ td {
 }
 
 ::-webkit-scrollbar {
-    width: 0px;  /* remove scrollbar space */
-    background: transparent;  /* optional: just make scrollbar invisible */
+    width: 0px; /* remove scrollbar space */
+    background: transparent; /* optional: just make scrollbar invisible */
 }
 
 li {
@@ -46,8 +46,9 @@ form {
 #category-lst {
     overflow-y: scroll;
     min-height: 34px;
-    max-height: 700px;
+    /*max-height: 700px;*/
 }
+
 #category-lst li.selected {
     background-color: #14b208;
     color: white;
@@ -72,10 +73,12 @@ form {
     background-color: var(--green);
     color: white;
 }
+
 .credential-table {
     table-layout: fixed;
     border-collapse: collapse;
 }
+
 .credential-table:last-child {
     margin-bottom: 0;
 }
@@ -83,6 +86,7 @@ form {
 #credentials-tbody td {
     user-select: none;
 }
+
 #credentials-tbody td:last-child {
     padding: 0;
     width: 30px;
@@ -153,7 +157,8 @@ input.btn-submit[type=button]:hover {
     text-align: center;
 }
 
-#login-form {
+#login-form,
+#register-form {
     margin: auto;
     padding: 20px;
     max-width: 600px;
@@ -164,6 +169,7 @@ input.btn-submit[type=button]:hover {
     margin-right: 5px;
     float: right;
 }
+
 .more-button {
     float: right;
 }
@@ -181,24 +187,39 @@ input.btn-submit[type=button]:hover {
     animation-iteration-count: infinite;
     animation-timing-function: linear;
 }
+
 @-moz-keyframes spin {
-    from { -moz-transform: rotate(0deg); }
-    to { -moz-transform: rotate(360deg); }
-}
-@-webkit-keyframes spin {
-    from { -webkit-transform: rotate(0deg); }
-    to { -webkit-transform: rotate(360deg); }
-}
-@keyframes spin {
-    from {transform:rotate(0deg);}
-    to {transform:rotate(360deg);}
+    from {
+        -moz-transform: rotate(0deg);
+    }
+    to {
+        -moz-transform: rotate(360deg);
+    }
 }
 
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 .dropdown-menu {
     user-select: none;
     position: fixed;
 }
+
 .dropdown-menu {
     display: none;
     z-index: 1000;
@@ -233,13 +254,26 @@ input.btn-submit[type=button]:hover {
 td i {
     user-select: none;
 }
+
 td[data-type=password]:hover, td[data-type=username]:hover {
     cursor: pointer;
 }
+
 td[data-type=password], td[data-type=username] {
     transition: background-color 300ms;
 }
+
 td[data-type=password]:active, td[data-type=username]:active {
     background-color: rgba(80, 80, 80, 0.1);
     transition: background-color 100ms;
+}
+
+.modalsjs-bgc {
+    background-color: #F5F5F5;
+}
+
+.modalsjs-view {
+    border-radius: 4px;
+    top: 35%;
+    max-width: 500px;
 }

@@ -19,7 +19,6 @@ let CategorySchema = new mongoose.Schema({
 });
 
 
-
 let User = mongoose.model('User', UserSchema);
 let Credential = mongoose.model('Credential', CredentialSchema);
 let Category = mongoose.model('Category', CategorySchema);

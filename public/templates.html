@@ -1,6 +1,7 @@
 <template id="login">
     <form id="login-form" class="login">
-        <input class="u-full-width" name="username" autofocus="autofocus" type="text" placeholder="Username" required="required">
+        <input class="u-full-width" name="username" autofocus="autofocus" type="text" placeholder="Username"
+               required="required">
         <input class="u-full-width" name="password" type="password" placeholder="Password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Login">
     </form>
@@ -61,7 +62,8 @@
 <template id="categoryModal">
     <h5>{{ title }}</h5>
     <form id="add-category-form">
-        <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" value="{{ category.name }}">
+        <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required"
+               value="{{ category.name }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
@@ -69,10 +71,14 @@
 <template id="credentialModal">
     <h5>{{ title }}</h5>
     <form id="add-credential-form">
-        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required" value="{{ credential.location }}">
-        <input class="u-full-width" type="text" name="description" placeholder="Description" value="{{ credential.description }}">
-        <input class="u-full-width" type="text" name="username" placeholder="Username" value="{{ credential.username }}">
-        <input class="u-full-width" type="text" name="password" placeholder="Password" required="required" value="{{ credential.password }}">
+        <input class="u-full-width" type="text" name="location" placeholder="Location" required="required"
+               value="{{ credential.location }}">
+        <input class="u-full-width" type="text" name="description" placeholder="Description"
+               value="{{ credential.description }}">
+        <input class="u-full-width" type="text" name="username" placeholder="Username"
+               value="{{ credential.username }}">
+        <input class="u-full-width" type="text" name="password" placeholder="Password" required="required"
+               value="{{ credential.password }}">
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
@@ -81,7 +87,8 @@
     <h5>{{ title }}</h5>
     <form id="decrypt-password-form">
         <input class="u-full-width" type="password" name="password" required="required">
-        <input class="six columns btn-submit" type="submit" style="float:right;" value="OK">
+        <!--<input class="six columns btn-submit" type="submit" style="float:right;" value="OK">-->
+        <input class="u-full-width btn-submit" type="submit" value="OK">
     </form>
 </template>
 

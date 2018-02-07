@@ -14,6 +14,7 @@ function renderLogin() {
     wrapper.innerHTML = templates.login.render();
     document.getElementById('login-form').addEventListener('submit', login);
 }
+
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
     document.getElementById('add-category-btn').addEventListener('click', () => categoryModal());
@@ -48,7 +49,7 @@ function renderManager() {
         let id = categoryDropdown.item;
         let form = new FormData();
         form.set("_id", id);
-        switch (ev.target.dataset.action){
+        switch (ev.target.dataset.action) {
             case "name":
                 categoryModal(map.get(id).category);
                 break;
@@ -64,12 +65,12 @@ function renderManager() {
         let catWrap = map.get(activeCategory._id);
         let catMap = catWrap.map;
         let credId = credentialDropdown.item.dataset.id;
-        switch (ev.target.dataset.action){
+        switch (ev.target.dataset.action) {
             case "edit":
                 credentialModal(catMap.get(credId));
                 break;
             case "delete":
-                deleteCredential(credentialDropdown.item, catWrap, );
+                deleteCredential(credentialDropdown.item, catWrap,);
                 break;
         }
         hideDropdown(credentialDropdown);
@@ -116,6 +117,7 @@ function renderManager() {
     mainTable.on('click', 'i.show-password', togglePassword);
     renderCategories();
 }
+
 function renderTable() {
     if (!activeCategory)
         return;
@@ -128,6 +130,7 @@ function renderTable() {
     }
     mainTable.innerHTML = html;
 }
+
 function renderCategories() {
     let html = "";
     categories.forEach(c => html += templates.categoryItem.render(c));
@@ -194,7 +197,7 @@ function credentialModal(creds) {
             location: creds.location,
             description: creds.description
         } : undefined
-    }), { warning: true });
+    }), {warning: true});
     let catId = activeCategory._id;
     let form = document.getElementById('add-credential-form');
     form.addEventListener('submit', ev => {
@@ -202,7 +205,7 @@ function credentialModal(creds) {
         let formData = new FormData(form);
         encryptFormFields(formData, ["username", "password", "location", "description"]);
         formData.set("category_id", catId);
-        if (creds){
+        if (creds) {
             sendForm('PUT', '/credential', formData, data => {
                 decryptFields(data, ["username", "location", "description"]);
                 Object.assign(creds, data);
@@ -256,7 +259,7 @@ function confirmationModal(callback) {
 }
 
 function decryptionPasswordModal(title, cb) {
-    ModalsJs.open(templates.decryptPasswordModal.render({ title }));
+    ModalsJs.open(templates.decryptPasswordModal.render({title}));
     let form = document.getElementById("decrypt-password-form");
     form.addEventListener("submit", ev => {
         ev.preventDefault();
@@ -274,6 +277,7 @@ function login(ev) {
         this.reset();
     }, false);
 }
+
 function logout() {
     postRequest("/logout", null, resp => {
         categories = [];
@@ -293,11 +297,11 @@ function loadBuckets() {
             crypto = createCryptoFuncs(password);
             categories = cats;
             map = new Map();
-            for (let i = 0; i < cats.length; i++){
+            for (let i = 0; i < cats.length; i++) {
                 let category = cats[i];
                 decryptFields(category, ["name"]);
                 let tCreds = new Map();
-                for (let j = 0; j < category.credentials.length; j++){
+                for (let j = 0; j < category.credentials.length; j++) {
                     let credential = category.credentials[j];
                     decryptFields(credential, ["username", "location", "description"]);
                     tCreds.set(credential._id, credential);
@@ -333,10 +337,10 @@ function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
     let pwdField = row.querySelector('td[data-type=password');
     let credId = row.dataset.id;
-    if (!(pwdField.innerText === hiddenPwd)){
+    if (!(pwdField.innerText === hiddenPwd)) {
         pwdField.innerText = hiddenPwd;
     }
-    else{
+    else {
         pwdField.innerText = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
     }
 }
@@ -359,13 +363,14 @@ function createCryptoFuncs(password) {
         }
     }
 }
-function sendForm(method, url, form, success, error, json=true) {
+
+function sendForm(method, url, form, success, error, json = true) {
     let xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
 
-    xhr.onload = function(e) {
+    xhr.onload = function (e) {
         if (xhr.readyState === 4 && xhr.status === 200)
-            if (json){
+            if (json) {
                 success(JSON.parse(xhr.responseText));
             }
             else
@@ -373,12 +378,13 @@ function sendForm(method, url, form, success, error, json=true) {
         else
             error(e, xhr.statusText);
     };
-    xhr.onerror = function(e) {
+    xhr.onerror = function (e) {
         error(e, xhr.statusText);
     };
     xhr.send(form);
 }
-function postRequest(url, data, success, error, json=true) {
+
+function postRequest(url, data, success, error, json = true) {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -397,6 +403,7 @@ function postRequest(url, data, success, error, json=true) {
     xhr.send(data);
     return xhr;
 }
+
 function getJson(url, success, error) {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
