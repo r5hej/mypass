@@ -40,7 +40,7 @@ app.post('/login', async (req, res) => {
     let user = await models.User.findOne({username: req.fields.username});
     if (user && await bcrypt.compare(req.fields.password, user.password)){
         req.session.username = user.username;
-        res.send("OK");
+        res.send({status: "OK"});
     }
     else{
         res.sendStatus(401);
@@ -49,7 +49,7 @@ app.post('/login', async (req, res) => {
 
 app.post('/logout', sessAuth, async (req, res) => {
     req.session.destroy();
-    res.send("OK");
+    res.send({status: "OK"});
 });
 
 app.post('/credential', sessAuth, async (req, res) => {
@@ -60,6 +60,7 @@ app.post('/credential', sessAuth, async (req, res) => {
 
 app.delete('/credential', sessAuth, async (req, res) => {
     let deleted = await models.Credential.remove({_id: req.fields._id});
+    console.log("delete", deleted);
     res.send(deleted);
 });
 
@@ -75,7 +76,6 @@ app.get('/categories', sessAuth, async (req, res) => {
         category.credentials = await models.Credential.find({category_id: category._id}).lean();
         delete category.owner;
     }
-    // res.send(JSON.stringify(categories));
     res.send(categories);
 });
 
@@ -87,13 +87,15 @@ app.post('/category', sessAuth, async (req, res) => {
 });
 
 app.delete('/category', sessAuth, async (req, res) => {
-    let deletedCat = await models.Category.remove({_id: req.fields._id});
+    let deletedCat = await models.Category.deleteOne({_id: req.fields._id, owner: req.session.username});
     let deletedCreds = await models.Credential.remove({category_id: req.fields._id});
-    res.send(deletedCat && deletedCreds);
+    console.log("delete", deletedCat, deletedCreds);
+    res.send({status: "OK"});
 });
 
 app.put('/category', sessAuth, async (req, res) => {
-    let saved = await models.Category.update({_id: req.fields._id}, req.fields);
+    let saved = await models.Category.findOneAndUpdate({_id: req.fields._id}, req.fields).lean();
+    console.log("update", saved);
     res.send(saved);
 });
 
