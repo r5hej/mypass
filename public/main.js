@@ -1,6 +1,4 @@
 "use strict";
-
-
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let templates;
 let activeCategory;
@@ -10,17 +8,27 @@ let wrapper = document.getElementById("wrapper");
 let categoryDropdown, credentialDropdown;
 let mainTable, categoryList;
 
-const getCred = (cat, cred) => map.get(cat).map.get(cred);
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
     document.getElementById('login-form').addEventListener('submit', login);
 }
-
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
     document.getElementById('add-category-btn').addEventListener('click', () => categoryModal());
     document.getElementById('logout-btn').addEventListener('click', () => logout());
     document.getElementById('add-credential-btn').addEventListener('click', () => credentialModal());
+
+    const showDropdown = (element, ev, item) => {
+        ev.preventDefault();
+        element.style.top = ev.pageY + "px";
+        element.style.left = ev.pageX + "px";
+        element.classList.add("active");
+        element.item = item;
+    };
+    const hideDropdown = element => {
+        element.classList.remove("active");
+        element.item = undefined
+    };
 
     categoryList = document.getElementById('category-lst');
     categoryList.on('click', 'li', ev => {
@@ -32,25 +40,14 @@ function renderManager() {
         element.classList.add("selected");
         renderTable();
     });
-    categoryList.on("contextmenu", "li", ev => {
-        ev.preventDefault();
-        categoryDropdown.style.top = ev.pageY + "px";
-        categoryDropdown.style.left = ev.pageX + "px";
-        categoryDropdown.classList.add("active");
-        categoryDropdown.item = ev.target.dataset.id;
-    });
-
-    const hideDropdown = (element) => {
-        element.classList.remove("active");
-        element.item = undefined
-    };
+    categoryList.on("contextmenu", "li", ev => showDropdown(categoryDropdown, ev, ev.target.dataset.id));
 
     categoryDropdown = document.getElementById("category-dropdown");
     categoryDropdown.on("click", "li", ev => {
         let id = categoryDropdown.item;
         let form = new FormData();
         form.set("_id", id);
-        switch (ev.target.dataset.action) {
+        switch (ev.target.dataset.action){
             case "name":
                 categoryModal(map.get(id).category);
                 break;
@@ -66,16 +63,12 @@ function renderManager() {
         let catWrap = map.get(activeCategory._id);
         let catMap = catWrap.map;
         let credId = credentialDropdown.item.dataset.id;
-        switch (ev.target.dataset.action) {
+        switch (ev.target.dataset.action){
             case "edit":
                 credentialModal(catMap.get(credId));
                 break;
             case "delete":
-<<<<<<< HEAD
                 deleteCredential(credentialDropdown.item);
-=======
-                deleteCredential(credentialDropdown.item, catWrap,);
->>>>>>> 0230712b72c9d2763f0959cee4d68519110ab6b7
                 break;
         }
         hideDropdown(credentialDropdown);
@@ -88,16 +81,9 @@ function renderManager() {
             hideDropdown(credentialDropdown);
     });
 
-    mainTable = document.getElementById('credentials-tbody');
-    mainTable.on("click", ".more-button", ev => {
-        ev.stopPropagation();
-        credentialDropdown.style.top = ev.pageY + "px";
-        credentialDropdown.style.left = ev.pageX + "px";
-        credentialDropdown.classList.add("active");
-        credentialDropdown.item = ev.target.parentNode.parentNode;
-    });
-
     let copyTarget = document.createElement("textarea");
+    mainTable = document.getElementById('credentials-tbody');
+    mainTable.on("click", ".more-button", ev => showDropdown(credentialDropdown, ev, ev.target.parentNode.parentNode));
     mainTable.on("click", "td[data-type=password]", ev => {
         ev.stopPropagation();
         let credId = ev.target.parentNode.dataset.id;
@@ -122,7 +108,6 @@ function renderManager() {
     mainTable.on('click', 'i.show-password', togglePassword);
     renderCategories();
 }
-
 function renderTable() {
     if (!activeCategory)
         return;
@@ -135,7 +120,6 @@ function renderTable() {
     }
     mainTable.innerHTML = html;
 }
-
 function renderCategories() {
     let html = "";
     categories.forEach(c => html += templates.categoryItem.render(c));
@@ -202,7 +186,7 @@ function credentialModal(creds) {
             location: creds.location,
             description: creds.description
         } : undefined
-    }), {warning: true});
+    }), { warning: true });
     let catId = activeCategory._id;
     let form = document.getElementById('add-credential-form');
     form.addEventListener('submit', ev => {
@@ -210,13 +194,8 @@ function credentialModal(creds) {
         let formData = new FormData(form);
         encryptFormFields(formData, ["username", "password", "location", "description"]);
         formData.set("category_id", catId);
-<<<<<<< HEAD
         if (creds){
             sendRequest('PUT', '/credential', formData).then(data => {
-=======
-        if (creds) {
-            sendForm('PUT', '/credential', formData, data => {
->>>>>>> 0230712b72c9d2763f0959cee4d68519110ab6b7
                 decryptFields(data, ["username", "location", "description"]);
                 Object.assign(creds, data);
                 ModalsJs.close(true);
@@ -269,7 +248,7 @@ function confirmationModal(callback) {
 }
 
 function decryptionPasswordModal(title, cb) {
-    ModalsJs.open(templates.decryptPasswordModal.render({title}));
+    ModalsJs.open(templates.decryptPasswordModal.render({ title }));
     let form = document.getElementById("decrypt-password-form");
     form.addEventListener("submit", ev => {
         ev.preventDefault();
@@ -287,7 +266,6 @@ function login(ev) {
         this.reset();
     });
 }
-
 function logout() {
     sendRequest('POST', "/logout").then(() => {
         categories = [];
@@ -342,16 +320,9 @@ function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
     let pwdField = row.querySelector('td[data-type=password');
     let credId = row.dataset.id;
-<<<<<<< HEAD
     if (!(pwdField.innerText === hiddenPwd))
         pwdField.innerText = hiddenPwd;
     else
-=======
-    if (!(pwdField.innerText === hiddenPwd)) {
-        pwdField.innerText = hiddenPwd;
-    }
-    else {
->>>>>>> 0230712b72c9d2763f0959cee4d68519110ab6b7
         pwdField.innerText = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
 }
 
@@ -360,7 +331,7 @@ function getRandomNumbers(no) {
     if (window.crypto && window.crypto.getRandomValues) {
         return window.crypto.getRandomValues(new Uint32Array(len));
     } else {
-        let arr = [len];
+        let arr = new Uint32Array(len);
         for (let i = 0; i < len; i++)
             arr[i] = Math.floor(Math.random() * 10242028);
         return arr;
@@ -404,7 +375,6 @@ function createCryptoFuncs(password) {
         }
     }
 }
-<<<<<<< HEAD
 function sendRequest(method, url, data) {
     return new Promise((res, rej) => {
         let xhr = new XMLHttpRequest();
@@ -419,65 +389,6 @@ function sendRequest(method, url, data) {
         xhr.onerror = e => rej(xhr.statusText);
         xhr.send(data);
     });
-=======
-
-function sendForm(method, url, form, success, error, json = true) {
-    let xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-
-    xhr.onload = function (e) {
-        if (xhr.readyState === 4 && xhr.status === 200)
-            if (json) {
-                success(JSON.parse(xhr.responseText));
-            }
-            else
-                success(xhr.responseText);
-        else
-            error(e, xhr.statusText);
-    };
-    xhr.onerror = function (e) {
-        error(e, xhr.statusText);
-    };
-    xhr.send(form);
-}
-
-function postRequest(url, data, success, error, json = true) {
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                if (json)
-                    success(JSON.parse(xhr.responseText));
-                else
-                    success(xhr.responseText);
-            } else {
-                error(xhr.responseText);
-            }
-        }
-    };
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.send(data);
-    return xhr;
-}
-
-function getJson(url, success, error) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.onload = function (e) {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                success(JSON.parse(xhr.responseText));
-            } else {
-                error(xhr.statusText);
-            }
-        }
-    };
-    xhr.onerror = function (e) {
-        error(xhr.statusText);
-    };
-    xhr.send(null);
->>>>>>> 0230712b72c9d2763f0959cee4d68519110ab6b7
 }
 
 JsT.get("templates.html", tmpl => {
