@@ -5,16 +5,12 @@ const session = require('express-session');
 //const yields = require('express-yields');
 const formidable = require('express-formidable');
 const models = require("./models");
+const fs = require("fs");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-async function hashPassword(password) {
-    let salt = bcrypt.genSalt(saltRounds);
-    return await bcrypt.hash(password, salt);
-}
-
 const app = express();
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 app.use(formidable());
 app.use(session({
     secret: "Charlie's engle",
@@ -35,10 +31,6 @@ const sessAuth = function (req, res, next) {
     }
 };
 
-app.get('/register', async (req, res) => {
-    res.sendFile(__dirname + '/public/register.html');
-});
-
 app.post('/register', async (req, res) => {
     let user = await models.User.findOne({username: req.fields.username});
     if (user) {
@@ -49,7 +41,7 @@ app.post('/register', async (req, res) => {
     let hashed = await bcrypt.hash(req.fields.password, saltRounds);
     let newUser = new models.User({username: req.fields.username, password: hashed}, true);
     newUser.save();
-    res.send('200');
+    res.send({status: "Registered"});
 });
 
 app.post('/login', async (req, res) => {
@@ -66,6 +58,14 @@ app.post('/login', async (req, res) => {
 app.post('/logout', sessAuth, async (req, res) => {
     req.session.destroy();
     res.send({status: "OK"});
+});
+
+app.get('/wordlists', sessAuth, async (req, res) => {
+    fs.readdir(__dirname + "/public/wordlists", (err, lists) => {
+        lists = lists.map(l => l.replace(".txt", ""));
+        console.log()
+        res.send(lists);
+    });
 });
 
 app.post('/credential', sessAuth, async (req, res) => {

@@ -9,9 +9,7 @@
 
 <template id="manager">
     <div class="three columns category-lst">
-        <div class="btn-row">
-            <div id="add-category-btn" class="top-btn">Add</div>
-        </div>
+        <i id="add-category-btn" class="top-btn right-align material-icons" title="Add new category">add</i>
         <ul id="category-lst" class="u-full-width box"></ul>
     </div>
     <ul id="category-dropdown" class="dropdown-menu">
@@ -19,10 +17,9 @@
         <li data-action="delete" class="material-icons" title="Delete category">delete_forever</li>
     </ul>
     <div class="nine columns">
-        <div class="btn-row">
-            <div id="add-credential-btn" class="top-btn left-align">Add</div>
-            <div id="logout-btn" class="top-btn right-align">Logout</div>
-        </div>
+        <i id="add-credential-btn" class="top-btn left-align material-icons" title="Add new credential">add</i>
+        <i id="generate-pass-btn" class="top-btn left-align material-icons" title="Generate new pass">sync</i>
+        <i id="logout-btn" class="top-btn right-align material-icons" title="Logout">exit_to_app</i>
         <table class="u-full-width credential-table box">
             <thead>
             <tr>
@@ -54,7 +51,7 @@
         <td data-type="password" title="Click to copy">{{ password }}</td>
         <td>
             <i class="material-icons more-button" title="More options">more_horiz</i>
-            <i class="material-icons show-password" title="Toggle show password">remove_red_eye</i>
+            <i class="material-icons show-password" title="Toggle show password">visibility</i>
         </td>
     </tr>
 </template>
@@ -67,6 +64,41 @@
         <input class="u-full-width btn-submit" type="submit" value="Add">
     </form>
 </template>
+
+<script type="text/template" id="passgenModal">
+    <h5>Create new passphrase or password</h5>
+    <div>
+        <form id="passgen-form">
+            <div>
+                <b>Passphrase</b>
+                <input type="radio" name="passtype" value="phrase" checked="checked">
+            </div>
+            <div>
+                <b>Password</b>
+                <input type="radio" name="passtype" value="word">
+            </div>
+        </form>
+    </div>
+    <div id="passphrase-gen" class="pass-gen active">
+        <label>Language(s)</label>
+        <select multiple="multiple">
+            {{{ languages }}}
+        </select>
+        <label>Random capitalization</label>
+        <input type="checkbox">
+        <label>Separator characters</label>
+        <input type="text" value=" ">
+        <label>Words in phrase</label>
+        <input type="number" value="6">
+
+        <b class="new-pass"></b>
+    </div>
+    <div id="password-gen" class="pass-gen">
+        <label>Characters</label>
+        <textarea class="u-full-width">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 !"#¤%&/()=</textarea>
+        <b class="new-pass"></b>
+    </div>
+</script>
 
 <template id="credentialModal">
     <h5>{{ title }}</h5>

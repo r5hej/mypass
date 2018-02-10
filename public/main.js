@@ -1,8 +1,7 @@
 "use strict";
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
-let templates;
-let activeCategory;
-
+let templates, activeCategory;
+let wordlistsLangs, wordlists = Object.create(null);
 let categories, map, crypto;
 let wrapper = document.getElementById("wrapper");
 let categoryDropdown, credentialDropdown;
@@ -17,6 +16,7 @@ function renderManager() {
     document.getElementById('add-category-btn').addEventListener('click', () => categoryModal());
     document.getElementById('logout-btn').addEventListener('click', () => logout());
     document.getElementById('add-credential-btn').addEventListener('click', () => credentialModal());
+    document.getElementById('generate-pass-btn').addEventListener('click', () => passgenModal());
 
     const showDropdown = (element, ev, item) => {
         ev.preventDefault();
@@ -140,6 +140,24 @@ function renderCategories() {
 }
 
 // Modals
+function passgenModal() {
+    sendRequest('GET', "/wordlists").then(languages => {
+        ModalsJs.open(templates.passgenModal.render({ languages }));
+        let form = document.getElementById("passgen-form");
+        let phraseGen = document.getElementById("passphrase-gen");
+        let wordGen = document.getElementById("password-gen");
+        form.on("change", "input[type=radio]", ev => {
+            if (ev.target.checked && ev.target.value === "phrase"){
+                phraseGen.classList.add("active");
+                wordGen.classList.remove("active");
+            }
+            else if (ev.target.checked && ev.target.value === "word"){
+                phraseGen.classList.remove("active");
+                wordGen.classList.add("active");
+            }
+        });
+    })
+}
 function categoryModal(category) {
     ModalsJs.open(templates.categoryModal.render({
         title: !!category ? "Edit category" : "Add a new category",
@@ -320,40 +338,63 @@ function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
     let pwdField = row.querySelector('td[data-type=password');
     let credId = row.dataset.id;
-    if (!(pwdField.innerText === hiddenPwd))
+    if (!(pwdField.innerText === hiddenPwd)){
         pwdField.innerText = hiddenPwd;
-    else
+        ev.target.innerText = "visibility";
+    }
+    else{
         pwdField.innerText = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
+        ev.target.innerText = "visibility_off";
+    }
 }
 
 function getRandomNumbers(no) {
-    let len = no * 2;
-    if (window.crypto && window.crypto.getRandomValues) {
-        return window.crypto.getRandomValues(new Uint32Array(len));
+    if (false && window.crypto && window.crypto.getRandomValues) {
+        return window.crypto.getRandomValues(new Uint32Array(no));
     } else {
-        let arr = new Uint32Array(len);
-        for (let i = 0; i < len; i++)
+        let arr = new Uint32Array(no);
+        for (let i = 0; i < no; i++)
             arr[i] = Math.floor(Math.random() * 10242028);
         return arr;
     }
 }
-function generatePassword(capitalize, separators) {
-    getLangauge(wordlist => {
-        separators = separators || [" "];
-        let i = 0,
-            words = parseInt(bindings.words);
-        let randomNumbers = getRandomNumbers(words);
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.substr(1);
+}
+function generatePassphrase(language, wordNumber, capitalize, separators) {
+    return new Promise((accept, reject) => {
+        getLanguage(language).then(wordlist => {
+            capitalize = capitalize || false;
+            separators = separators || [" "];
+            wordNumber = wordNumber || 6;
+            let i = 0;
+            let randomNumbers = getRandomNumbers(wordNumber * 3);
 
-        let str = "";
-        for (let j = 0; j < words; j++) {
-            let word = wordlist[randomNumbers[i++] % wordlist.length];
-            if (capitalize && Math.floor(Math.random() * 1000) % 2 === 0)
-                word = capitalize(word);
-            str += word.trim();
-            if (j === words - 1) break;
-            str += separators[randomNumbers[i++] % separators.length];
+            let str = "";
+            for (let j = 0; j < wordNumber; j++) {
+                let word = wordlist[randomNumbers[i++] % wordlist.length];
+                if (capitalize && randomNumbers[i++] % 2 === 0)
+                    word = capitalize(word);
+                str += word.trim();
+                if (j === wordNumber - 1) break;
+                str += separators[randomNumbers[i++] % separators.length];
+            }
+            accept(str.trim());
+        });
+    });
+}
+function getLanguage(language) {
+    return new Promise((accept, reject) => {
+        if (wordlists[language] === undefined){
+            sendRequest('GET', `/wordlists/${language.toLowerCase()}.txt`, null, false).then(wl => {
+                wl = wl.split('\n');
+                wordlists[language] = wl;
+                accept(wordlists[language]);
+            }).catch(err => reject(err));
         }
-        bindings.phrase = str.trim();
+        else{
+            accept(wordlists[language]);
+        }
     });
 }
 
@@ -375,14 +416,15 @@ function createCryptoFuncs(password) {
         }
     }
 }
-function sendRequest(method, url, data) {
+function sendRequest(method, url, data, json) {
     return new Promise((res, rej) => {
+        json = json === undefined ? true : json;
         let xhr = new XMLHttpRequest();
         xhr.open(method, url, true);
 
         xhr.onload = e => {
             if (xhr.readyState === 4 && xhr.status === 200)
-                res(JSON.parse(xhr.responseText));
+                res(json ? JSON.parse(xhr.responseText) : xhr.responseText);
             else
                 rej(e, xhr.statusText);
         };
@@ -393,5 +435,10 @@ function sendRequest(method, url, data) {
 
 JsT.get("templates.html", tmpl => {
     templates = tmpl;
+    templates.passgenModal.setFormatter("languages", langs => {
+        return langs.reduce((acc, curr) => {
+            return acc += `<option value="${curr}">${capitalize(curr)}</option>`
+        }, "");
+    });
     loadBuckets();
 });

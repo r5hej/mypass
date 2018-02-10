@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>MyPass - Register</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <div class="container">
     <h1 class="header">Welcome to MyPass</h1>
     <form id="register-form">
-        <input class="u-full-width" type="text" name="username" placeholder="Username">
-        <input class="u-full-width" type="password" name="password" placeholder="Password">
+        <input class="u-full-width" type="text" name="username" placeholder="Username" required="required">
+        <input class="u-full-width" type="password" name="password" placeholder="Password" required="required">
+        <input class="u-full-width" type="password" name="password" placeholder="Repeat password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="Register">
     </form>
 </div>
-<script src="register.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
