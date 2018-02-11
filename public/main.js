@@ -378,7 +378,7 @@ function getRandomNumbers(no) {
         return arr;
     }
 }
-function capitalize(str) {
+function capitalizeWord(str) {
     return str.charAt(0).toUpperCase() + str.substr(1);
 }
 function generatePassphrase(languages, wordNumber, capitalize, separators) {
@@ -394,7 +394,7 @@ function generatePassphrase(languages, wordNumber, capitalize, separators) {
             for (let j = 0; j < wordNumber; j++) {
                 let word = wordlist[randomNumbers[i++] % wordlist.length];
                 if (capitalize && randomNumbers[i++] % 2 === 0)
-                    word = capitalize(word);
+                    word = capitalizeWord(word);
                 str += word.trim();
                 if (j === wordNumber - 1) break;
                 str += separators[randomNumbers[i++] % separators.length];
@@ -473,7 +473,7 @@ JsT.get("templates.html", tmpl => {
     templates = tmpl;
     templates.passgenModal.setFormatter("languages", langs => {
         return langs.reduce((acc, curr) => {
-            return acc += `<option value="${curr}">${capitalize(curr)}</option>`
+            return acc += `<option value="${curr}">${capitalizeWord(curr)}</option>`
         }, "");
     });
     loadBuckets();

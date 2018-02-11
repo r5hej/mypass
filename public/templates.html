@@ -67,37 +67,44 @@
 
 <script type="text/template" id="passgenModal">
     <h5>Create new passphrase or password</h5>
-    <form id="passgen-form">
-        <div>
+    <form id="passgen-form" class="u-full-width">
+        <div class="six columns">
             <b>Passphrase</b>
             <input type="radio" name="passtype" value="phrase" checked="checked">
         </div>
-        <div>
+        <div class="six columns">
             <b>Password</b>
             <input type="radio" name="passtype" value="word">
         </div>
     </form>
-    <hr style="margin-top: 5px;">
+    <tr style="margin-top: 5px;">
     <div id="passphrase-gen" class="pass-gen active">
-        <label>Language(s)</label>
-        <select multiple="multiple" required="required">
-            {{{ languages }}}
-        </select>
-        <label>Random capitalization</label>
-        <input type="checkbox">
+        <div class="four columns">
+            <label>Language(s)</label>
+            <select multiple="multiple" required="required" class="u-full-width">
+                {{{ languages }}}
+            </select>
+        </div>
+        <div class="four columns">
+            <label>Random capitalization</label>
+            <input type="checkbox" class="u-full-width">
+        </div>
+        <div class="four columns">
+            <label>Words in phrase</label>
+            <input type="number" value="6" min="3" max="12" required="required" class="u-full-width">
+        </div>
         <label>Separator characters</label>
-        <input type="text" value=" " required="required">
-        <label>Words in phrase</label>
-        <input type="number" value="6" min="3" max="12" required="required">
+        <input type="text" value=" " required="required" class="u-full-width">
         <button>Generate</button>
     </div>
     <div id="password-gen" class="pass-gen">
         <label>Characters</label>
-        <textarea class="u-full-width" style="resize: none;" required="required">abcdefghijklmnopqrstuvwxyz 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ !#¤%&/()=</textarea>
+        <textarea class="u-full-width" spellcheck="false" style="resize: none;" required="required">abcdefghijklmnopqrstuvwxyz 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ !#¤%&/()=</textarea>
+        <label>Length</label>
         <input type="number" value="12" min="6" max="50" step="1" required="required">
-        <button>Generate</button>
+        <button class="right-align">Generate</button>
     </div>
-    <span id="new-pass"></span>
+    <span class="u-full-width" id="new-pass"></span>
 </script>
 
 <template id="credentialModal">
