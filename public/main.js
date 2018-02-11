@@ -1,11 +1,11 @@
 "use strict";
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let templates, activeCategory;
-let wordlistsLangs, wordlists = Object.create(null);
+let wordlists = Object.create(null);
 let categories, map, crypto;
 let wrapper = document.getElementById("wrapper");
 let categoryDropdown, credentialDropdown;
-let mainTable, categoryList;
+let mainTable, categoryList, copyTarget;
 
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
@@ -81,29 +81,16 @@ function renderManager() {
             hideDropdown(credentialDropdown);
     });
 
-    let copyTarget = document.createElement("textarea");
+    copyTarget = document.createElement("textarea");
     mainTable = document.getElementById('credentials-tbody');
     mainTable.on("click", ".more-button", ev => showDropdown(credentialDropdown, ev, ev.target.parentNode.parentNode));
     mainTable.on("click", "td[data-type=password]", ev => {
-        ev.stopPropagation();
         let credId = ev.target.parentNode.dataset.id;
-        let password = crypto.dec(map.get(activeCategory._id).map.get(credId).password);
-        wrapper.appendChild(copyTarget);
-        copyTarget.textContent = password;
-        copyTarget.select();
-        document.execCommand("copy");
-        copyTarget.textContent = "";
-        wrapper.removeChild(copyTarget);
+        copy(crypto.dec(map.get(activeCategory._id).map.get(credId).password));
     });
     mainTable.on("click", "td[data-type=username]", ev => {
-        ev.stopPropagation();
         let credId = ev.target.parentNode.dataset.id;
-        wrapper.appendChild(copyTarget);
-        copyTarget.textContent = map.get(activeCategory._id).map.get(credId).username;
-        copyTarget.select();
-        document.execCommand("copy");
-        copyTarget.textContent = "";
-        wrapper.removeChild(copyTarget);
+        copy(map.get(activeCategory._id).map.get(credId).username);
     });
     mainTable.on('click', 'i.show-password', togglePassword);
     renderCategories();
@@ -146,18 +133,52 @@ function passgenModal() {
         let form = document.getElementById("passgen-form");
         let phraseGen = document.getElementById("passphrase-gen");
         let wordGen = document.getElementById("password-gen");
+        let newPass = document.getElementById("new-pass");
+        const newPassphraseFunc = () => {
+            let langs = phraseGen.querySelector("select").value;
+            if (!Array.isArray(langs))
+                langs = [ langs ];
+            let cap = phraseGen.querySelector("input[type=checkbox]").checked;
+            let sep = phraseGen.querySelector("input[type=text]").value.split("");
+            let words = parseInt(phraseGen.querySelector("input[type=number]").value);
+            generatePassphrase(langs, words, cap, sep).then(pass => newPass.innerText = pass);
+        };
+        const newPasswordFunc = () => {
+            let chars = wordGen.querySelector("textarea").value.replace(/ /g, '').split("");
+            let len = parseInt(wordGen.querySelector("input").value);
+            newPass.innerText = generatePassword(chars, len);
+        };
+
         form.on("change", "input[type=radio]", ev => {
             if (ev.target.checked && ev.target.value === "phrase"){
                 phraseGen.classList.add("active");
                 wordGen.classList.remove("active");
+                newPassphraseFunc();
             }
             else if (ev.target.checked && ev.target.value === "word"){
                 phraseGen.classList.remove("active");
                 wordGen.classList.add("active");
+                newPasswordFunc();
             }
         });
-    })
+        wordGen.on("input", "textarea,input", newPasswordFunc);
+        wordGen.on("click", "button", newPasswordFunc);
+        phraseGen.on("click", "button", newPassphraseFunc);
+        newPass.on("click", () => copy(newPass.innerText));
+        phraseGen.querySelector("select").value = [ "english" ];
+        newPassphraseFunc();
+    });
 }
+function copy(text) {
+    event.stopPropagation();
+    wrapper.appendChild(copyTarget);
+    copyTarget.textContent = text;
+    copyTarget.select();
+    document.execCommand("copy");
+    copyTarget.textContent = "";
+    wrapper.removeChild(copyTarget);
+}
+
 function categoryModal(category) {
     ModalsJs.open(templates.categoryModal.render({
         title: !!category ? "Edit category" : "Add a new category",
@@ -296,7 +317,7 @@ function logout() {
 
 function loadBuckets() {
     sendRequest('GET', "/categories").then(cats => {
-        let title = cats ? "Create encryption password" : "Enter decryption password";
+        let title = cats.length === 0 ? "Create encryption password" : "Enter decryption password";
         decryptionPasswordModal(title, password => {
             crypto = createCryptoFuncs(password);
             categories = cats;
@@ -319,7 +340,6 @@ function loadBuckets() {
         });
     }).catch(renderLogin);
 }
-
 
 function encryptFormFields(form, fields) {
     for (let i = 0; i < fields.length; i++) {
@@ -361,9 +381,9 @@ function getRandomNumbers(no) {
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.substr(1);
 }
-function generatePassphrase(language, wordNumber, capitalize, separators) {
+function generatePassphrase(languages, wordNumber, capitalize, separators) {
     return new Promise((accept, reject) => {
-        getLanguage(language).then(wordlist => {
+        getLanguages(languages).then(wordlist => {
             capitalize = capitalize || false;
             separators = separators || [" "];
             wordNumber = wordNumber || 6;
@@ -383,19 +403,35 @@ function generatePassphrase(language, wordNumber, capitalize, separators) {
         });
     });
 }
-function getLanguage(language) {
+function getLanguages(languages) {
     return new Promise((accept, reject) => {
-        if (wordlists[language] === undefined){
-            sendRequest('GET', `/wordlists/${language.toLowerCase()}.txt`, null, false).then(wl => {
-                wl = wl.split('\n');
-                wordlists[language] = wl;
-                accept(wordlists[language]);
-            }).catch(err => reject(err));
-        }
-        else{
-            accept(wordlists[language]);
+        let final = [], done = 0;
+        for (let i = 0; i < languages.length; i++){
+            let lang = languages[i];
+            if (wordlists[lang] === undefined){
+                sendRequest('GET', `/wordlists/${lang.toLowerCase()}.txt`, null, false).then(wl => {
+                    wl = wl.split('\n');
+                    wordlists[lang] = wl;
+                    final = final.concat(wordlists[lang]);
+                    if (done++ === languages.length - 1)
+                        accept(final);
+                }).catch(err => reject(err));
+            }
+            else{
+                final = final.concat(wordlists[lang]);
+                if (done++ === languages.length - 1)
+                    accept(final);
+            }
         }
     });
+}
+function generatePassword(chars, len) {
+    let numbers = getRandomNumbers(len);
+    let pass = "";
+    for (let i = 0; i < len; i++){
+        pass += chars[numbers[i] % chars.length];
+    }
+    return pass;
 }
 
 function createCryptoFuncs(password) {

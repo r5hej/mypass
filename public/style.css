@@ -2,6 +2,8 @@
     --green: #14b208;
     --green-hover: #17aa0b;
     --red-hover: #b71c1c;
+    --light-font: #fafafa;
+    --dark-font: #212121;
 }
 
 body, html {
@@ -51,7 +53,7 @@ form {
 
 #category-lst li.selected {
     background-color: #14b208;
-    color: white;
+    color: var(--light-font);
 }
 
 .category-lst ul {
@@ -71,7 +73,7 @@ form {
 
 .category-lst li:hover {
     background-color: var(--green);
-    color: white;
+    color: var(--light-font);
 }
 
 .credential-table {
@@ -100,22 +102,21 @@ input.btn-submit[type=button] {
     text-transform: none;
     font-weight: bold;
     font-size: unset;
-    color: white;
+    color: var(--light-font);
     margin-bottom: 0;
 }
 
 input.btn-submit[type=submit]:hover,
 input.btn-submit[type=button]:hover {
     background: var(--green-hover);
-    color: black;
+    color: var(--dark-font);
 }
 
 .btn,
 .top-btn {
     border-radius: 4px;
     background-color: var(--green);
-    color: white;
-    font-weight: bold;
+    color: var(--light-font);
     cursor: pointer;
     padding: 6px 10px 6px 10px;
     text-align: center;
@@ -132,7 +133,7 @@ input.btn-submit[type=button]:hover {
 .btn:hover,
 .btn-update:hover,
 .top-btn:hover {
-    color: black;
+    color: var(--dark-font);
     background-color: var(--green-hover);
 }
 
@@ -143,7 +144,7 @@ input.btn-submit[type=button]:hover {
 }
 
 .header {
-    color: white;
+    color: var(--light-font);
     text-align: center;
 }
 
@@ -165,7 +166,7 @@ input.btn-submit[type=button]:hover {
 }
 
 #loading {
-    color: #dcdcdc;
+    color: var(--light-font);
     font-size: 60px;
     z-index: 2;
     position: fixed;
@@ -281,4 +282,24 @@ td[data-type=password]:active, td[data-type=username]:active {
 }
 .pass-gen.active {
     display: inherit;
+}
+
+#new-pass {
+    color: var(--light-font);
+    text-align: center;
+    background-color: #616161;
+    display: block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 300ms;
+}
+#new-pass:hover {
+    cursor: pointer;
+    background-color: #757575;
+    transition: background-color 100ms, color 100ms;
+    color: var(--dark-font);
+}
+#new-pass:active {
+    background-color: #BDBDBD;
+    transition: background-color 100ms;
 }
