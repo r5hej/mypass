@@ -14,10 +14,11 @@
     <h1 class="header">Welcome to MyPass</h1>
     <form id="register-form">
         <input class="u-full-width" type="text" name="username" placeholder="Username" required="required">
-        <input class="u-full-width" type="password" name="password" placeholder="Password" required="required">
-        <input class="u-full-width" type="password" name="password" placeholder="Repeat password" required="required">
+        <input class="u-full-width" type="password" name="password" placeholder="Password" required="required" minlength="6">
+        <input class="u-full-width" type="password" name="password2" placeholder="Repeat password" required="required" minlength="6">
         <input class="u-full-width btn-submit" type="submit" value="Register">
     </form>
+    <p id="status" style="text-align: center; width: 100%; color: #fafafa"></p>
 </div>
 <script src="main.js"></script>
 </body>
