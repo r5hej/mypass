@@ -98,6 +98,7 @@ form {
     width: 30px;
 }
 
+button.btn,
 input.btn-submit[type=submit],
 input.btn-submit[type=button] {
     background: var(--green);
@@ -110,23 +111,24 @@ input.btn-submit[type=button] {
     margin-bottom: 0;
 }
 
+button.btn,
 input.btn-submit[type=submit]:hover,
 input.btn-submit[type=button]:hover {
     background: var(--green-hover);
     color: var(--dark-font);
 }
 
-.btn,
+button.btn,
 .top-btn {
     border-radius: 4px;
     background-color: var(--green);
     color: var(--light-font);
     cursor: pointer;
-    padding: 6px 10px 6px 10px;
     text-align: center;
 }
 
 .top-btn {
+    padding: 6px 10px 6px 10px;
     display: inline-block;
     margin-bottom: 10px;
     margin-left: 1px;
@@ -134,13 +136,34 @@ input.btn-submit[type=button]:hover {
 }
 
 
-.btn:hover,
+button.btn:hover,
 .btn-update:hover,
 .top-btn:hover {
     color: var(--dark-font);
     background-color: var(--green-hover);
 }
 
+.passgen-top-row-btn {
+    margin-left: 0;
+    color: var(--dark-font);
+    font-weight: bold;
+    font-size: 1.1em;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.passgen-top-row-btn:hover,
+.passgen-top-row-btn.active {
+    background-color: var(--green);
+    color: white;
+}
+
+.separator {
+    border-bottom: 1px solid #E1E1E1;
+    margin-bottom: 15px;
+}
 
 .material-icons:hover {
     color: #616161;
@@ -273,7 +296,6 @@ td[data-type=password]:active, td[data-type=username]:active {
     max-width: 500px;
 }
 
-
 .right-align {
     float: right;
 }
@@ -291,7 +313,8 @@ td[data-type=password]:active, td[data-type=username]:active {
 #new-pass {
     color: var(--light-font);
     text-align: center;
-    background-color: #616161;
+    /*background-color: #616161;*/
+    background-color: var(--green);
     display: block;
     padding: 4px 8px;
     border-radius: 4px;
@@ -300,7 +323,8 @@ td[data-type=password]:active, td[data-type=username]:active {
 #new-pass:hover {
     color: var(--dark-font);
     cursor: pointer;
-    background-color: #757575;
+    background-color: var(--green-hover);
+    /*background-color: #757575;*/
     transition: background-color 100ms, color 100ms;
 }
 #new-pass:active {
