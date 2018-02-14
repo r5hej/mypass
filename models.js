@@ -44,7 +44,7 @@ fs.readFile(__dirname + '/config.json', (err, data) => {
             let settings = JSON.parse(data);
             mongoose.connect(settings.mongoURL);
         }
-        catch {
+        catch (err) {
             console.log("Invalid config file");
         }
     }
