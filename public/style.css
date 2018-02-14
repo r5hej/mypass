@@ -6,6 +6,10 @@
     --dark-font: #212121;
 }
 
+.modalsjs-view{
+    width: 600px;
+}
+
 body, html {
     height: 100%;
     width: 100%;
@@ -291,15 +295,22 @@ td[data-type=password]:active, td[data-type=username]:active {
     display: block;
     padding: 4px 8px;
     border-radius: 4px;
-    transition: background-color 300ms;
+    transition: background-color 300ms, color 200ms;
 }
 #new-pass:hover {
+    color: var(--dark-font);
     cursor: pointer;
     background-color: #757575;
     transition: background-color 100ms, color 100ms;
-    color: var(--dark-font);
 }
 #new-pass:active {
     background-color: #BDBDBD;
-    transition: background-color 100ms;
+    transition: background-color 25ms;
+}
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
 }

@@ -117,7 +117,6 @@ function renderCategories() {
     }
 
     let elements = categoryList.getElementsByTagName('li');
-    console.log(elements);
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].dataset && elements[i].dataset.id === activeCategory._id) {
             elements[i].classList.add("selected");
@@ -135,9 +134,8 @@ function passgenModal() {
         let wordGen = document.getElementById("password-gen");
         let newPass = document.getElementById("new-pass");
         const newPassphraseFunc = () => {
-            let langs = phraseGen.querySelector("select").value;
-            if (!Array.isArray(langs))
-                langs = [ langs ];
+            let selected = phraseGen.querySelectorAll('select option:checked');
+            let langs = Array.from(selected).map((el) => el.value);
             let cap = phraseGen.querySelector("input[type=checkbox]").checked;
             let sep = phraseGen.querySelector("input[type=text]").value.split("");
             let words = parseInt(phraseGen.querySelector("input[type=number]").value);
@@ -163,9 +161,12 @@ function passgenModal() {
         });
         wordGen.on("input", "textarea,input", newPasswordFunc);
         wordGen.on("click", "button", newPasswordFunc);
+
+        phraseGen.on("input", "select,input[type=number],input[type=text]", newPassphraseFunc);
+        phraseGen.on("change", "input[type=checkbox]", newPassphraseFunc);
         phraseGen.on("click", "button", newPassphraseFunc);
-        newPass.on("click", () => copy(newPass.innerText));
         phraseGen.querySelector("select").value = [ "english" ];
+        newPass.on("click", () => copy(newPass.innerText));
         newPassphraseFunc();
     });
 }
@@ -385,7 +386,7 @@ function generatePassphrase(languages, wordNumber, capitalize, separators) {
     return new Promise((accept, reject) => {
         getLanguages(languages).then(wordlist => {
             capitalize = capitalize || false;
-            separators = separators || [" "];
+            if (separators.length === 0) separators = [" "];
             wordNumber = wordNumber || 6;
             let i = 0;
             let randomNumbers = getRandomNumbers(wordNumber * 3);
