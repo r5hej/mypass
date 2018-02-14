@@ -35,12 +35,13 @@ app.post('/register', async (req, res) => {
         return res.statusCode(400).send("taken");
     let rTok = await models.RegisterToken.findOne({_id: req.fields.token});
     if (!rTok)
-        return res.sendStatus(400);
+        return res.statusCode(400).send("invalid");
 
     let hashed = await bcrypt.hash(req.fields.password, saltRounds);
     let newUser = new models.User({username: req.fields.username, password: hashed}, true);
     await newUser.save();
-    res.send({status: "Registered"});
+    await rTok.remove();
+    res.send("registered");
 });
 
 app.post('/login', async (req, res) => {
@@ -69,19 +70,33 @@ app.get('/wordlists', auth, async (req, res) => {
 });
 
 app.post('/credential', auth, async (req, res) => {
+    let category = await models.Category.findOne({_id: req.fields.category_id}).lean();
+    if (category.owner !== req.session.userId)
+        return res.sendStatus(401);
+
     let credential = new models.Credential(req.fields, true);
     await credential.save();
     res.send(credential);
 });
 
 app.delete('/credential', auth, async (req, res) => {
-    let deleted = await models.Credential.remove({_id: req.fields._id});
+    let existing = await models.Credential.findOne({_id: req.fields._id});
+    let category = await models.Category.findOne({_id: existing.category_id}).lean();
+    if (category.owner !== req.session.userId)
+        return res.sendStatus(401);
+
+    let deleted = existing.remove();
     console.log("delete", deleted);
     res.send(deleted);
 });
 
 app.put('/credential', auth, async (req, res) => {
-    let saved = await models.Credential.findOneAndUpdate({_id: req.fields._id}, req.fields).lean();
+    let existing = await models.Credential.findOne({_id: req.fields._id}).lean();
+    let category = await models.Category.findOne({_id: existing.category_id}).lean();
+    if (category.owner !== req.session.userId)
+        return res.sendStatus(401);
+
+    let saved = await models.Credential.update({_id: req.fields._id}, req.fields).lean();
     console.log(saved);
     res.send(saved);
 });
@@ -105,13 +120,13 @@ app.post('/category', auth, async (req, res) => {
 
 app.delete('/category', auth, async (req, res) => {
     let deletedCat = await models.Category.deleteOne({_id: req.fields._id, owner: req.session.userId});
-    let deletedCreds = await models.Credential.remove({category_id: req.fields._id});
-    console.log("delete", deletedCat, deletedCreds);
+    if (deletedCat) await models.Credential.remove({category_id: req.fields._id});
+    console.log("delete", deletedCat);
     res.send({status: "OK"});
 });
 
 app.put('/category', auth, async (req, res) => {
-    let saved = await models.Category.findOneAndUpdate({_id: req.fields._id}, req.fields).lean();
+    let saved = await models.Category.findOneAndUpdate({_id: req.fields._id, owner: req.session.userId}, req.fields).lean();
     console.log("update", saved);
     res.send(saved);
 });
