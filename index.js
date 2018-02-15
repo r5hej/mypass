@@ -71,7 +71,7 @@ app.get('/wordlists', auth, async (req, res) => {
 
 app.post('/credential', auth, async (req, res) => {
     let category = await models.Category.findOne({_id: req.fields.category_id}).lean();
-    if (category.owner !== req.session.userId)
+    if (category.owner != req.session.userId)
         return res.sendStatus(401);
 
     let credential = new models.Credential(req.fields, true);

@@ -133,6 +133,8 @@ function passgenModal() {
         let phraseGen = document.getElementById("passphrase-gen");
         let wordGen = document.getElementById("password-gen");
         let newPass = document.getElementById("new-pass");
+        let genBtn = document.getElementById("new-passgen-btn");
+        let active = "phrase";
         const newPassphraseFunc = () => {
             let selected = phraseGen.querySelectorAll('select option:checked');
             let langs = Array.from(selected).map((el) => el.value);
@@ -151,22 +153,32 @@ function passgenModal() {
             row.querySelector(".active").classList.remove("active");
             ev.target.classList.add("active");
             if (ev.target.dataset.type === "phrase"){
+                active = "phrase";
+                ev.target.classList.add("active");
+                form.querySelector("div[data-type=word").classList.remove("active");
                 phraseGen.classList.add("active");
                 wordGen.classList.remove("active");
                 newPassphraseFunc();
             }
             else if (ev.target.dataset.type === "word"){
+                active = "word";
+                ev.target.classList.add("active");
+                form.querySelector("div[data-type=phrase").classList.remove("active");
                 phraseGen.classList.remove("active");
                 wordGen.classList.add("active");
                 newPasswordFunc();
             }
         });
         wordGen.on("input", "textarea,input", newPasswordFunc);
-        wordGen.on("click", "button", newPasswordFunc);
+        genBtn.addEventListener("click", () => {
+            if (active === "phrase")
+                newPassphraseFunc();
+            else if (active === "word")
+                newPasswordFunc();
+        });
 
         phraseGen.on("input", "select,input[type=number],input[type=text]", newPassphraseFunc);
         phraseGen.on("change", "input[type=checkbox]", newPassphraseFunc);
-        phraseGen.on("click", "button", newPassphraseFunc);
         phraseGen.querySelector("select").value = [ "english" ];
         newPass.on("click", () => copy(newPass.innerText));
         newPassphraseFunc();
@@ -252,6 +264,8 @@ function credentialModal(creds) {
                 categoryWrapper.map.set(data._id, data);
                 ModalsJs.close(true);
                 renderTable();
+            }).catch(err => {
+                console.log(err);
             });
         }
     });
