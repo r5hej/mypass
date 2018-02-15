@@ -99,7 +99,7 @@
         <div class="u-full-width">
             <label>Separator characters</label>
             <input type="text" value=" " required="required" class="u-full-width">
-            <button class="btn" style="margin-bottom: 15px;">Generate</button>
+            <!--<button class="btn" style="margin-bottom: 15px;">Generate</button>-->
         </div>
     </div>
 
@@ -108,9 +108,12 @@
         <textarea class="u-full-width" spellcheck="false" style="resize: none;" required="required">abcdefghijklmnopqrstuvwxyz 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ !#¤%&/()=</textarea>
         <label>Length</label>
         <input type="number" value="12" min="6" max="50" step="1" required="required">
-        <button class="btn" style="float: right;">Generate</button>
+        <!--<button class="btn" style="float: right;">Generate</button>-->
     </div>
-    <span class="u-full-width truncate" id="new-pass"></span>
+    <div class="new-pass-row">
+        <span class="u-full-width truncate" id="new-pass"></span>
+        <i id="new-passgen-btn" class="top-btn material-icons" style="margin-bottom: 0;">refresh</i>
+    </div>
 </script>
 
 <template id="credentialModal">

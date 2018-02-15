@@ -316,7 +316,7 @@ td[data-type=password]:active, td[data-type=username]:active {
     /*background-color: #616161;*/
     background-color: var(--green);
     display: block;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 4px;
     transition: background-color 300ms, color 200ms;
 }
@@ -337,4 +337,9 @@ td[data-type=password]:active, td[data-type=username]:active {
     text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
+}
+
+.new-pass-row {
+    display: flex;
+    align-items: stretch;
 }
