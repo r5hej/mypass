@@ -4,6 +4,7 @@ const express = require("express");
 const session = require("express-session");
 const formidable = require("express-formidable");
 const models = require("./models");
+const init = require("./init");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 
@@ -38,8 +39,16 @@ app.post('/register', async (req, res) => {
         return res.statusCode(400).send("invalid");
 
     let hashed = await bcrypt.hash(req.fields.password, saltRounds);
-    let newUser = new models.User({username: req.fields.username, password: hashed}, true);
-    await newUser.save();
+    let newUser = {
+        username: req.fields.username,
+        password: hashed
+    };
+
+    if (await models.User.count() === 0)
+        newUser.admin = true;
+
+    let userobj = new models.User(newUser, true);
+    await userobj.save();
     await rTok.remove();
     res.send("registered");
 });
@@ -71,7 +80,7 @@ app.get('/wordlists', auth, async (req, res) => {
 
 app.post('/credential', auth, async (req, res) => {
     let category = await models.Category.findOne({_id: req.fields.category_id}).lean();
-    if (category.owner != req.session.userId)
+    if (category.owner !== req.session.userId)
         return res.sendStatus(401);
 
     let credential = new models.Credential(req.fields, true);
@@ -91,14 +100,22 @@ app.delete('/credential', auth, async (req, res) => {
 });
 
 app.put('/credential', auth, async (req, res) => {
-    let existing = await models.Credential.findOne({_id: req.fields._id}).lean();
-    let category = await models.Category.findOne({_id: existing.category_id}).lean();
-    if (category.owner !== req.session.userId)
-        return res.sendStatus(401);
+    try {
+        console.log("put", req.fields._id);
+        let existing = await models.Credential.findOne({_id: req.fields._id}).lean();
+        let category = await models.Category.findOne({_id: existing.category_id}).lean();
 
-    let saved = await models.Credential.update({_id: req.fields._id}, req.fields).lean();
-    console.log(saved);
-    res.send(saved);
+        if (category.owner !== req.session.userId)
+            return res.sendStatus(401);
+
+        let saved = await models.Credential.findOneAndUpdate({_id: req.fields._id}, req.fields, {new: true}).lean();
+        console.log(saved);
+        res.send(saved);
+    }
+    catch (error) {
+        console.log(error);
+    }
+
 });
 
 app.get('/categories', auth, async (req, res) => {
@@ -121,14 +138,12 @@ app.post('/category', auth, async (req, res) => {
 app.delete('/category', auth, async (req, res) => {
     let deletedCat = await models.Category.deleteOne({_id: req.fields._id, owner: req.session.userId});
     if (deletedCat) await models.Credential.remove({category_id: req.fields._id});
-    console.log("delete", deletedCat);
     res.send({status: "OK"});
 });
 
 app.put('/category', auth, async (req, res) => {
-    let saved = await models.Category.findOneAndUpdate({_id: req.fields._id, owner: req.session.userId}, req.fields).lean();
-    console.log("update", saved);
+    let saved = await models.Category.findOneAndUpdate({_id: req.fields._id, owner: req.session.userId}, req.fields, {new: true}).lean();
     res.send(saved);
 });
 
-app.listen(3000, () => console.log("Server started on port 3000"));
+init.init(app);

@@ -16,6 +16,10 @@
         <li data-action="name" class="material-icons" title="Edit category">mode_edit</li>
         <li data-action="delete" class="material-icons" title="Delete category">delete_forever</li>
     </ul>
+    <ul id="credential-dropdown" class="dropdown-menu">
+        <li data-action="edit" class="material-icons" title="Edit credential">mode_edit</li>
+        <li data-action="delete" class="material-icons" title="Delete credential">delete_forever</li>
+    </ul>
     <div class="nine columns">
         <i id="add-credential-btn" class="top-btn left-align material-icons" title="Add new credential">add</i>
         <i id="generate-pass-btn" class="top-btn left-align material-icons" title="Generate new pass">sync</i>
@@ -24,7 +28,7 @@
             <thead>
             <tr>
                 <th>Location</th>
-                <th>Description</th>
+                <th data-type="description">Description</th>
                 <th>Username</th>
                 <th>Password</th>
                 <th style="width: 44px;"></th>
@@ -33,10 +37,6 @@
             <tbody id="credentials-tbody"></tbody>
         </table>
     </div>
-    <ul id="credential-dropdown" class="dropdown-menu">
-        <li data-action="edit" class="material-icons" title="Edit credential">mode_edit</li>
-        <li data-action="delete" class="material-icons" title="Delete credential">delete_forever</li>
-    </ul>
 </template>
 
 <template id="categoryItem">
@@ -99,7 +99,6 @@
         <div class="u-full-width">
             <label>Separator characters</label>
             <input type="text" value=" " required="required" class="u-full-width">
-            <!--<button class="btn" style="margin-bottom: 15px;">Generate</button>-->
         </div>
     </div>
 
@@ -108,7 +107,6 @@
         <textarea class="u-full-width" spellcheck="false" style="resize: none;" required="required">abcdefghijklmnopqrstuvwxyz 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ !#¤%&/()=</textarea>
         <label>Length</label>
         <input type="number" value="12" min="6" max="50" step="1" required="required">
-        <!--<button class="btn" style="float: right;">Generate</button>-->
     </div>
     <div class="new-pass-row">
         <span class="u-full-width truncate" id="new-pass"></span>

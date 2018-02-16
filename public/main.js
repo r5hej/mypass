@@ -1,4 +1,5 @@
 "use strict";
+
 const hiddenPwd = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 let templates, activeCategory;
 let wordlists = Object.create(null);
@@ -20,6 +21,7 @@ function renderManager() {
 
     const showDropdown = (element, ev, item) => {
         ev.preventDefault();
+        ev.stopPropagation();
         element.style.top = ev.pageY + "px";
         element.style.left = ev.pageX + "px";
         element.classList.add("active");
@@ -155,7 +157,7 @@ function passgenModal() {
             if (ev.target.dataset.type === "phrase"){
                 active = "phrase";
                 ev.target.classList.add("active");
-                form.querySelector("div[data-type=word").classList.remove("active");
+                row.querySelector("div[data-type=word").classList.remove("active");
                 phraseGen.classList.add("active");
                 wordGen.classList.remove("active");
                 newPassphraseFunc();
@@ -163,7 +165,7 @@ function passgenModal() {
             else if (ev.target.dataset.type === "word"){
                 active = "word";
                 ev.target.classList.add("active");
-                form.querySelector("div[data-type=phrase").classList.remove("active");
+                row.querySelector("div[data-type=phrase").classList.remove("active");
                 phraseGen.classList.remove("active");
                 wordGen.classList.add("active");
                 newPasswordFunc();
@@ -240,7 +242,7 @@ function credentialModal(creds) {
             location: creds.location,
             description: creds.description
         } : undefined
-    }), { warning: true });
+    }));
     let catId = activeCategory._id;
     let form = document.getElementById('add-credential-form');
     form.addEventListener('submit', ev => {
@@ -249,6 +251,7 @@ function credentialModal(creds) {
         encryptFormFields(formData, ["username", "password", "location", "description"]);
         formData.set("category_id", catId);
         if (creds){
+            formData.append("_id", creds._id);
             sendRequest('PUT', '/credential', formData).then(data => {
                 decryptFields(data, ["username", "location", "description"]);
                 Object.assign(creds, data);
@@ -320,6 +323,7 @@ function login(ev) {
         loadBuckets();
     }).catch(() => {
         this.reset();
+        this.querySelector("input[name=username]").focus();
     });
 }
 function logout() {
@@ -360,6 +364,7 @@ function loadBuckets() {
 
 function encryptFormFields(form, fields) {
     for (let i = 0; i < fields.length; i++) {
+        if (!form.has(fields[i])) continue;
         let value = crypto.enc(form.get(fields[i]));
         form.set(fields[i], value);
     }
@@ -367,7 +372,8 @@ function encryptFormFields(form, fields) {
 
 function decryptFields(obj, fields) {
     for (let i = 0; i < fields.length; i++) {
-        obj[fields[i]] = crypto.dec(obj[fields[i]]);
+        if (obj[fields[i]] !== undefined)
+            obj[fields[i]] = crypto.dec(obj[fields[i]]);
     }
 }
 

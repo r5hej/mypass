@@ -7,7 +7,7 @@
 }
 
 .modalsjs-view{
-    width: 600px;
+    width: 90%;
 }
 
 body, html {
@@ -16,12 +16,15 @@ body, html {
     background-color: #263238;
 }
 
-th {
+th, td {
     text-align: center;
 }
 
-td {
-    text-align: center;
+tbody tr:last-child td {
+    border-bottom: none;
+}
+thead tr th:first-child {
+    padding-left: inherit;
 }
 
 ::-webkit-scrollbar {
@@ -34,7 +37,9 @@ li {
     padding-top: 5px;
     padding-bottom: 5px;
 }
-
+thead, tbody {
+    border-radius: 4px;
+}
 form {
     margin-bottom: 0;
 }
@@ -44,7 +49,6 @@ form {
 }
 
 .box {
-    /*border: 1px solid #D1D1D1D1;*/
     border-radius: 4px;
     background-color: white;
 }
@@ -52,7 +56,7 @@ form {
 #category-lst {
     overflow-y: scroll;
     min-height: 34px;
-    /*max-height: 700px;*/
+    margin-bottom: 10px;
 }
 
 #category-lst li.selected {
@@ -342,4 +346,12 @@ td[data-type=password]:active, td[data-type=username]:active {
 .new-pass-row {
     display: flex;
     align-items: stretch;
+}
+
+@media (max-width: 550px){
+    td[data-type=description],
+    th[data-type=description] {
+        /*width: 0;*/
+        display: none;
+    }
 }

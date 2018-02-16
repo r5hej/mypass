@@ -1,9 +1,11 @@
+"use strict";
+
 const mongoose = require("mongoose");
-const fs = require("fs");
 
 let UserSchema = new mongoose.Schema({
     username: {type: String, required: true, index: { unique: true }},
-    password: {type: String, required: true}
+    password: {type: String, required: true},
+    admin: {type: Boolean, default: false}
 });
 
 let CredentialSchema = new mongoose.Schema({
@@ -15,7 +17,7 @@ let CredentialSchema = new mongoose.Schema({
 });
 
 let CategorySchema = new mongoose.Schema({
-    owner: {type: mongoose.Schema.Types.ObjectId, required: true},
+    owner: {type: String, required: true},
     name: {type: String, required: true},
 });
 
@@ -35,17 +37,3 @@ module.exports = {
     Credential,
     RegisterToken
 };
-
-fs.readFile(__dirname + '/config.json', (err, data) => {
-    if (err)
-        mongoose.connect('mongodb://localhost/mypass');
-    else{
-        try{
-            let settings = JSON.parse(data);
-            mongoose.connect(settings.mongoURL);
-        }
-        catch (err) {
-            console.log("Invalid config file");
-        }
-    }
-});

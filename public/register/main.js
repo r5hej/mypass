@@ -1,6 +1,5 @@
 "use strict";
 
-
 let form = document.getElementById('register-form');
 let status = document.getElementById('status');
 form.addEventListener('submit', ev => {
@@ -9,6 +8,7 @@ form.addEventListener('submit', ev => {
     if (formData.get("password") !== formData.get("password2"))
         return status.innerText = "Passwords must match";
 
+    formData.append("token", getParameterByName("token"));
     sendRequest("POST", "/register", formData).then(resp => {
         window.location = window.location.origin;
     }).catch(resp => {
