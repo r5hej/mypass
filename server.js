@@ -8,7 +8,8 @@ const init = require("./init");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 
-process.setMaxListeners(0);
+console.log("Starting MyPass...");
+
 const saltRounds = 10;
 const app = express();
 app.use(express.static(__dirname + '/public'));

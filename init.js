@@ -10,18 +10,21 @@ const DEFAULT = {
 
 let config;
 
-async function connection() {
+process.setMaxListeners(Infinity);
+process.on('exit', () => console.log("Quitting..."));
+
+async function checkFirstStart() {
     if (await models.User.count() !== 0) {
         return;
     }
 
     let token = new models.RegisterToken({created: new Date()});
     await token.save();
-    console.log(`No users were detected in the database.\nVisit localhost:${config.port}/register/?token=${token._id}`);
+    console.log(`No users were detected in the database.\nVisit localhost:${config.port}/register?token=${token._id}`);
 }
 
 function init(app) {
-    fs.readFile(__dirname + '/config.json', (err, data) => {
+    fs.readFile(__dirname + '/config.json', async (err, data) => {
         if (err) {
             config = DEFAULT;
         }
@@ -33,10 +36,22 @@ function init(app) {
                 config = DEFAULT;
             }
         }
+        try {
+            await mongoose.connect(config.mongoConnectionString);
+        }
+        catch (err) {
+            console.log("Could not connect to MongoDB on: " + config.mongoConnectionString);
+            process.exit();
+        }
+        try {
+            app.listen(config.port, () => console.log("Server listening on port " + config.port));
+        }
+        catch (err) {
+            console.log("Unable to listen on port: " + config.port);
+            process.exit();
+        }
 
-        mongoose.connect(config.mongoConnectionString);
-        app.listen(config.port, () => console.log("Server started on port " + config.port));
-        connection();
+        checkFirstStart();
     });
 }
 
