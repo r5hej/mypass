@@ -44,7 +44,8 @@ function init(app) {
             process.exit();
         }
         try {
-            app.listen(config.port, () => console.log("Server listening on port " + config.port));
+            await app.listen(config.port);
+            console.log("Server listening on port " + config.port);
         }
         catch (err) {
             console.log("Unable to listen on port: " + config.port);

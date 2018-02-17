@@ -20,7 +20,7 @@ using a password separate from the login password.
 
 
 ##### Install:
-1. Download 
+1. Download (release coming soon)
 2. Run `npm start` from inside the MyPass folder
 
 

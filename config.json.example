@@ -1,4 +1,4 @@
 {
-    "port": 3000,
-    "mongoConnectionString": "mongodb://localhost/mypass"
+    "PORT": 3000,
+    "MONGODB_CONNECTION_STRING": "mongodb://localhost/mypass"
 }

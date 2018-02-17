@@ -23,6 +23,7 @@
     <div class="nine columns">
         <i id="add-credential-btn" class="top-btn left-align material-icons" title="Add new credential">add</i>
         <i id="generate-pass-btn" class="top-btn left-align material-icons" title="Generate new pass">sync</i>
+        <i id="create-register-token" class="top-btn left-align material-icons" style="display: none;" title="Create registration token">mail_outline</i>
         <i id="logout-btn" class="top-btn right-align material-icons" title="Logout">exit_to_app</i>
         <table class="u-full-width credential-table box">
             <thead>
@@ -113,6 +114,24 @@
         <i id="new-passgen-btn" class="top-btn material-icons" style="margin-bottom: 0;">refresh</i>
     </div>
 </script>
+
+<template id="inviteModal">
+    <div class="invite">
+        <h5>Invite friends</h5>
+        <p>To invite people to register on this MyPass-server, you just have to send them a link to the registration page with a valid registration token.</p>
+        <b>Registration token: {{token._id}}</b>
+        <a href="{{url}}">{{url}}</a>
+        <small>(right-click on url to copy, long-press on smartphone)</small>
+        <p>You need to active the token for it to be valid</p>
+        <i>The registration token will become invalid 7 days after the creation time</i>
+        <form id="invite-form">
+            <input type="hidden" name="_id" value="{{token._id}}">
+            <input type="hidden" name="created" value="{{token.created}}">
+            <input type="submit" class="btn" value="Activate registration token">
+            <input type="button" class="btn" value="Get another token">
+        </form>
+    </div>
+</template>
 
 <template id="credentialModal">
     <h5>{{ title }}</h5>

@@ -4,6 +4,7 @@
     --red-hover: #b71c1c;
     --light-font: #fafafa;
     --dark-font: #212121;
+    --disabled-grey: #757575;
 }
 
 .modalsjs-view{
@@ -24,7 +25,7 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 thead tr th:first-child {
-    padding-left: inherit;
+    padding-left: 15px;
 }
 
 ::-webkit-scrollbar {
@@ -102,7 +103,7 @@ form {
     width: 30px;
 }
 
-button.btn,
+.btn,
 input.btn-submit[type=submit],
 input.btn-submit[type=button] {
     background: var(--green);
@@ -114,15 +115,18 @@ input.btn-submit[type=button] {
     color: var(--light-font);
     margin-bottom: 0;
 }
+.btn:disabled {
+    background: var(--disabled-grey);
+}
 
-button.btn,
+.btn,
 input.btn-submit[type=submit]:hover,
 input.btn-submit[type=button]:hover {
     background: var(--green-hover);
     color: var(--dark-font);
 }
 
-button.btn,
+.btn,
 .top-btn {
     border-radius: 4px;
     background-color: var(--green);
@@ -140,7 +144,7 @@ button.btn,
 }
 
 
-button.btn:hover,
+.btn:hover,
 .btn-update:hover,
 .top-btn:hover {
     color: var(--dark-font);
@@ -341,6 +345,10 @@ td[data-type=password]:active, td[data-type=username]:active {
     text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
+}
+
+.invite a, .invite b, .invite p, .invite span {
+    display: block;
 }
 
 .new-pass-row {

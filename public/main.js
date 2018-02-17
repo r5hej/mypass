@@ -8,16 +8,18 @@ let wrapper = document.getElementById("wrapper");
 let categoryDropdown, credentialDropdown;
 let mainTable, categoryList, copyTarget;
 
+
 function renderLogin() {
     wrapper.innerHTML = templates.login.render();
-    document.getElementById('login-form').addEventListener('submit', login);
+    document.getElementById("login-form").on("submit", login);
 }
 function renderManager() {
     wrapper.innerHTML = templates.manager.render();
-    document.getElementById('add-category-btn').addEventListener('click', () => categoryModal());
-    document.getElementById('logout-btn').addEventListener('click', () => logout());
-    document.getElementById('add-credential-btn').addEventListener('click', () => credentialModal());
-    document.getElementById('generate-pass-btn').addEventListener('click', () => passgenModal());
+    document.getElementById("add-category-btn").on("click", () => categoryModal());
+    document.getElementById("add-credential-btn").on("click", () => credentialModal());
+    document.getElementById("generate-pass-btn").on("click", passgenModal);
+    document.getElementById("logout-btn").on("click", logout);
+    checkAdminStatus();
 
     const showDropdown = (element, ev, item) => {
         ev.preventDefault();
@@ -32,8 +34,8 @@ function renderManager() {
         element.item = undefined
     };
 
-    categoryList = document.getElementById('category-lst');
-    categoryList.on('click', 'li', ev => {
+    categoryList = document.getElementById("category-lst");
+    categoryList.on("click", "li", ev => {
         let element = ev.target;
         if (activeCategory) {
             categoryList.querySelector(".selected").classList.remove("selected");
@@ -76,7 +78,7 @@ function renderManager() {
         hideDropdown(credentialDropdown);
     });
 
-    document.body.addEventListener("click", ev => {
+    document.body.on("click", ev => {
         if (categoryDropdown.item !== undefined)
             hideDropdown(categoryDropdown);
         if (credentialDropdown.item !== undefined)
@@ -84,7 +86,7 @@ function renderManager() {
     });
 
     copyTarget = document.createElement("textarea");
-    mainTable = document.getElementById('credentials-tbody');
+    mainTable = document.getElementById("credentials-tbody");
     mainTable.on("click", ".more-button", ev => showDropdown(credentialDropdown, ev, ev.target.parentNode.parentNode));
     mainTable.on("click", "td[data-type=password]", ev => {
         let credId = ev.target.parentNode.dataset.id;
@@ -94,7 +96,7 @@ function renderManager() {
         let credId = ev.target.parentNode.dataset.id;
         copy(map.get(activeCategory._id).map.get(credId).username);
     });
-    mainTable.on('click', 'i.show-password', togglePassword);
+    mainTable.on("click", "i.show-password", togglePassword);
     renderCategories();
 }
 function renderTable() {
@@ -118,7 +120,7 @@ function renderCategories() {
         return;
     }
 
-    let elements = categoryList.getElementsByTagName('li');
+    let elements = categoryList.getElementsByTagName("li");
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].dataset && elements[i].dataset.id === activeCategory._id) {
             elements[i].classList.add("selected");
@@ -127,9 +129,50 @@ function renderCategories() {
     }
 }
 
+function checkAdminStatus() {
+    sendRequest("GET", "/user").then(user => {
+        if (user.admin === true) {
+            let inviteButton = document.getElementById('create-register-token');
+            inviteButton.style.display = "inherit";
+            inviteButton.on('click', inviteModal)
+        }
+    });
+}
+
 // Modals
+function inviteModal() {
+    console.log("open invite modal");
+    sendRequest("GET", "/registertoken").then(token => {
+        console.log("invite token", token);
+        let modal = ModalsJs.open(templates.inviteModal.render({
+            token,
+            url: `${window.location.protocol}//${window.location.host}/register?token=${token._id}`
+        }));
+        let form = document.getElementById("invite-form");
+        form.querySelector("input[type=button]").on("click", ev => {
+            // generate and show new token
+            // ..
+            //form.querySelector("input[type=submit]").disabled = false;
+        });
+        modal.element.querySelector("a").on("contextmenu", ev => {
+            ev.preventDefault();
+            // TODO find out why copy wont work here ...
+            copy(ev.target.innerText);
+        });
+        form.on("submit", ev => {
+            let formData = new FormData(form);
+            ev.preventDefault();
+            sendRequest("POST", "/registertoken", formData).then(() => {
+                form.reset();
+                form.querySelector("input[type=submit]").disabled = true;
+
+            })
+        })
+    })
+}
+
 function passgenModal() {
-    sendRequest('GET', "/wordlists").then(languages => {
+    sendRequest("GET", "/wordlists").then(languages => {
         ModalsJs.open(templates.passgenModal.render({ languages }));
         let row = document.getElementById("passgen-type-row");
         let phraseGen = document.getElementById("passphrase-gen");
@@ -138,7 +181,7 @@ function passgenModal() {
         let genBtn = document.getElementById("new-passgen-btn");
         let active = "phrase";
         const newPassphraseFunc = () => {
-            let selected = phraseGen.querySelectorAll('select option:checked');
+            let selected = phraseGen.querySelectorAll("select option:checked");
             let langs = Array.from(selected).map((el) => el.value);
             let cap = phraseGen.querySelector("input[type=checkbox]").checked;
             let sep = phraseGen.querySelector("input[type=text]").value.split("");
@@ -146,7 +189,7 @@ function passgenModal() {
             generatePassphrase(langs, words, cap, sep).then(pass => newPass.innerText = pass);
         };
         const newPasswordFunc = () => {
-            let chars = wordGen.querySelector("textarea").value.replace(/ /g, '').split("");
+            let chars = wordGen.querySelector("textarea").value.replace(/ /g, "").split("");
             let len = parseInt(wordGen.querySelector("input").value);
             newPass.innerText = generatePassword(chars, len);
         };
@@ -172,7 +215,7 @@ function passgenModal() {
             }
         });
         wordGen.on("input", "textarea,input", newPasswordFunc);
-        genBtn.addEventListener("click", () => {
+        genBtn.on("click", () => {
             if (active === "phrase")
                 newPassphraseFunc();
             else if (active === "word")
@@ -201,22 +244,22 @@ function categoryModal(category) {
         title: !!category ? "Edit category" : "Add a new category",
         category: category
     }));
-    let form = document.getElementById('add-category-form');
-    form.addEventListener('submit', ev => {
+    let form = document.getElementById("add-category-form");
+    form.on("submit", ev => {
         ev.preventDefault();
         let formData = new FormData(form);
         let name = formData.get("name");
         encryptFormFields(formData, ["name"]);
         if (category) { // update existing
             formData.set("_id", category._id);
-            sendRequest('PUT', "/category", formData).then(() => {
+            sendRequest("PUT", "/category", formData).then(() => {
                 map.get(category._id).category.name = name;
                 ModalsJs.close();
                 renderCategories();
             });
         }
         else { // add new
-            sendRequest('POST', '/category', formData).then(data => {
+            sendRequest("POST", "/category", formData).then(data => {
                 data.credentials = [];
                 data.name = name;
                 categories.push(data);
@@ -244,15 +287,15 @@ function credentialModal(creds) {
         } : undefined
     }));
     let catId = activeCategory._id;
-    let form = document.getElementById('add-credential-form');
-    form.addEventListener('submit', ev => {
+    let form = document.getElementById("add-credential-form");
+    form.on("submit", ev => {
         ev.preventDefault();
         let formData = new FormData(form);
         encryptFormFields(formData, ["username", "password", "location", "description"]);
         formData.set("category_id", catId);
         if (creds){
             formData.append("_id", creds._id);
-            sendRequest('PUT', '/credential', formData).then(data => {
+            sendRequest("PUT", "/credential", formData).then(data => {
                 decryptFields(data, ["username", "location", "description"]);
                 Object.assign(creds, data);
                 ModalsJs.close(true);
@@ -260,7 +303,7 @@ function credentialModal(creds) {
             });
         }
         else {
-            sendRequest('POST', '/credential', formData).then(data => {
+            sendRequest("POST", "/credential", formData).then(data => {
                 decryptFields(data, ["username", "location", "description"]);
                 let categoryWrapper = map.get(catId);
                 categoryWrapper.category.credentials.push(data);
@@ -278,7 +321,7 @@ function deleteCredential(row) {
     confirmationModal(() => {
         let form = new FormData();
         form.set("_id", row.dataset.id);
-        sendRequest('DELETE', "credential", form).then(() => {
+        sendRequest("DELETE", "credential", form).then(() => {
             let index = activeCategory.credentials.findIndex(item => item._id === row.dataset.id);
             activeCategory.credentials.splice(index, 1);
             renderTable();
@@ -288,8 +331,8 @@ function deleteCredential(row) {
 
 function deleteCategory(form) {
     confirmationModal(() => {
-        sendRequest('DELETE', "category").then(form, () => {
-            let index = categories.findIndex(item => item._id === form.get('_id'));
+        sendRequest("DELETE", "category").then(form, () => {
+            let index = categories.findIndex(item => item._id === form.get("_id"));
             categories.splice(index, 1);
             renderCategories();
         });
@@ -298,7 +341,7 @@ function deleteCategory(form) {
 
 function confirmationModal(callback) {
     ModalsJs.open(templates.deleteConfirmationModal.render());
-    document.getElementById('deleteConfirmationForm').on('click', 'input', ev => {
+    document.getElementById("deleteConfirmationForm").on("click", "input", ev => {
         ev.preventDefault();
         if (ev.target.value === "Yes")
             callback();
@@ -309,7 +352,7 @@ function confirmationModal(callback) {
 function decryptionPasswordModal(title, cb) {
     ModalsJs.open(templates.decryptPasswordModal.render({ title }));
     let form = document.getElementById("decrypt-password-form");
-    form.addEventListener("submit", ev => {
+    form.on("submit", ev => {
         ev.preventDefault();
         cb(form.querySelector("input[type=password]").value);
         ModalsJs.close();
@@ -319,7 +362,7 @@ function decryptionPasswordModal(title, cb) {
 function login(ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    sendRequest('POST', "/login", form).then(() => {
+    sendRequest("POST", "/login", form).then(() => {
         loadBuckets();
     }).catch(() => {
         this.reset();
@@ -327,7 +370,7 @@ function login(ev) {
     });
 }
 function logout() {
-    sendRequest('POST', "/logout").then(() => {
+    sendRequest("POST", "/logout").then(() => {
         categories = [];
         map = undefined;
         activeCategory = undefined;
@@ -337,7 +380,7 @@ function logout() {
 }
 
 function loadBuckets() {
-    sendRequest('GET', "/categories").then(cats => {
+    sendRequest("GET", "/categories").then(cats => {
         let title = cats.length === 0 ? "Create encryption password" : "Enter decryption password";
         decryptionPasswordModal(title, password => {
             crypto = createCryptoFuncs(password);
@@ -379,7 +422,7 @@ function decryptFields(obj, fields) {
 
 function togglePassword(ev) {
     let row = ev.target.parentNode.parentNode;
-    let pwdField = row.querySelector('td[data-type=password');
+    let pwdField = row.querySelector("td[data-type=password");
     let credId = row.dataset.id;
     if (!(pwdField.innerText === hiddenPwd)){
         pwdField.innerText = hiddenPwd;
@@ -432,8 +475,8 @@ function getLanguages(languages) {
         for (let i = 0; i < languages.length; i++){
             let lang = languages[i];
             if (wordlists[lang] === undefined){
-                sendRequest('GET', `/wordlists/${lang.toLowerCase()}.txt`, null, false).then(wl => {
-                    wl = wl.split('\n');
+                sendRequest("GET", `/wordlists/${lang.toLowerCase()}.txt`, null, false).then(wl => {
+                    wl = wl.split("\n");
                     wordlists[lang] = wl;
                     final = final.concat(wordlists[lang]);
                     if (done++ === languages.length - 1)
