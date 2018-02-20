@@ -44,7 +44,10 @@ function renderManager() {
         element.classList.add("selected");
         renderTable();
     });
-    categoryList.on("contextmenu", "li", ev => showDropdown(categoryDropdown, ev, ev.target.dataset.id));
+    categoryList.on("contextmenu", "li", ev => {
+        if (!ev.ctrlKey)
+            showDropdown(categoryDropdown, ev, ev.target.dataset.id);
+    });
 
     categoryDropdown = document.getElementById("category-dropdown");
     categoryDropdown.on("click", "li", ev => {
@@ -230,6 +233,7 @@ function passgenModal() {
     });
 }
 function copy(text) {
+    console.log(event, text);
     event.stopPropagation();
     wrapper.appendChild(copyTarget);
     copyTarget.textContent = text;

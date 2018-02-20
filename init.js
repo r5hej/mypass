@@ -18,8 +18,14 @@ async function checkFirstStart() {
         return;
     }
 
-    let token = new models.RegisterToken({created: new Date()});
-    await token.save();
+    let token;
+    try {
+        token = await models.RegisterToken.findOne();
+    }
+    catch (err) {
+        token = new models.RegisterToken({created: new Date()});
+        await token.save();
+    }
     console.log(`No users were detected in the database.\nVisit localhost:${config.port}/register?token=${token._id}`);
 }
 

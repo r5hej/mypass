@@ -110,7 +110,7 @@
         <input type="number" value="12" min="6" max="50" step="1" required="required">
     </div>
     <div class="new-pass-row">
-        <span class="u-full-width truncate" id="new-pass"></span>
+        <span class="u-full-width truncate" id="new-pass" title="Click on password to copy"></span>
         <i id="new-passgen-btn" class="top-btn material-icons" style="margin-bottom: 0;">refresh</i>
     </div>
 </script>
@@ -151,7 +151,7 @@
 <template id="decryptPasswordModal">
     <h5>{{ title }}</h5>
     <form id="decrypt-password-form">
-        <input class="u-full-width" type="password" name="password" required="required">
+        <input class="u-full-width" type="password" required="required">
         <input class="u-full-width btn-submit" type="submit" value="OK">
     </form>
 </template>
