@@ -24,6 +24,7 @@
         <i id="add-credential-btn" class="top-btn left-align material-icons" title="Add new credential">add</i>
         <i id="generate-pass-btn" class="top-btn left-align material-icons" title="Generate new pass">sync</i>
         <i id="create-register-token" class="top-btn left-align material-icons" style="display: none;" title="Create registration token">mail_outline</i>
+        <i id="backup-btn" class="top-btn left-align material-icons" title="Import / Export backup">save</i>
         <i id="logout-btn" class="top-btn right-align material-icons" title="Logout">exit_to_app</i>
         <table class="u-full-width credential-table box">
             <thead>
@@ -129,6 +130,25 @@
             <input type="hidden" name="created" value="{{token.created}}">
             <input type="submit" class="btn" value="Activate registration token">
             <input type="button" class="btn" value="Get another token">
+        </form>
+    </div>
+</template>
+
+<template id="backupModal">
+    <div>
+        <div class="six columns">
+            <b>Export</b>
+            <p>Download a backup of your encrypted data</p>
+            <a href="/export" target="_blank">
+                <button class="u-full-width">Download</button>
+                <i class="material-icons">save</i>
+            </a>
+        </div>
+        <form class="six columns" id="import-form">
+            <b>Import</b>
+            <p>Upload a backup file and import the content</p>
+            <input class="u-full-width" type="file">
+            <input class="u-full-width" type="submit" value="Import">
         </form>
     </div>
 </template>

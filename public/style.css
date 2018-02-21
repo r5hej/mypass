@@ -179,8 +179,10 @@ input.btn-submit[type=button]:hover {
 }
 
 .header {
+    font-family: 'Mukta Mahee', sans-serif;
     color: var(--light-font);
     text-align: center;
+    font-size: 5vmax;
 }
 
 #login-form,
@@ -357,6 +359,9 @@ td[data-type=password]:active, td[data-type=username]:active {
 }
 
 @media (max-width: 550px){
+    .header {
+        font-size: 8vmax;
+    }
     td[data-type=description],
     th[data-type=description] {
         /*width: 0;*/

@@ -2,6 +2,7 @@
 
 const express = require("express");
 const session = require("express-session");
+const bodyparser = require("body-parser");
 const formidable = require("express-formidable");
 const models = require("./models");
 const init = require("./init");
@@ -13,6 +14,7 @@ console.log("Starting MyPass...");
 const saltRounds = 10;
 const app = express();
 app.use(express.static(__dirname + "/public"));
+app.use(bodyparser.json());
 app.use(formidable());
 app.use(session({
     secret: "Charlie's engle",
@@ -30,6 +32,40 @@ function auth(req, res, next) {
     else
         return res.sendStatus(401);
 }
+
+async function getUserData(userId) {
+    let categories = await models.Category.find({owner: userId}).lean();
+    for (let i = 0; i < categories.length; i++) {
+        let category = categories[i];
+        category.credentials = await models.Credential.find({category_id: category._id}).lean();
+        delete category.owner;
+    }
+    return categories;
+}
+
+
+app.post("/login", async (req, res) => {
+    try {
+        let user = await models.User.findOne({username: req.fields.username}).lean();
+        if (user && await bcrypt.compare(req.fields.password, user.password)) {
+            req.session.userId = user._id;
+            req.session.admin = user.admin;
+            res.json({status: "OK"});
+        }
+        else {
+            res.sendStatus(401);
+        }
+    }
+    catch (err) {
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+
+app.post("/logout", auth, async (req, res) => {
+    req.session.destroy();
+    res.json({status: "OK"});
+});
 
 app.post("/register", async (req, res) => {
     try {
@@ -52,7 +88,7 @@ app.post("/register", async (req, res) => {
         let userobj = new models.User(newUser, true);
         await userobj.save();
         await rTok.remove();
-        res.send("registered");
+        res.sendStatus(201);
     }
     catch (err) {
         console.log(err);
@@ -60,37 +96,28 @@ app.post("/register", async (req, res) => {
     }
 });
 
-app.post("/login", async (req, res) => {
-    try {
-        let user = await models.User.findOne({username: req.fields.username}).lean();
-        if (user && await bcrypt.compare(req.fields.password, user.password)) {
-            req.session.userId = user._id;
-            req.session.admin = user.admin;
-            res.send({status: "OK"});
-        }
-        else {
-            res.sendStatus(401);
-        }
-    }
-    catch (err) {
-        console.log(err);
-        res.sendStatus(400);
-    }
-});
-
-app.post("/logout", auth, async (req, res) => {
-    req.session.destroy();
-    res.send({status: "OK"});
-});
 
 app.get("/wordlists", auth, async (req, res) => {
     fs.readdir(__dirname + "/public/wordlists", (err, lists) => {
         if (err)
             return res.sendStatus(404);
         lists = lists.map(l => l.replace(".txt", ""));
-        res.send(lists);
+        res.json(lists);
     });
 });
+
+app.get("/user", auth, async (req, res) => {
+    try {
+        let user = await models.User.findOne({_id: req.session.userId}).lean();
+        delete user.password;
+        res.json(user);
+    }
+    catch (err) {
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+
 
 app.post("/credential", auth, async (req, res) => {
     try {
@@ -100,24 +127,7 @@ app.post("/credential", auth, async (req, res) => {
 
         let credential = new models.Credential(req.fields, true);
         await credential.save();
-        res.send(credential);
-    }
-    catch (err) {
-        console.log(err);
-        res.sendStatus(400);
-    }
-});
-
-app.delete("/credential", auth, async (req, res) => {
-    try {
-        let existing = await models.Credential.findOne({_id: req.fields._id});
-        let category = await models.Category.findOne({_id: existing.category_id}).lean();
-        if (category.owner !== req.session.userId)
-            return res.sendStatus(401);
-
-        let deleted = existing.remove();
-        console.log("delete", deleted);
-        res.send(deleted);
+        res.json(credential);
     }
     catch (err) {
         console.log(err);
@@ -136,7 +146,7 @@ app.put("/credential", auth, async (req, res) => {
 
         let saved = await models.Credential.findOneAndUpdate({_id: req.fields._id}, req.fields, {new: true}).lean();
         console.log(saved);
-        res.send(saved);
+        res.json(saved);
     }
     catch (error) {
         console.log(error);
@@ -144,15 +154,14 @@ app.put("/credential", auth, async (req, res) => {
 
 });
 
-app.get("/categories", auth, async (req, res) => {
+app.delete("/credential", auth, async (req, res) => {
     try {
-        let categories = await models.Category.find({owner: req.session.userId}).lean();
-        for (let i = 0; i < categories.length; i++) {
-            let category = categories[i];
-            category.credentials = await models.Credential.find({category_id: category._id}).lean();
-            delete category.owner;
-        }
-        res.send(categories);
+        let existing = await models.Credential.findOne({_id: req.fields._id});
+        let category = await models.Category.findOne({_id: existing.category_id, owner: req.session.userId}).lean();
+        if (!category)
+            return res.sendStatus(401);
+        await existing.remove();
+        res.sendStatus(200);
     }
     catch (err) {
         console.log(err);
@@ -160,11 +169,11 @@ app.get("/categories", auth, async (req, res) => {
     }
 });
 
-app.get("/user", auth, async (req, res) => {
+
+app.get("/categories", auth, async (req, res) => {
     try {
-        let user = await models.User.findOne({_id: req.session.userId}).lean();
-        delete user.password;
-        res.send(user);
+        let categories = await getUserData(req.session.userId);
+        res.json(categories);
     }
     catch (err) {
         console.log(err);
@@ -177,7 +186,18 @@ app.post("/category", auth, async (req, res) => {
         let category = new models.Category(req.fields, true);
         category.owner = req.session.userId;
         await category.save();
-        res.send(category);
+        res.json(category);
+    }
+    catch (err) {
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+
+app.put("/category", auth, async (req, res) => {
+    try {
+        let saved = await models.Category.findOneAndUpdate({_id: req.fields._id, owner: req.session.userId}, req.fields, {new: true}).lean();
+        res.json(saved);
     }
     catch (err) {
         console.log(err);
@@ -189,7 +209,7 @@ app.delete("/category", auth, async (req, res) => {
     try {
         let deletedCat = await models.Category.deleteOne({_id: req.fields._id, owner: req.session.userId});
         if (deletedCat) await models.Credential.remove({category_id: req.fields._id});
-        res.send({status: "OK"});
+        res.sendStatus(200);
     }
     catch (err) {
         console.log(err);
@@ -197,22 +217,12 @@ app.delete("/category", auth, async (req, res) => {
     }
 });
 
-app.put("/category", auth, async (req, res) => {
-    try {
-        let saved = await models.Category.findOneAndUpdate({_id: req.fields._id, owner: req.session.userId}, req.fields, {new: true}).lean();
-        res.send(saved);
-    }
-    catch (err) {
-        console.log(err);
-        res.sendStatus(400);
-    }
-});
 
 app.get("/registertoken", auth, async (req, res) => {
     try {
         if (!req.session.admin) return res.sendStatus(401);
         let token = new models.RegisterToken({created: new Date()});
-        res.send(token);
+        res.json(token);
     }
     catch (err) {
         console.log(err);
@@ -225,7 +235,39 @@ app.post("/registertoken", auth, async (req, res) => {
         if (!req.session.admin) return res.sendStatus(401);
         let token = new models.RegisterToken(req.fields, true);
         await token.save();
-        res.send({status: "OK"});
+        res.sendStatus(200);
+    }
+    catch (err) {
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+
+
+app.get("/export", auth, async (req, res) => {
+    try {
+        let categories = await getUserData(req.session.userId);
+        res.setHeader('Content-disposition', `attachment; filename=mypass-backup-${new Date().toLocaleString()}.json`);
+        res.json(categories);
+    }
+    catch (err) {
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+
+app.post("/import", auth, async (req, res) => {
+    try {
+        let categoryBackup = req.body;
+        for (const category of categoryBackup) {
+            console.log(category.credentials);
+            let notExisting = category.credentials.filter(async credential => await models.Credential.count({_id: credential._id}));
+            await models.Credential.insertMany(notExisting);
+            delete category.credentials;
+            category.owner = req.session.userId;
+            console.log(category.credentials);
+            await models.Category.insert(category);
+        }
     }
     catch (err) {
         console.log(err);

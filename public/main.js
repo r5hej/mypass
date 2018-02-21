@@ -19,6 +19,7 @@ function renderManager() {
     document.getElementById("add-credential-btn").on("click", () => credentialModal());
     document.getElementById("generate-pass-btn").on("click", passgenModal);
     document.getElementById("logout-btn").on("click", logout);
+    document.getElementById("backup-btn").on("click", backupModal);
     checkAdminStatus();
 
     const showDropdown = (element, ev, item) => {
@@ -143,6 +144,11 @@ function checkAdminStatus() {
 }
 
 // Modals
+
+function backupModal() {
+    ModalsJs.open(templates.backupModal.render());
+}
+
 function inviteModal() {
     console.log("open invite modal");
     sendRequest("GET", "/registertoken").then(token => {
