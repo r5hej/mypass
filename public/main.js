@@ -337,34 +337,28 @@ function credentialModal(creds) {
 }
 
 function deleteCredential(row) {
-    confirmationModal(() => {
-        let form = new FormData();
-        form.set("_id", row.dataset.id);
-        sendRequest("DELETE", "credential", form).then(() => {
-            let index = activeCategory.credentials.findIndex(item => item._id === row.dataset.id);
-            activeCategory.credentials.splice(index, 1);
-            renderTable();
-        });
+    ModalsJs.prompt({ title: "Delete credential?" }).then(ans => {
+        if (ans) {
+            let form = new FormData();
+            form.set("_id", row.dataset.id);
+            sendRequest("DELETE", "credential", form).then(() => {
+                let index = activeCategory.credentials.findIndex(item => item._id === row.dataset.id);
+                activeCategory.credentials.splice(index, 1);
+                renderTable();
+            });
+        }
     });
 }
 
 function deleteCategory(form) {
-    confirmationModal(() => {
-        sendRequest("DELETE", "category").then(form, () => {
-            let index = categories.findIndex(item => item._id === form.get("_id"));
-            categories.splice(index, 1);
-            renderCategories();
-        });
-    });
-}
-
-function confirmationModal(callback) {
-    ModalsJs.open(templates.deleteConfirmationModal.render());
-    document.getElementById("deleteConfirmationForm").on("click", "input", ev => {
-        ev.preventDefault();
-        if (ev.target.value === "Yes")
-            callback();
-        ModalsJs.close();
+    ModalsJs.prompt({ title: "Delete category?" }).then(ans => {
+        if (ans) {
+            sendRequest("DELETE", "category", form).then(() => {
+                let index = categories.findIndex(item => item._id === form.get("_id"));
+                categories.splice(index, 1);
+                renderCategories();
+            });
+        }
     });
 }
 
@@ -545,7 +539,7 @@ function sendRequest(method, url, data, json) {
 
         xhr.onload = e => {
             if (xhr.readyState === 4 && xhr.status === 200)
-                res(json && xhr.responseText ? JSON.parse(xhr.responseText) : xhr.responseText);
+                res(json ? JSON.parse(xhr.responseText) : xhr.responseText);
             else
                 rej(e, xhr.statusText);
         };

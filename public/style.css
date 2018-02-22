@@ -323,7 +323,6 @@ td[data-type=password]:active, td[data-type=username]:active {
 #new-pass {
     color: var(--light-font);
     text-align: center;
-    /*background-color: #616161;*/
     background-color: var(--green);
     display: block;
     padding: 6px 10px;
@@ -334,7 +333,6 @@ td[data-type=password]:active, td[data-type=username]:active {
     color: var(--dark-font);
     cursor: pointer;
     background-color: var(--green-hover);
-    /*background-color: #757575;*/
     transition: background-color 100ms, color 100ms;
 }
 #new-pass:active {
@@ -348,7 +346,9 @@ td[data-type=password]:active, td[data-type=username]:active {
     -o-text-overflow: ellipsis;
     -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
 }
-
+.invite {
+    text-align: center;
+}
 .invite a, .invite b, .invite p, .invite span {
     display: block;
 }

@@ -41,13 +41,14 @@ async function getUserData(userId) {
     return categories;
 }
 
-const readFile = (path, opts = 'utf8') =>
-    new Promise((res, rej) => {
+const readFile = (path, opts = 'utf8') => {
+    return new Promise((res, rej) => {
         fs.readFile(path, opts, (err, data) => {
             if (err) rej(err);
             else res(data);
         })
     });
+};
 
 
 app.post("/login", async (req, res) => {
@@ -167,7 +168,7 @@ app.delete("/credential", auth, async (req, res) => {
         if (!category)
             return res.sendStatus(401);
         await existing.remove();
-        res.sendStatus(200);
+        res.json({status: "OK"});
     }
     catch (err) {
         console.log(err);
@@ -213,9 +214,10 @@ app.put("/category", auth, async (req, res) => {
 
 app.delete("/category", auth, async (req, res) => {
     try {
-        let deletedCat = await models.Category.deleteOne({_id: req.fields._id, owner: req.session.userId});
-        if (deletedCat) await models.Credential.remove({category_id: req.fields._id});
-        res.sendStatus(200);
+        let deletedCat = await models.Category.findOneAndRemove({_id: req.fields._id, owner: req.session.userId});
+        if (deletedCat)
+            await models.Credential.remove({category_id: req.fields._id});
+        res.json({status: "OK"});
     }
     catch (err) {
         console.log(err);
@@ -241,7 +243,7 @@ app.post("/registertoken", auth, async (req, res) => {
         if (!req.session.admin) return res.sendStatus(401);
         let token = new models.RegisterToken(req.fields, true);
         await token.save();
-        res.sendStatus(200);
+        res.json({status: "OK"});
     }
     catch (err) {
         console.log(err);
@@ -281,7 +283,7 @@ app.post("/import", auth, async (req, res) => {
             await models.Category.insert(category);
         }
         fs.unlink(req.files.file.path);
-        res.sendStatus(200);
+        res.json({status: "OK"});
     }
     catch (err) {
         console.log(err);
