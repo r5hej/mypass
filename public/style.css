@@ -368,3 +368,11 @@ td[data-type=password]:active, td[data-type=username]:active {
         display: none;
     }
 }
+
+#hint-text li {
+    padding: 0;
+}
+
+#hint-text ul {
+    margin-bottom: 10px;
+}

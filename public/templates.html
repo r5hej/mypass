@@ -169,9 +169,27 @@
 </template>
 
 <template id="decryptPasswordModal">
-    <h5>{{ title }}</h5>
+    <h5>Enter decryption password</h5>
     <form id="decrypt-password-form">
-        <input class="u-full-width" type="password" required="required">
+        <input class="u-full-width" type="password" required="required" name="password">
+        <input class="u-full-width btn-submit" type="submit" value="OK">
+    </form>
+</template>
+
+<template id="createDecryptPasswordModal">
+    <h5>Create encryption password</h5>
+    <div id="hint-text">
+        <p style="margin-bottom: 0;">We strongly recommend writing this password down on a piece of paper or alike, and never share it with anyone.<br>
+            We recommend the following criterias:</p>
+        <ul>
+            <li>Minimum length: 6 characters</li>
+            <li>Capitalized and small letters</li>
+            <li>Numbers</li>
+        </ul>
+    </div>
+    <form id="decrypt-password-form">
+        <input class="u-full-width" name="password" type="password" required="required" placeholder="Password">
+        <input class="u-full-width" name="password2" type="password" required="required" placeholder="Confirm password">
         <input class="u-full-width btn-submit" type="submit" value="OK">
     </form>
 </template>
