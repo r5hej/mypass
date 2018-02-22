@@ -7,6 +7,7 @@ const models = require("./models");
 const init = require("./init");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+require('events').EventEmitter.defaultMaxListeners = Infinity; // To "fix" MaxListenersExceededWarning
 
 console.log("Starting MyPass...");
 
@@ -83,15 +84,19 @@ app.post("/register", async (req, res) => {
         if (!rTok)
             return res.statusCode(400).send("invalid");
 
+        let timeDiff = Math.abs(new Date().getTime() - rTok.created);
+        let days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        if (days > 7){
+            await rTok.remove();
+            return res.statusCode(400).send("invalid");
+        }
         let hashed = await bcrypt.hash(req.fields.password, saltRounds);
         let newUser = {
             username: req.fields.username,
             password: hashed
         };
-
         if (await models.User.count() === 0)
             newUser.admin = true;
-
         let userobj = new models.User(newUser, true);
         await userobj.save();
         await rTok.remove();
@@ -268,21 +273,25 @@ app.post("/import", auth, async (req, res) => {
     try {
         let json = await readFile(req.files.file.path);
         let categoryBackup = JSON.parse(json);
-        for (const category of categoryBackup) {
-            console.log("creds", category.credentials);
-            let notExisting = [];
+        let newCats = [];
+        let newCreds = [];
+        for (let i = 0; i < categoryBackup.length; i++) {
+            let category = categoryBackup[i];
             for (let cr of category.credentials) {
                 let found = await models.Credential.count({_id: cr._id});
-                if (found === 0) notExisting.push(cr);
+                if (found === 0) newCreds.push(cr);
             }
-            console.log("new", notExisting);
-            await models.Credential.insertMany(notExisting);
+            let found = await models.Category.count({_id: category._id});
+            if (found === 0) newCats.push(category);
             delete category.credentials;
             category.owner = req.session.userId;
-            console.log("creds", category.credentials);
-            await models.Category.insert(category);
         }
-        fs.unlink(req.files.file.path);
+        console.log(newCreds);
+        await models.Credential.create(newCats);
+        await models.Category.create(newCreds);
+        fs.unlink(req.files.file.path, (err) => {
+            console.log(err, "deleted")
+        });
         res.json({status: "OK"});
     }
     catch (err) {

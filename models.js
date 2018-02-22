@@ -9,10 +9,10 @@ let UserSchema = new mongoose.Schema({
 });
 
 let CredentialSchema = new mongoose.Schema({
-    category_id: {type: mongoose.Schema.Types.ObjectId, required: true},
+    category_id: {type: String, required: true},
     location: {type: String, required: true},
     description: String,
-    username: {type: String, required: false},
+    username: String,
     password: {type: String, required: true}
 });
 

@@ -151,7 +151,9 @@ function backupModal() {
         ev.preventDefault();
         let form = new FormData(this);
         sendRequest("POST", "/import", form).then(() => {
-            console.log("OK");
+            renderTable();
+            renderCategories();
+            ModalsJs.close();
         }).catch(() => {
             console.log("NOT OK");
         });
@@ -159,23 +161,25 @@ function backupModal() {
 }
 
 function inviteModal() {
-    console.log("open invite modal");
+    const urlFunc = id => `${window.location.protocol}//${window.location.host}/register?token=${id}`;
     sendRequest("GET", "/registertoken").then(token => {
         console.log("invite token", token);
         let modal = ModalsJs.open(templates.inviteModal.render({
             token,
-            url: `${window.location.protocol}//${window.location.host}/register?token=${token._id}`
+            url: urlFunc(token._id)
         }));
         let form = document.getElementById("invite-form");
         form.querySelector("input[type=button]").on("click", ev => {
-            // generate and show new token
-            // ..
-            //form.querySelector("input[type=submit]").disabled = false;
+            sendRequest("GET", "/registertoken").then(newToken => {
+                let a = document.getElementById("copy-invite-url");
+                a.href = urlFunc(newToken._id);
+                a.innerText = urlFunc(newToken._id);
+                form.querySelector("input[type=submit]").disabled = false;
+            });
         });
-        modal.element.querySelector("a").on("contextmenu", ev => {
+        modal.element.querySelector("#copy-invite-url").on("click", ev => {
             ev.preventDefault();
-            // TODO find out why copy wont work here ...
-            copy(ev.target.innerText);
+            copy(token._id);
         });
         form.on("submit", ev => {
             let formData = new FormData(form);
@@ -183,7 +187,6 @@ function inviteModal() {
             sendRequest("POST", "/registertoken", formData).then(() => {
                 form.reset();
                 form.querySelector("input[type=submit]").disabled = true;
-
             })
         })
     })

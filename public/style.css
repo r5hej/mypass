@@ -374,10 +374,9 @@ td[data-type=password]:active, td[data-type=username]:active {
 }
 
 
-#hint-text li {
+.hint-text li {
     padding: 0;
 }
-
-#hint-text ul {
+.hint-text ul {
     margin-bottom: 10px;
 }
