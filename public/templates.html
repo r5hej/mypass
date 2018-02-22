@@ -140,15 +140,14 @@
             <b>Export</b>
             <p>Download a backup of your encrypted data</p>
             <a href="/export" target="_blank">
-                <button class="u-full-width">Download</button>
-                <i class="material-icons">save</i>
+                <button class="u-full-width">Download backup</button>
             </a>
         </div>
         <form class="six columns" id="import-form">
             <b>Import</b>
             <p>Upload a backup file and import the content</p>
-            <input class="u-full-width" type="file">
-            <input class="u-full-width" type="submit" value="Import">
+            <input class="u-full-width" type="file" name="file" required="required">
+            <input class="u-full-width" type="submit" value="Upload backup">
         </form>
     </div>
 </template>

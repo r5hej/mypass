@@ -147,6 +147,15 @@ function checkAdminStatus() {
 
 function backupModal() {
     ModalsJs.open(templates.backupModal.render());
+    document.getElementById("import-form").on("submit", function (ev) {
+        ev.preventDefault();
+        let form = new FormData(this);
+        sendRequest("POST", "/import", form).then(() => {
+            console.log("OK");
+        }).catch(() => {
+            console.log("NOT OK");
+        });
+    })
 }
 
 function inviteModal() {
@@ -536,7 +545,7 @@ function sendRequest(method, url, data, json) {
 
         xhr.onload = e => {
             if (xhr.readyState === 4 && xhr.status === 200)
-                res(json ? JSON.parse(xhr.responseText) : xhr.responseText);
+                res(json && xhr.responseText ? JSON.parse(xhr.responseText) : xhr.responseText);
             else
                 rej(e, xhr.statusText);
         };

@@ -2,7 +2,6 @@
 
 const express = require("express");
 const session = require("express-session");
-const bodyparser = require("body-parser");
 const formidable = require("express-formidable");
 const models = require("./models");
 const init = require("./init");
@@ -14,7 +13,6 @@ console.log("Starting MyPass...");
 const saltRounds = 10;
 const app = express();
 app.use(express.static(__dirname + "/public"));
-app.use(bodyparser.json());
 app.use(formidable());
 app.use(session({
     secret: "Charlie's engle",
@@ -42,6 +40,14 @@ async function getUserData(userId) {
     }
     return categories;
 }
+
+const readFile = (path, opts = 'utf8') =>
+    new Promise((res, rej) => {
+        fs.readFile(path, opts, (err, data) => {
+            if (err) rej(err);
+            else res(data);
+        })
+    });
 
 
 app.post("/login", async (req, res) => {
@@ -247,7 +253,7 @@ app.post("/registertoken", auth, async (req, res) => {
 app.get("/export", auth, async (req, res) => {
     try {
         let categories = await getUserData(req.session.userId);
-        res.setHeader('Content-disposition', `attachment; filename=mypass-backup-${new Date().toLocaleString()}.json`);
+        res.setHeader("Content-disposition", `attachment; filename=mypass-backup-${new Date().toLocaleString()}.json`);
         res.json(categories);
     }
     catch (err) {
@@ -258,16 +264,24 @@ app.get("/export", auth, async (req, res) => {
 
 app.post("/import", auth, async (req, res) => {
     try {
-        let categoryBackup = req.body;
+        let json = await readFile(req.files.file.path);
+        let categoryBackup = JSON.parse(json);
         for (const category of categoryBackup) {
-            console.log(category.credentials);
-            let notExisting = category.credentials.filter(async credential => await models.Credential.count({_id: credential._id}));
+            console.log("creds", category.credentials);
+            let notExisting = [];
+            for (let cr of category.credentials) {
+                let found = await models.Credential.count({_id: cr._id});
+                if (found === 0) notExisting.push(cr);
+            }
+            console.log("new", notExisting);
             await models.Credential.insertMany(notExisting);
             delete category.credentials;
             category.owner = req.session.userId;
-            console.log(category.credentials);
+            console.log("creds", category.credentials);
             await models.Category.insert(category);
         }
+        fs.unlink(req.files.file.path);
+        res.sendStatus(200);
     }
     catch (err) {
         console.log(err);
