@@ -128,8 +128,14 @@
         <form id="invite-form">
             <input type="hidden" name="_id" value="{{token._id}}">
             <input type="hidden" name="created" value="{{token.created}}">
-            <input type="submit" class="btn" value="Activate registration token">
-            <input type="button" class="btn" value="Get another token">
+            <div class="row">
+                <div class="six columns small-screen-bottom-spacing">
+                    <input type="submit" class="btn-submit u-full-width" value="Activate registration token">
+                </div>
+                <div class="six columns">
+                    <input type="button" class="btn-submit u-full-width" value="Get another token">
+                </div>
+            </div>
         </form>
     </div>
 </template>

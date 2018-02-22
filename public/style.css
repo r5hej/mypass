@@ -362,12 +362,17 @@ td[data-type=password]:active, td[data-type=username]:active {
     .header {
         font-size: 8vmax;
     }
+
     td[data-type=description],
     th[data-type=description] {
-        /*width: 0;*/
         display: none;
     }
+
+    .small-screen-bottom-spacing {
+        margin-bottom: 10px;
+    }
 }
+
 
 #hint-text li {
     padding: 0;
