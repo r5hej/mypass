@@ -362,12 +362,19 @@ function deleteCategory(form) {
     });
 }
 
-function decryptionPasswordModal(title, cb) {
-    ModalsJs.open(templates.decryptPasswordModal.render({ title }));
+function decryptionPasswordModal(create, cb) {
+    let template = create ? templates.createDecryptPasswordModal : templates.decryptPasswordModal;
+    ModalsJs.open(template.render());
     let form = document.getElementById("decrypt-password-form");
     form.on("submit", ev => {
         ev.preventDefault();
-        cb(form.querySelector("input[type=password]").value);
+        let data = new FormData(form);
+        if (create && !(data.get("password") === data.get("password2"))) {
+            form.reset();
+            form.querySelector("input[name=password").focus();
+            return;
+        }
+        cb(data.get("password"));
         ModalsJs.close();
     })
 }
@@ -394,8 +401,9 @@ function logout() {
 
 function loadBuckets() {
     sendRequest("GET", "/categories").then(cats => {
-        let title = cats.length === 0 ? "Create encryption password" : "Enter decryption password";
-        decryptionPasswordModal(title, password => {
+        let create = cats.length === 0;
+        // let create = cats.length === 0 ? "Create encryption password" : "Enter decryption password";
+        decryptionPasswordModal(create, password => {
             crypto = createCryptoFuncs(password);
             categories = cats;
             map = new Map();
