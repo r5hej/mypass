@@ -2,7 +2,6 @@
   "name": "mypass",
   "version": "1.0.0",
   "description": "self-hosted password manager",
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/r5hej/mypass.git"
@@ -14,10 +13,10 @@
   },
   "homepage": "https://github.com/r5hej/mypass#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "express": "^4.16.2",
     "express-formidable": "^1.0.0",
     "express-session": "^1.15.6",
-    "bcrypt": "^1.0.3",
     "mongoose": "^5.0.1"
   }
 }

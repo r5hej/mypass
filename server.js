@@ -3,17 +3,29 @@
 const express = require("express");
 const session = require("express-session");
 const formidable = require("express-formidable");
+// const bodyParser = require('body-parser');
+const bcrypt = require("bcrypt");
 const models = require("./models");
 const init = require("./init");
 const fs = require("fs");
-const bcrypt = require("bcrypt");
 require('events').EventEmitter.defaultMaxListeners = Infinity; // To "fix" MaxListenersExceededWarning
 
 console.log("Starting MyPass...");
 
 const saltRounds = 10;
 const app = express();
+
+// only for when dev server is running
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin',  req.headers.origin);
+    res.header('Access-Control-Allow-Methods','OPTIONS,GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+    next();
+});
+
 app.use(express.static(__dirname + "/public"));
+
 app.use(formidable());
 app.use(session({
     secret: "Charlie's engle",
@@ -21,7 +33,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days in milliseconds
-        sameSite: "strict"
+        // sameSite: "strict"
     }
 }));
 
@@ -110,10 +122,10 @@ app.post("/register", async (req, res) => {
 
 
 app.get("/wordlists", auth, async (req, res) => {
-    fs.readdir(__dirname + "/public/wordlists", (err, lists) => {
-        if (err)
-            return res.sendStatus(404);
+    fs.readdir(`${__dirname}/public/wordlist`, (err, lists) => {
+        if (err) return res.sendStatus(404);
         lists = lists.map(l => l.replace(".txt", ""));
+        res.header('Access-Control-Allow-Origin',  req.headers.origin);
         res.json(lists);
     });
 });
@@ -134,22 +146,19 @@ app.get("/user", auth, async (req, res) => {
 app.post("/credential", auth, async (req, res) => {
     try {
         let category = await models.Category.findOne({_id: req.fields.category_id}).lean();
-        if (category.owner !== req.session.userId)
-            return res.sendStatus(401);
-
+        if (category.owner !== req.session.userId) return res.sendStatus(401);
         let credential = new models.Credential(req.fields, true);
         await credential.save();
         res.json(credential);
     }
     catch (err) {
-        console.log(err);
+        console.log("/credential err", err);
         res.sendStatus(400);
     }
 });
 
 app.put("/credential", auth, async (req, res) => {
     try {
-        console.log("put", req.fields._id);
         let existing = await models.Credential.findOne({_id: req.fields._id}).lean();
         let category = await models.Category.findOne({_id: existing.category_id}).lean();
 
@@ -219,6 +228,7 @@ app.put("/category", auth, async (req, res) => {
 
 app.delete("/category", auth, async (req, res) => {
     try {
+        console.log("delete", req.fields);
         let deletedCat = await models.Category.findOneAndRemove({_id: req.fields._id, owner: req.session.userId});
         if (deletedCat)
             await models.Credential.remove({category_id: req.fields._id});
