@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import 'linkstate/polyfill';
 
 import MaterialButton from '../MaterialButton';
 import Api from '../Helpers/Api';
@@ -77,31 +78,33 @@ export default class PassgenModal extends Component {
 					<div class="row">
 						<div class="six columns">
 							<label>Language(s)</label>
-							<select multiple="multiple" required="required" class="u-full-width">
+							<select multiple="multiple" required="required" class="u-full-width" onInput={this.linkState('passphraseLanguages')}>
 								{this.state.passphraseLanguages.map(lang => <option value={lang}>{lang.charAt(0).toUpperCase() + lang.substr(1)}</option>)}
 							</select>
 						</div>
 						<div class="six columns">
 							<label>Words in phrase</label>
-							<input type="number" value={this.state.passphraseLength} min="3" max="12" required="required" class="u-full-width" />
+							<input type="number" value={this.state.passphraseLength} onInput={this.linkState('passphraseLength')} min="3" max="12" required="required" class="u-full-width" />
 						</div>
 					</div>
 					<div class="row">
 						<div class="six columns">
 							<label style="display: inline-block;">Random capitalization</label>
-							<input type="checkbox" checked={this.state.passphraseCapitalisation} style="transform: scale(1.2);" />
+							<input type="checkbox" checked={this.state.passphraseCapitalisation} onInput={this.linkState('passphraseCapitalisation')} style="transform: scale(1.2);" />
 						</div>
 						<div class="six columns">
 							<label>Separator characters</label>
-							<input type="text" value={this.state.passphraseSeparators} required="required" class="u-full-width" />
+							<input type="text" value={this.state.passphraseSeparators} onInput={this.linkState('passphraseSeparators')} required="required" class="u-full-width" />
 						</div>
 					</div>
 				</div>
 				<div class={('pass-gen' + (this.state.displayWord ? ' active' : ''))}>
 					<label>Characters</label>
-					<textarea class="u-full-width" spellCheck={false} style="resize: none;" required="required" >{this.state.passwordChars}</textarea>
+					<textarea class="u-full-width" spellCheck={false} style="resize: none;" required="required" onInput={this.linkState('passwordChars')}>
+						{this.state.passwordChars}
+						</textarea>
 					<label>Length</label>
-					<input type="number" value={this.state.passwordLength} min="6" max="50" step="1" required="required" />
+					<input type="number" value={this.state.passwordLength} onInput={this.linkState('passwordLength')} min="6" max="50" step="1" required="required" />
 				</div>
 				<div class="new-pass-row">
 					<span class="u-full-width truncate new-pass" title="Click on password to copy">{this.state.password}</span>

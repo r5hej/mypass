@@ -1,10 +1,12 @@
 import { h, Component } from 'preact';
 
 import Api from '../Helpers/Api';
+import MaterialIcon from '../MaterialIcon';
 
 export default class CreateCredentialModal extends Component {
     async onSubmit(ev) {
         ev.preventDefault();
+        this.setState({loading: true});
         const form = new FormData(ev.target);
         this.props.crypto.encryptForm(form, ['location', 'description', 'username', 'password']);
         const newCred = await Api.createCredential(form);
@@ -14,6 +16,7 @@ export default class CreateCredentialModal extends Component {
 
     constructor(props) {
         super(props);
+        this.state.loading = false;
         this.onSubmit = this.onSubmit.bind(this);
     }
 
@@ -27,7 +30,9 @@ export default class CreateCredentialModal extends Component {
                     <input class="u-full-width" type="text" name="username" placeholder="Username" />
                     <input class="u-full-width" type="password" name="password" placeholder="Password" required="required" />
                     <input class="u-full-width" type="hidden" name="category_id" value={this.props.categoryId} />
-                    <input class="u-full-width btn-submit" type="submit" value="Add" />
+                    {this.state.loading
+                        ? <MaterialIcon className="spin" icon="autorenew" />
+                        : <input class="u-full-width btn-submit" type="submit" value="Add" />}
                 </form>
             </div>
         );

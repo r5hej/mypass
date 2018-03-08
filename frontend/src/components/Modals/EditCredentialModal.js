@@ -1,21 +1,24 @@
 import { h, Component } from 'preact';
+import 'linkstate/polyfill';
 
 import Api from '../Helpers/Api';
+import MaterialIcon from '../MaterialIcon';
 
 export default class EditCredentialModal extends Component {
 	async onSubmit(ev) {
 		ev.preventDefault();
-        this.props.credential.location = this.locationField.value;
-        this.props.credential.description = this.descField.value;
-        this.props.credential.username = this.usernameField.value;
-        this.props.credential.password = this.passwordField.value;
-        let encCopy = this.props.crypto.encryptedCopy(this.props.credential, ['location', 'description', 'username', 'password']);
+        this.setState({loading: true});
+        let encCopy = this.props.crypto.encryptedCopy(this.state.credential, ['location', 'description', 'username', 'password']);
         await Api.updateCredential(encCopy);
         this.props.updated();
 	}
 
 	constructor(props) {
 		super(props);
+		this.state = {
+            credential: props.credential,
+            loading: false
+		};
 		this.onSubmit = this.onSubmit.bind(this);
 	}
 
@@ -25,18 +28,20 @@ export default class EditCredentialModal extends Component {
 				<h5>Edit credential</h5>
 				<form onSubmit={this.onSubmit}>
 					<input class="u-full-width" type="text" name="location" placeholder="Location" required="required"
-						value={this.props.credential.location} ref={element => this.locationField = element}
+						value={this.state.credential.location} onInput={this.linkState('credential.location')}
 					/>
 					<input class="u-full-width" type="text" name="description" placeholder="Description"
-						value={this.props.credential.description} ref={element => this.descField = element}
+						value={this.state.credential.description} onInput={this.linkState('credential.description')}
 					/>
 					<input class="u-full-width" type="text" name="username" placeholder="Username"
-						value={this.props.credential.username} ref={element => this.usernameField = element}
+						value={this.state.credential.username} onInput={this.linkState('credential.username')}
 					/>
 					<input class="u-full-width" type="password" name="password" placeholder="Password"
-						required="required" value={this.props.credential.password} ref={element => this.passwordField = element}
+						required="required" value={this.state.credential.password} onInput={this.linkState('credential.password')}
 					/>
-					<input class="u-full-width btn-submit" type="submit" value="Update" />
+					{this.state.loading
+					 	? <MaterialIcon className="spin" icon="autorenew" />
+						: <input class="u-full-width btn-submit" type="submit" value="Update" />}
 				</form>
 			</div>
 		);

@@ -1,25 +1,25 @@
 import { h, Component } from 'preact';
 
-const dropdownHandlers = [];
+const _handlers = [];
 
 function clickOnBody(ev) {
 	if (ev.target.matches('.dropdown-menu'))
 		return;
-	for (let i = 0; i < dropdownHandlers.length; i++) {
-		dropdownHandlers[i]();
+	for (let i = 0; i < _handlers.length; i++) {
+		_handlers[i]();
 	}
 }
 
 function register(handler) {
-	if (dropdownHandlers.length === 0)
+	if (_handlers.length === 0)
 		document.body.addEventListener('click', clickOnBody);
-	dropdownHandlers.push(handler);
+	_handlers.push(handler);
 }
 function unregister(handler) {
-	let i = dropdownHandlers.indexOf(handler);
+	let i = _handlers.indexOf(handler);
 	if (i === -1) return;
-	dropdownHandlers.splice(i, 1);
-	if (dropdownHandlers.length === 0)
+	_handlers.splice(i, 1);
+	if (_handlers.length === 0)
 		document.body.removeEventListener('click', clickOnBody);
 }
 
