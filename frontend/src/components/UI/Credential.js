@@ -33,11 +33,11 @@ export default class Credential extends Component {
 
 	usernameClicked() {
 		if (this.props.credential.username)
-			Copy(this.props.credential.username);
+			Copy.copy(this.props.credential.username);
 	}
     passwordClicked() {
         if (this.props.credential.password)
-        	Copy(this.props.credential.password);
+        	Copy.copy(this.props.credential.password);
     }
 
 	onMoreButtonPressed(ev) {

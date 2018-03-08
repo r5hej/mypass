@@ -128,15 +128,14 @@ form {
     font-size: unset;
     margin-bottom: 0;
 }
-.btn:disabled, button:disabled, input[type=button]:disabled, input[type=reset]:disabled, input[type=submit]:disabled,
-.btn:disabled:hover, button:disabled:hover, input[type=button]:disabled:hover, input[type=reset]:disabled:hover, input[type=submit]:disabled:hover {
-    background: var(--disabled-grey);
-}
-.btn:hover, button:hover, input[type=button]:hover, input[type=reset]:hover, input[type=submit]:hover {
+.btn:not(:disabled):hover, button:not(:disabled):hover, input[type=button]:not(:disabled):hover, input[type=reset]:not(:disabled):hover, input[type=submit]:not(:disabled):hover {
     background: var(--green-hover);
     color: var(--dark-font);
 }
-
+.btn:disabled, button:disabled, input[type=button]:disabled, input[type=reset]:disabled, input[type=submit]:disabled {
+    background: var(--disabled-grey);
+    cursor: default;
+}
 .material-button {
     padding: 6px 10px 6px 10px;
     display: inline-block;
@@ -289,6 +288,7 @@ td i {
     padding: 6px 10px;
     border-radius: 4px;
     transition: background-color 300ms, color 200ms;
+    margin-bottom: 10px;
 }
 .new-pass:hover {
     color: var(--dark-font);

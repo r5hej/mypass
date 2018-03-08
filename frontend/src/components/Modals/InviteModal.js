@@ -2,6 +2,8 @@ import { h, Component } from 'preact';
 
 import MaterialButton from '../MaterialButton';
 import Api from '../Helpers/Api';
+import Copy from '../Helpers/Copy';
+
 
 export default class InviteModal extends Component {
 	constructor(props) {
@@ -14,10 +16,15 @@ export default class InviteModal extends Component {
 		};
 		this.requestToken = this.requestToken.bind(this);
 		this.activateToken = this.activateToken.bind(this);
+		this.onCopyClicked = this.onCopyClicked.bind(this);
 	}
 
 	componentDidMount() {
 		this.requestToken();
+	}
+
+    onCopyClicked() {
+        Copy.copy(this.state.url);
 	}
 
 	async requestToken() {
@@ -49,16 +56,20 @@ export default class InviteModal extends Component {
 				    <span>{this.state.token && this.state.token._id}</span>
 				</b>
 				<a href={this.state.url} style="display: inline-block;">{this.state.url}</a>
-				<MaterialButton icon="assignment" title="Copy url to clipboard" />
+				<MaterialButton icon="assignment" title="Copy url to clipboard" click={this.onCopyClicked} />
 				<p>You need to activate the token for it to be valid</p>
 				<i>The registration token will become invalid 7 days after the creation time</i>
 				<form onSubmit={this.activateToken}>
 					<div class="row">
 						<div class="six columns small-screen-bottom-spacing">
-							<input type="submit" class="btn-submit u-full-width" disabled={this.state.canActivate} value="Activate registration token" />
+                            {this.state.canActivate
+                                ? <input type="submit" class="btn-submit u-full-width" value="Activate registration token" />
+                                : <input type="submit" class="btn-submit u-full-width" disabled="disabled" value="Activate registration token" />}
 						</div>
 						<div class="six columns">
-							<input type="button" class="btn-submit u-full-width" disabled={this.state.canRequest} onClick={this.requestToken} value="Get another token" />
+                            {this.state.canRequest
+                                ? <input type="button" class="btn-submit u-full-width" onClick={this.requestToken} value="Get another token" />
+                                : <input type="button" class="btn-submit u-full-width" disabled="disabled" onClick={this.requestToken} value="Get another token" />}
 						</div>
 					</div>
 				</form>
