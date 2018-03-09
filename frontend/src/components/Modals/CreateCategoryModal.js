@@ -29,7 +29,7 @@ export default class CreateCategoryModal extends Component {
                     <input class="u-full-width" type="text" name="name" placeholder="Category name" required="required" />
                     {this.state.loading
                         ? <MaterialIcon className="spin" icon="autorenew" />
-                        : <input class="u-full-width btn-submit" type="submit" value="Add" />}
+                        : <input class="right-align" type="submit" value="Add" />}
 
                 </form>
             </div>

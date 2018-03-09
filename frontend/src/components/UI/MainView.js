@@ -39,7 +39,8 @@ export default class MainView extends Component {
 			warning: true,
 			warningOptions: { title: 'You must enter your encryption key to use MyPass. Are you sure you want to close?' },
 			onClose: () => {
-				if (this.crypto === undefined) window.location.reload();
+				console.log("closed", this.state.crypto);
+				// if (this.state.crypto === undefined) window.location.reload();
 			}
 		});
 	    if (this.state.categories.length !== 0)
@@ -129,10 +130,10 @@ export default class MainView extends Component {
                     <table class="u-full-width credential-table box">
                         <thead>
                         <tr>
-                            <th>Location</th>
-                            <th class="credential-desc">Description</th>
-                            <th>Username</th>
-                            <th>Password</th>
+                            <th class="truncate">Location</th>
+                            <th class="truncate credential-desc">Description</th>
+                            <th class="truncate">Username</th>
+                            <th class="truncate">Password</th>
                             <th style={{ width: '44px' }} />
                         </tr>
                         </thead>

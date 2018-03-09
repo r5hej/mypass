@@ -1,26 +1,21 @@
 import { h, Component } from 'preact';
 
-const _handlers = [];
+export const _handlers = [];
 
 function clickOnBody(ev) {
-	if (ev.target.matches('.dropdown-menu'))
-		return;
-	for (let i = 0; i < _handlers.length; i++) {
-		_handlers[i]();
-	}
+	if (ev.target.matches('.dropdown-menu')) return;
+	for (let i = 0; i < _handlers.length; i++) _handlers[i]();
 }
 
 function register(handler) {
-	if (_handlers.length === 0)
-		document.body.addEventListener('click', clickOnBody);
+	if (_handlers.length === 0) document.body.addEventListener('click', clickOnBody);
 	_handlers.push(handler);
 }
 function unregister(handler) {
 	let i = _handlers.indexOf(handler);
 	if (i === -1) return;
 	_handlers.splice(i, 1);
-	if (_handlers.length === 0)
-		document.body.removeEventListener('click', clickOnBody);
+	if (_handlers.length === 0) document.body.removeEventListener('click', clickOnBody);
 }
 
 export class Item extends Component {

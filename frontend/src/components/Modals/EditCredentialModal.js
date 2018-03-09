@@ -41,7 +41,7 @@ export default class EditCredentialModal extends Component {
 					/>
 					{this.state.loading
 					 	? <MaterialIcon className="spin" icon="autorenew" />
-						: <input class="u-full-width btn-submit" type="submit" value="Update" />}
+						: <input class="right-align" type="submit" value="Update" />}
 				</form>
 			</div>
 		);

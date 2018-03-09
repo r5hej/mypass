@@ -41,6 +41,7 @@ export default class CategoryList extends Component {
 	async onDropdownOptionSelected(option, item) {
 		switch (option) {
 			case 'name':
+				console.log('edit category', item);
 				ModalsJs.open("<div id='modal-root'></div>");
 				render((<EditCategoryModal category={item} updated={this.onCategoriesUpdated} crypto={this.props.crypto} />), document.getElementById('modal-root'));
 				break;

@@ -16,11 +16,10 @@ export default class EditCategoryModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            credential: props.credential,
+            category: props.category,
             loading: false
         };
         this.submit = this.submit.bind(this);
-        this.state.name = props.category ? props.category.name : '';
     }
 	render() {
 		return (
@@ -30,10 +29,9 @@ export default class EditCategoryModal extends Component {
 					<input class="u-full-width" type="text" name="name" placeholder="Category name" required="required"
 						value={this.state.category.name} onInput={this.linkState('category.name')}
 					/>
-					<input class="u-full-width btn-submit" type="submit" value="Update" />
                     {this.state.loading
                         ? <MaterialIcon className="spin" icon="autorenew" />
-                        : <input class="u-full-width btn-submit" type="submit" value="Update" />}
+                        : <input class="right-align" type="submit" value="Update" />}
 				</form>
 			</div>
 		);

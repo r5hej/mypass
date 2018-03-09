@@ -29,7 +29,7 @@ th, td {
 tbody tr:last-child td {
     border-bottom: none;
 }
-thead tr th:first-child {
+td:first-child, th:first-child {
     padding-left: 15px;
 }
 
@@ -144,15 +144,6 @@ form {
     right: 0;
 }
 
-.passgen-top-row-btn {
-    margin-left: 0;
-    color: var(--dark-font);
-    font-weight: bold;
-    font-size: 1.1em;
-    text-align: center;
-    border-radius: 4px;
-    cursor: pointer;
-}
 .passgen-top-row-btn:hover, .passgen-top-row-btn.active {
     background-color: var(--green);
     color: white;
@@ -318,9 +309,21 @@ td i {
     align-items: stretch;
 }
 
+.no-select {
+    user-select: none;
+}
+
+.hint-text li {
+    padding: 0;
+}
+.hint-text ul {
+    margin-bottom: 10px;
+}
+
 @media (max-width: 550px){
     .header {
         font-size: 8vmax;
+        margin-bottom: 0;
     }
 
     td.credential-desc,
@@ -331,12 +334,4 @@ td i {
     .small-screen-bottom-spacing {
         margin-bottom: 10px;
     }
-}
-
-
-.hint-text li {
-    padding: 0;
-}
-.hint-text ul {
-    margin-bottom: 10px;
 }

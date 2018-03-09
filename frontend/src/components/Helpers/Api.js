@@ -23,19 +23,19 @@ function sendForm(method, url, form, json = true) {
     return sendRequest(method, url, form, json);
 }
 export default {
-	loadCategories: () => sendRequest('GET', 'http://localhost:3000/categories'),
-	loadUser: () => sendRequest('GET', 'http://localhost:3000/user'),
-    register: form => sendForm('POST', 'http://localhost:3000/register', form, false),
-	login: form => sendForm('POST', 'http://localhost:3000/login', form, false),
-	logout: () => sendRequest('POST', 'http://localhost:3000/logout', null, false),
-	getToken: () => sendRequest('GET', 'http://localhost:3000/registertoken'),
-	activateToken: obj => sendJson('POST', 'http://localhost:3000/registertoken', obj),
-	getLanguages: () => sendRequest('GET', 'http://localhost:3000/wordlists'),
-	getWordlist: lang => sendRequest('GET', `http://localhost:3000/wordlist/${lang.toLowerCase()}.txt`),
-	createCategory: form => sendForm('POST', 'http://localhost:3000/category', form),
-	updateCategory: obj => sendJson('PUT', 'http://localhost:3000/category', obj),
-	deleteCategory: obj => sendJson('DELETE', 'http://localhost:3000/category', { _id: obj._id }),
-	createCredential: form => sendForm('POST', 'http://localhost:3000/credential', form),
-	updateCredential: obj => sendJson('PUT', 'http://localhost:3000/credential', obj),
-	deleteCredential: obj => sendJson('DELETE', 'http://localhost:3000/credential', { _id: obj._id })
+	loadCategories: () => sendRequest('GET', '/categories'),
+	loadUser: () => sendRequest('GET', '/user'),
+    register: form => sendForm('POST', '/register', form, false),
+	login: form => sendForm('POST', '/login', form, false),
+	logout: () => sendRequest('POST', '/logout', null, false),
+	getToken: () => sendRequest('GET', '/registertoken'),
+	activateToken: obj => sendJson('POST', '/registertoken', obj),
+	getLanguages: () => sendRequest('GET', '/wordlists'),
+	getWordlist: lang => sendRequest('GET', `/assets/wordlist/${lang.toLowerCase()}.txt`, null, false),
+	createCategory: form => sendForm('POST', '/category', form),
+	updateCategory: obj => sendJson('PUT', '/category', obj),
+	deleteCategory: obj => sendJson('DELETE', '/category', { _id: obj._id }),
+	createCredential: form => sendForm('POST', '/credential', form),
+	updateCredential: obj => sendJson('PUT', '/credential', obj),
+	deleteCredential: obj => sendJson('DELETE', '/credential', { _id: obj._id })
 };

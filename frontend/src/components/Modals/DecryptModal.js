@@ -17,7 +17,7 @@ export default class DecryptModal extends Component {
 				<h5>Enter decryption password</h5>
 				<form onSubmit={this.submit}>
 					<input class="u-full-width" type="password" ref={element => this.pwdField = element} required="required" autofocus="true" />
-					<input class="u-full-width btn-submit" type="submit" value="OK" />
+					<input class="right-align" type="submit" value="OK" />
 				</form>
 			</div>
 		);

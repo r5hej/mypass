@@ -32,7 +32,7 @@ export default class CreateCredentialModal extends Component {
                     <input class="u-full-width" type="hidden" name="category_id" value={this.props.categoryId} />
                     {this.state.loading
                         ? <MaterialIcon className="spin" icon="autorenew" />
-                        : <input class="u-full-width btn-submit" type="submit" value="Add" />}
+                        : <input class="right-align" type="submit" value="Add" />}
                 </form>
             </div>
         );

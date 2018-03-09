@@ -24,11 +24,11 @@ export default class PassGen {
 
 	getLanguages(languages) {
 		return new Promise((accept, reject) => {
+            if (!Array.isArray(languages)) languages = [languages];
 			let final = [], done = 0;
 			for (let i = 0; i < languages.length; i++){
 				let lang = languages[i];
 				if (this.wordlists[lang] === undefined){
-
 					Api.getWordlist(lang).then(wl => {
 						wl = wl.split('\n');
 						this.wordlists[lang] = wl;

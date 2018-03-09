@@ -27,7 +27,7 @@ export default class CreateDecryptModal extends Component {
 				<form onSubmit={this.submit} ref={element => this.form = element}>
 					<input class="u-full-width" ref={element => this.pwdField1 = element} type="password" required="required" placeholder="Password" />
 					<input class="u-full-width" ref={element => this.pwdField2 = element} type="password" required="required" placeholder="Confirm password" />
-					<input class="u-full-width btn-submit" type="submit" value="OK" />
+					<input class="right-align" type="submit" value="OK" />
 				</form>
 			</div>
 		);

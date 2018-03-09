@@ -120,7 +120,7 @@ app.post("/register", async (req, res) => {
 
 
 app.get("/wordlists", auth, async (req, res) => {
-    fs.readdir(`${__dirname}/public/wordlist`, (err, lists) => {
+    fs.readdir(`${__dirname}/public/assets/wordlist`, (err, lists) => {
         if (err) return res.sendStatus(404);
         lists = lists.map(l => l.replace(".txt", ""));
         res.header('Access-Control-Allow-Origin',  req.headers.origin);
