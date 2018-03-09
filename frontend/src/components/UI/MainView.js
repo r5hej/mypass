@@ -37,11 +37,7 @@ export default class MainView extends Component {
 	componentDidMount() {
 		ModalsJs.open("<div id='modal-root'></div>", {
 			warning: true,
-			warningOptions: { title: 'You must enter your encryption key to use MyPass. Are you sure you want to close?' },
-			onClose: () => {
-				console.log("closed", this.state.crypto);
-				// if (this.state.crypto === undefined) window.location.reload();
-			}
+			warningOptions: { title: 'You must enter your encryption key to use MyPass. Are you sure you want to close?' }
 		});
 	    if (this.state.categories.length !== 0)
 			render((<DecryptModal submit={this.decryptPasswordEntered} />), document.getElementById('modal-root'));

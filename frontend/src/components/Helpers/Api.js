@@ -2,14 +2,11 @@ function sendRequest(method, url, data, json = true, contentType = '') {
 	return new Promise((res, rej) => {
 		let xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
-
-		// should be removed when not in dev anymore
-		xhr.withCredentials = true;
-
 		xhr.onload = e => {
 			if (xhr.readyState === 4 && xhr.status === 200)
 				res(json ? JSON.parse(xhr.responseText) : xhr.responseText);
-			else rej(e, xhr.statusText);
+			else
+				rej(e, xhr.statusText);
 		};
 		xhr.onerror = e => rej(xhr.statusText);
         if (contentType) xhr.setRequestHeader('Content-Type', contentType);

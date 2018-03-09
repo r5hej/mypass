@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import { route } from 'preact-router';
 import Api from '../../components/Helpers/Api';
 
 
@@ -15,10 +16,10 @@ export default class Login extends Component {
 
 	async handleSubmit(ev) {
 		ev.preventDefault();
-		let formdata = new FormData(ev.target);
+		let form = new FormData(ev.target);
 		try {
-			await Api.login(formdata);
-			window.location.href = '/';
+			await Api.login(form);
+			route('/');
 		}
 		catch (err) {
             ev.target.reset();

@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import { route } from 'preact-router';
 
 import MaterialIcon from '../../components/MaterialIcon';
 import MainView from '../../components/UI/MainView';
@@ -13,7 +14,7 @@ export default class Home extends Component {
             this.setState({ loaded: true, admin: user.admin, categories });
         }
         catch (err) {
-        	window.location.href = '/login';
+        	route('/login');
         }
 	}
 

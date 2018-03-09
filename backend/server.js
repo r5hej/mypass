@@ -1,5 +1,7 @@
 "use strict";
 
+console.log("Starting MyPass...");
+
 const express = require("express");
 const session = require("express-session");
 const formidable = require("express-formidable");
@@ -9,19 +11,8 @@ const init = require("./init");
 const fs = require("fs");
 require('events').EventEmitter.defaultMaxListeners = Infinity; // To "fix" MaxListenersExceededWarning
 
-console.log("Starting MyPass...");
-
 const saltRounds = 10;
 const app = express();
-
-// only for when dev server is running
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Origin',  req.headers.origin);
-    res.header('Access-Control-Allow-Methods','OPTIONS,GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-    next();
-});
 
 app.use(express.static(__dirname + "/public"));
 app.use(formidable());
@@ -31,15 +22,13 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days in milliseconds
-        // sameSite: "strict"
+        sameSite: "strict"
     }
 }));
 
 function auth(req, res, next) {
-    if (req.session && req.session.userId)
-        return next();
-    else
-        return res.sendStatus(401);
+    if (req.session && req.session.userId) return next();
+    else return res.sendStatus(401);
 }
 
 async function getUserData(userId) {
@@ -75,7 +64,7 @@ app.post("/login", async (req, res) => {
         }
     }
     catch (err) {
-        console.log(err);
+        console.log("login error", err);
         res.sendStatus(400);
     }
 });
@@ -88,11 +77,9 @@ app.post("/logout", auth, async (req, res) => {
 app.post("/register", async (req, res) => {
     try {
         let user = await models.User.findOne({username: req.fields.username}).lean();
-        if (user)
-            return res.statusCode(400).send("taken");
+        if (user) return res.statusCode(400).send("taken");
         let rTok = await models.RegisterToken.findOne({_id: req.fields.token});
-        if (!rTok)
-            return res.statusCode(400).send("invalid");
+        if (!rTok) return res.statusCode(400).send("invalid");
 
         let timeDiff = Math.abs(new Date().getTime() - rTok.created);
         let days = Math.ceil(timeDiff / (1000 * 3600 * 24));
@@ -113,7 +100,7 @@ app.post("/register", async (req, res) => {
         res.sendStatus(201);
     }
     catch (err) {
-        console.log(err);
+        console.log("register error", err);
         res.sendStatus(400);
     }
 });
@@ -135,7 +122,7 @@ app.get("/user", auth, async (req, res) => {
         res.json(user);
     }
     catch (err) {
-        console.log(err);
+        console.log("user error", err);
         res.sendStatus(400);
     }
 });
@@ -143,7 +130,6 @@ app.get("/user", auth, async (req, res) => {
 
 app.post("/credential", auth, async (req, res) => {
     try {
-        console.log(req.fields);
         let category = await models.Category.findOne({_id: req.fields.category_id}).lean();
         if (category.owner !== req.session.userId) return res.sendStatus(401);
         let credential = new models.Credential(req.fields, true);
@@ -151,7 +137,7 @@ app.post("/credential", auth, async (req, res) => {
         res.json(credential);
     }
     catch (err) {
-        console.log("/credential err", err);
+        console.log("post credential error", err);
         res.sendStatus(400);
     }
 });
@@ -160,16 +146,14 @@ app.put("/credential", auth, async (req, res) => {
     try {
         let existing = await models.Credential.findOne({_id: req.fields._id}).lean();
         let category = await models.Category.findOne({_id: existing.category_id}).lean();
-
         if (category.owner !== req.session.userId)
             return res.sendStatus(401);
-
         let saved = await models.Credential.findOneAndUpdate({_id: req.fields._id}, req.fields, {new: true}).lean();
-        console.log(saved);
         res.json(saved);
     }
-    catch (error) {
-        console.log(error);
+    catch (err) {
+        console.log("put credential error", err);
+        res.sendStatus(400);
     }
 
 });
@@ -178,13 +162,12 @@ app.delete("/credential", auth, async (req, res) => {
     try {
         let existing = await models.Credential.findOne({_id: req.fields._id});
         let category = await models.Category.findOne({_id: existing.category_id, owner: req.session.userId}).lean();
-        if (!category)
-            return res.sendStatus(401);
+        if (!category) return res.sendStatus(401);
         await existing.remove();
         res.json({status: "OK"});
     }
     catch (err) {
-        console.log(err);
+        console.log("delete credential error", err);
         res.sendStatus(400);
     }
 });
@@ -196,7 +179,7 @@ app.get("/categories", auth, async (req, res) => {
         res.json(categories);
     }
     catch (err) {
-        console.log(err);
+        console.log("get categories error", err);
         res.sendStatus(400);
     }
 });
@@ -209,7 +192,7 @@ app.post("/category", auth, async (req, res) => {
         res.json(category);
     }
     catch (err) {
-        console.log(err);
+        console.log("post category error", err);
         res.sendStatus(400);
     }
 });
@@ -220,21 +203,19 @@ app.put("/category", auth, async (req, res) => {
         res.json(saved);
     }
     catch (err) {
-        console.log(err);
+        console.log("put category error", err);
         res.sendStatus(400);
     }
 });
 
 app.delete("/category", auth, async (req, res) => {
     try {
-        console.log("delete", req.fields);
         let deletedCat = await models.Category.findOneAndRemove({_id: req.fields._id, owner: req.session.userId});
-        if (deletedCat)
-            await models.Credential.remove({category_id: req.fields._id});
+        if (deletedCat) await models.Credential.remove({category_id: req.fields._id});
         res.json({status: "OK"});
     }
     catch (err) {
-        console.log(err);
+        console.log("delete category error", err);
         res.sendStatus(400);
     }
 });
@@ -247,7 +228,7 @@ app.get("/registertoken", auth, async (req, res) => {
         res.json(token);
     }
     catch (err) {
-        console.log(err);
+        console.log("get register token error", err);
         res.sendStatus(400);
     }
 });
@@ -260,7 +241,7 @@ app.post("/registertoken", auth, async (req, res) => {
         res.json({status: "OK"});
     }
     catch (err) {
-        console.log(err);
+        console.log("post register token error", err);
         res.sendStatus(400);
     }
 });
@@ -273,7 +254,7 @@ app.get("/export", auth, async (req, res) => {
         res.json(categories);
     }
     catch (err) {
-        console.log(err);
+        console.log("export error", err);
         res.sendStatus(400);
     }
 });
@@ -304,7 +285,7 @@ app.post("/import", auth, async (req, res) => {
         res.json({status: "OK"});
     }
     catch (err) {
-        console.log(err);
+        console.log("import error", err);
         res.sendStatus(400);
     }
 });

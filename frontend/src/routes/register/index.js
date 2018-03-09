@@ -1,4 +1,6 @@
 import { h, Component } from 'preact';
+import { route } from 'preact-router';
+
 import Api from '../../components/Helpers/Api';
 
 
@@ -18,7 +20,7 @@ export default class Register extends Component {
 		}
 		try {
             await Api.register(form);
-			window.location.href = '/login'
+			route('/login');
 		}
 		catch (err) {
             if (err === 'taken')

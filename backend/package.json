@@ -1,13 +1,13 @@
 {
-  "name": "mypass",
+  "name": "MyPass",
   "version": "1.0.0",
-  "description": "self-hosted password manager",
+  "description": "Self-hosted password manager",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/r5hej/mypass.git"
   },
   "author": "Charlie Byrdam, Malte Rosenbjerg",
-  "license": "MIT",
+  "license": "AGPL3",
   "bugs": {
     "url": "https://github.com/r5hej/mypass/issues"
   },
