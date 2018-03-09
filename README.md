@@ -15,12 +15,16 @@ using a password separate from the login password.
 
 ##### Requirements:
 * MongoDB (tested on v. 3.6.2)
-* Node.js and npm (tested on v. 8.9.1)
-* NGiNX (optional, but strongly recommended)
+* Node.js (tested on v. 8.9.1)
+* Yarn (tested on 1.5.1) or npm (tested on 5.5.1)
+* NGiNX (optional; example config file is included)
 
 
 ##### Install:
-1. Download (release coming soon)
-2. Run `npm start` from inside the MyPass folder
+1. Download latest release
+2. Extract to folder 
+3. Navigate to folder containing the files in terminal
+4. Run `yarn install`
+5. Then run `yarn start`
 
 
