@@ -18,13 +18,27 @@ using a password separate from the login password.
 * Node.js (tested on v. 8.9.1)
 * Yarn (tested on 1.5.1) or npm (tested on 5.5.1)
 * NGiNX (optional; example config file is included)
+* SSL/TLS certificate for https encryption. [Let’s Encrypt](https://letsencrypt.org/) offers them for free
 
 
 ##### Install:
 1. Download latest release
 2. Extract to folder 
 3. Navigate to folder containing the files in terminal
-4. Run `yarn install`
-5. Then run `yarn start`
+4. Run `yarn install` (or `npm install`)
+5. Then run `yarn start` (or `npm start`)
 
+##### Why
+Password managers are quite popular, 
+which makes good sense since you want a new password for every site.
 
+We didn't enjoy that we only had very limited control over our data 
+using some of the existing solutions, and some are even closed-source(!).
+So we thought a self-hosted password manager could be a solution for some.
+
+#### Contribute
+Contributions through pull-requests are welcome.
+If you have an idea for a new feature that you would like to implement, 
+please create an issue first, so we can discuss the best way to integrate the feature.
+
+If you find a bug or problem with the security, please create an issue so we can look at it.
