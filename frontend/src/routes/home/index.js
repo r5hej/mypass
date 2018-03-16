@@ -3,8 +3,11 @@ import { route } from 'preact-router';
 
 import MaterialIcon from '../../components/MaterialIcon';
 import MainView from '../../components/UI/MainView';
+import CreateDecryptModal from '../../components/UI/CreateDecryptModal';
+import DecryptModal from '../../components/UI/DecryptModal';
 
 import Api from '../../components/Helpers/Api';
+import Crypto from "../../components/Helpers/Crypto";
 
 export default class Home extends Component {
 	async load() {
@@ -18,8 +21,17 @@ export default class Home extends Component {
         }
 	}
 
+    decryptPasswordEntered(password) {
+        const crypto = new Crypto(password);
+		this.setState(oldState => {
+		    oldState.decrypted = false;
+            crypto.decryptCategories(oldState.categories);
+            oldState.crypto = crypto;
+		});
+    }
+
     componentDidMount() {
-        document.title = "MyPass";
+        // document.title = "MyPass";
         this.load();
     }
 
@@ -27,17 +39,23 @@ export default class Home extends Component {
 		super(props);
 		this.state = {
 			loaded: false,
+			decrypted: false,
 			admin: false,
 			categories: []
 		};
 		this.load = this.load.bind(this);
+		this.decryptPasswordEntered = this.decryptPasswordEntered.bind(this);
 	}
 
 	render() {
 		return (
 			<div class="container">
 				{this.state.loaded
-                    ? <MainView admin={this.state.admin} categories={this.state.categories} />
+                    ? this.state.decrypted
+						? <MainView admin={this.state.admin} categories={this.state.categories} crypto={this.state.crypto}/>
+						: this.state.categories.length === 0
+							? <CreateDecryptModal submit={this.decryptPasswordEntered} />
+							: <DecryptModal submit={this.decryptPasswordEntered} />
 					: <MaterialIcon className="spin" icon="autorenew" />}
 			</div>
 		);

@@ -1,7 +1,7 @@
 import { h, render, Component } from 'preact';
 
 import CategoryList from './CategoryList';
-import CredentialTable from './CredentialTable';
+// import CredentialTable from './CredentialTable';
 
 import Api from '../Helpers/Api';
 import ModalsJs  from '../../ModalsJs';
@@ -10,10 +10,10 @@ import EditCredentialModal from '../Modals/EditCredentialModal';
 import CreateCredentialModal from '../Modals/CreateCredentialModal';
 import PassgenModal from '../Modals/PassgenModal';
 import ImportExportModal from '../Modals/ImportExportModal';
-import DecryptModal from '../Modals/DecryptModal';
-import CreateDecryptModal from '../Modals/CreateDecryptModal';
+// import DecryptModal from './DecryptModal';
+// import CreateDecryptModal from './CreateDecryptModal';
 import MaterialButton from '../MaterialButton';
-import Crypto from '../Helpers/Crypto';
+// import Crypto from '../Helpers/Crypto';
 import { Menu, Item } from '../Dropdown';
 import Credential from './Credential';
 
@@ -23,7 +23,7 @@ export default class MainView extends Component {
 		this.state = {
 			categories: props.categories,
 			category: undefined,
-            crypto: undefined,
+            crypto: props.crypto,
 			credentials: []
 		};
 		this.onCategorySelected = this.onCategorySelected.bind(this);
@@ -35,14 +35,14 @@ export default class MainView extends Component {
 	}
 
 	componentDidMount() {
-		ModalsJs.open("<div id='modal-root'></div>", {
-			warning: true,
-			warningOptions: { title: 'You must enter your encryption key to use MyPass. Are you sure you want to close?' }
-		});
-	    if (this.state.categories.length !== 0)
-			render((<DecryptModal submit={this.decryptPasswordEntered} />), document.getElementById('modal-root'));
-		else
-			render((<CreateDecryptModal submit={this.decryptPasswordEntered} />), document.getElementById('modal-root'));
+		// ModalsJs.open("<div id='modal-root'></div>", {
+		// 	warning: true,
+		// 	warningOptions: { title: 'You must enter your encryption key to use MyPass. Are you sure you want to close?' }
+		// });
+        // if (this.state.categories.length !== 0)
+		// 	render((<DecryptModal submit={this.decryptPasswordEntered} />), document.getElementById('modal-root'));
+		// else
+		// 	render((<CreateDecryptModal submit={this.decryptPasswordEntered} />), document.getElementById('modal-root'));
 	}
 
 
@@ -51,14 +51,14 @@ export default class MainView extends Component {
 		this.setState({ category, credentials: category.credentials });
 	}
 
-	decryptPasswordEntered(password) {
-		const crypto = new Crypto(password);
-		this.setState(oldState => {
-			oldState.crypto = crypto;
-			crypto.decryptCategories(oldState.categories);
-		});
-		ModalsJs.close(true);
-	}
+	// decryptPasswordEntered(password) {
+	// 	const crypto = new Crypto(password);
+	// 	this.setState(oldState => {
+	// 		oldState.crypto = crypto;
+	// 		crypto.decryptCategories(oldState.categories);
+	// 	});
+	// 	ModalsJs.close(true);
+	// }
 
 	openAddCredentialModal(){
 	    if (!this.state.category) return;
@@ -122,7 +122,6 @@ export default class MainView extends Component {
 					{this.props.admin && (<MaterialButton title="Create registration token" icon="mail_outline" align="left" click={MainView.openInviteModal} />)}
 					<MaterialButton title="Import / Export backup" icon="save" align="left" click={MainView.openImportExportModal} />
 					<MaterialButton title="Logout" icon="exit_to_app" align="right" click={MainView.logout} />
-					{/*<CredentialTable credentials={this.state.credentials} crypto={this.state.crypto} />*/}
                     <table class="u-full-width credential-table box">
                         <thead>
                         <tr>

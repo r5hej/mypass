@@ -10,7 +10,7 @@ export default class Login extends Component {
 	}
 
     componentDidMount() {
-        document.title = "Login - MyPass";
+        // document.title = "Login - MyPass";
         Api.loadUser().then(() => window.location.href = '/');
     }
 

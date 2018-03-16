@@ -31,7 +31,7 @@ export default class Register extends Component {
 	}
 
 	componentDidMount() {
-        document.title = "Register - MyPass";
+        // document.title = "Register - MyPass";
 	}
 
 	render() {
