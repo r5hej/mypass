@@ -1,19 +1,19 @@
 {
   "name": "MyPass",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Self-hosted password manager",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/r5hej/mypass.git"
   },
   "author": "Charlie Byrdam, Malte Rosenbjerg",
-  "license": "AGPL3",
+  "license": "AGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/r5hej/mypass/issues"
   },
   "homepage": "https://github.com/r5hej/mypass#readme",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcryptjs": "^2.4.3",
     "express": "^4.16.2",
     "express-formidable": "^1.0.0",
     "express-session": "^1.15.6",
