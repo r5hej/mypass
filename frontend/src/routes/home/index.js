@@ -1,62 +1,26 @@
 import { h, Component } from 'preact';
-import { route } from 'preact-router';
-
-import MaterialIcon from '../../components/MaterialIcon';
-import MainView from '../../components/UI/MainView';
-import CreateDecryptModal from '../../components/UI/CreateDecryptModal';
-import DecryptModal from '../../components/UI/DecryptModal';
-
-import Api from '../../components/Helpers/Api';
-import Crypto from "../../components/Helpers/Crypto";
+import Card from 'preact-material-components/Card';
+import 'preact-material-components/Card/style.css';
+import 'preact-material-components/Button/style.css';
+import style from './style';
 
 export default class Home extends Component {
-	async load() {
-        try {
-            const user = await Api.loadUser();
-            const categories = await Api.loadCategories();
-            this.setState({ loaded: true, admin: user.admin, categories });
-        }
-        catch (err) {
-        	route('/login');
-        }
-	}
-
-    decryptPasswordEntered(password) {
-        const crypto = new Crypto(password);
-		this.setState(oldState => {
-		    oldState.decrypted = false;
-            crypto.decryptCategories(oldState.categories);
-            oldState.crypto = crypto;
-		});
-    }
-
-    componentDidMount() {
-        // document.title = "MyPass";
-        this.load();
-    }
-
-	constructor(props) {
-		super(props);
-		this.state = {
-			loaded: false,
-			decrypted: false,
-			admin: false,
-			categories: []
-		};
-		this.load = this.load.bind(this);
-		this.decryptPasswordEntered = this.decryptPasswordEntered.bind(this);
-	}
-
 	render() {
 		return (
-			<div class="container">
-				{this.state.loaded
-                    ? this.state.decrypted
-						? <MainView admin={this.state.admin} categories={this.state.categories} crypto={this.state.crypto}/>
-						: this.state.categories.length === 0
-							? <CreateDecryptModal submit={this.decryptPasswordEntered} />
-							: <DecryptModal submit={this.decryptPasswordEntered} />
-					: <MaterialIcon className="spin" icon="autorenew" />}
+			<div class={style.home}>
+				<h1>Home route</h1>
+				<Card>
+					<div class={style.cardHeader}>
+						<h2 class=" mdc-typography--title">Home card</h2>
+						<div class=" mdc-typography--caption">Welcome to home route</div>
+					</div>
+					<div class={style.cardBody}>
+						Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+					</div>
+					<Card.Actions>
+						<Card.ActionButton>OKAY</Card.ActionButton>
+					</Card.Actions>
+				</Card>
 			</div>
 		);
 	}

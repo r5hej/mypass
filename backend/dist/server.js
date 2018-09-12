@@ -8,7 +8,6 @@ var fs = _interopDefault(require('fs'));
 var express = _interopDefault(require('express'));
 var session = _interopDefault(require('express-session'));
 var formidable = _interopDefault(require('express-formidable'));
-var csurf = _interopDefault(require('csurf'));
 var bcryptjs = _interopDefault(require('bcryptjs'));
 
 var port = 3000;
@@ -89,8 +88,11 @@ async function checkFirstStart() {
     let token = await RegisterToken.findOne();
     if (!token) {
         token = RegisterToken.create({created: new Date()});
-        await token.save();
     }
+    else {
+        token.created = new Date();
+    }
+    await token.save();
     console.log(`No users were detected in the database.\nVisit localhost:${config.port}/register?token=${token._id}`);
 }
 
@@ -118,9 +120,11 @@ async function init(app) {
 
 console.log("Starting MyPass...");
 
+const production = process.env.includes("production");
+
 const app = express();
 
-app.use(express.static(__dirname + "../../material-frontend/dist")); // TODO remove when done testing
+app.use(express.static(__dirname + "../../frontend/dist")); // TODO remove when done testing
 app.use(formidable());
 app.use(session({
     secret: config.secret,
@@ -128,10 +132,10 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: config.sessionLengthInMinutes * 60000, // minutes to milliseconds
-        sameSite: "strict"
+        sameSite: "strict",
+        secure: production
     }
 }));
-app.use(csurf());
 
 function auth(req, res, next) {
     if (req.session && req.session.userId) return next();

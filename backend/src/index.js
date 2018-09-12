@@ -1,21 +1,22 @@
-"use strict";
-
 console.log("Starting MyPass...");
 
 import fs from 'fs';
 import express from 'express';
 import session from 'express-session';
 import formidable from 'express-formidable';
-import csurf from 'csurf';
 import bcryptjs from 'bcryptjs';
 
 import {User, Credential, Category, RegisterToken} from './models';
 import init from './init';
+
+
 import config from './config.json';
+
+const production = process.env.includes("production");
 
 const app = express();
 
-app.use(express.static(__dirname + "../../frontend/dist")); // TODO remove when done testing
+app.use(production ? '' express.static(__dirname + "../../frontend/dist")); // TODO remove when done testing
 app.use(formidable());
 app.use(session({
     secret: config.secret,
@@ -23,10 +24,10 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: config.sessionLengthInMinutes * 60000, // minutes to milliseconds
-        sameSite: "strict"
+        sameSite: "strict",
+        secure: production
     }
 }));
-app.use(csurf());
 
 function auth(req, res, next) {
     if (req.session && req.session.userId) return next();
