@@ -29,6 +29,7 @@
     "preact-cli": "^2.0.0"
   },
   "dependencies": {
+    "linkstate": "^1.1.1",
     "preact": "^8.2.1",
     "preact-cli-plugin-async": "^2.0.0",
     "preact-compat": "^3.17.0",

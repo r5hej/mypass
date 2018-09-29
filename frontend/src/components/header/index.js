@@ -10,7 +10,7 @@ import 'preact-material-components/Dialog/style.css';
 import 'preact-material-components/Drawer/style.css';
 import 'preact-material-components/List/style.css';
 import 'preact-material-components/Toolbar/style.css';
-// import style from './style';
+import style from './style.css';
 
 export default class Header extends Component {
 	closeDrawer() {
@@ -22,10 +22,7 @@ export default class Header extends Component {
 
 	openDrawer = () => (this.drawer.MDComponent.open = true);
 
-	openSettings = () => this.dialog.MDComponent.show();
-
 	drawerRef = drawer => (this.drawer = drawer);
-	dialogRef = dialog => (this.dialog = dialog);
 
 	linkTo = path => () => {
 		route(path);
@@ -34,22 +31,6 @@ export default class Header extends Component {
 
 	goHome = this.linkTo('/');
 	goToMyProfile = this.linkTo('/profile');
-
-	toggleDarkTheme = () => {
-		this.setState(
-			{
-				darkThemeEnabled: !this.state.darkThemeEnabled
-			},
-			() => {
-				if (this.state.darkThemeEnabled) {
-					document.body.classList.add('mdc-theme--dark');
-				}
-				else {
-					document.body.classList.remove('mdc-theme--dark');
-				}
-			}
-		);
-	}
 
 	render() {
 		return (
@@ -60,10 +41,7 @@ export default class Header extends Component {
 							<Toolbar.Icon menu onClick={this.openDrawer}>
 								menu
 							</Toolbar.Icon>
-							<Toolbar.Title>Preact app</Toolbar.Title>
-						</Toolbar.Section>
-						<Toolbar.Section align-end shrink-to-fit onClick={this.openSettings}>
-							<Toolbar.Icon>settings</Toolbar.Icon>
+							<Toolbar.Title className={style.fancy}>MyPass</Toolbar.Title>
 						</Toolbar.Section>
 					</Toolbar.Row>
 				</Toolbar>
@@ -79,17 +57,6 @@ export default class Header extends Component {
 						</Drawer.DrawerItem>
 					</Drawer.DrawerContent>
 				</Drawer.TemporaryDrawer>
-				<Dialog ref={this.dialogRef}>
-					<Dialog.Header>Settings</Dialog.Header>
-					<Dialog.Body>
-						<div>
-							Enable dark theme <Switch onClick={this.toggleDarkTheme} />
-						</div>
-					</Dialog.Body>
-					<Dialog.Footer>
-						<Dialog.FooterButton accept>OK</Dialog.FooterButton>
-					</Dialog.Footer>
-				</Dialog>
 			</div>
 		);
 	}

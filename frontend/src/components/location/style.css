@@ -1,0 +1,21 @@
+.location {
+    padding: 8px;
+    margin: 12px auto auto;
+}
+.credential {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top: solid rgba(0,0,0, 0.15) 1px;
+
+}
+
+.credential:first-child {
+    margin-top: 8px;
+}
+
+.edit {
+    float: right;
+    margin: 2px;
+    width: 24px;
+    cursor: pointer;
+}

@@ -12,11 +12,10 @@ import init from './init';
 
 import config from './config.json';
 
-const production = process.env.includes("production");
+const production = process.env.toString().includes("production");
 
 const app = express();
 
-app.use(production ? '' express.static(__dirname + "../../frontend/dist")); // TODO remove when done testing
 app.use(formidable());
 app.use(session({
     secret: config.secret,
