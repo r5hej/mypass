@@ -3,7 +3,7 @@
 
 Host your own password manager and/or share a server with friends and family.
 All data is encrypted and decrypted client-side, 
-using a master password separate from the login password.
+using a password separate from the login password.
 
 
 
@@ -18,7 +18,7 @@ using a master password separate from the login password.
 * Node.js (tested on v. 8.9.1)
 * Yarn (tested on 1.5.1) or npm (tested on 5.5.1)
 * NGiNX (optional; example config file is included)
-* SSL/TLS certificate for HTTPS encryption. [Let’s Encrypt](https://letsencrypt.org/) offers them for free
+* SSL/TLS certificate for https encryption. [Let’s Encrypt](https://letsencrypt.org/) offers them for free
 
 
 ##### Install:
