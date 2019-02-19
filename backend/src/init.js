@@ -1,7 +1,8 @@
 "use strict";
-
+import fs from 'fs';
 import { User, RegisterToken } from './models';
-import config from './config.json';
+//import config from './config.json';
+const config = JSON.parse(fs.readFileSync('config.json', 'UTF8'));
 
 import { connect } from 'camo';
 import events from 'events';
