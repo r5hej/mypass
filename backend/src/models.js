@@ -1,6 +1,7 @@
 "use strict";
 
 import {Document} from 'camo';
+import config from './config.json';
 
 export class User extends Document {
     constructor() {
@@ -42,5 +43,11 @@ export class RegisterToken extends Document {
     constructor() {
         super();
         this.created = {type: Date, required: true}
+    }
+
+    isValid() {
+        const timeDiff = Math.abs(new Date().getTime() - this.created);
+        const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return days <= config.registerTokenMaxAgeInDays;
     }
 }

@@ -1,8 +1,0 @@
-{
-  "port": 3000,
-  "connectionString": "nedb://database-files",
-  "saltRounds": 10,
-  "secret": "Solbær syltetøj på pandekager",
-  "registerTokenMaxAge": "7 days",
-  "sessionLength": "14 days"
-}

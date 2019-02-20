@@ -3,14 +3,29 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var camo = require('camo');
-var fs = _interopDefault(require('fs'));
 var events = _interopDefault(require('events'));
-var ms = _interopDefault(require('ms'));
+var fs = _interopDefault(require('fs'));
 var express = _interopDefault(require('express'));
 var session = _interopDefault(require('express-session'));
 var formidable = _interopDefault(require('express-formidable'));
 var bcryptjs = _interopDefault(require('bcryptjs'));
-var util = require('util');
+
+var port = 3000;
+var connectionString = "nedb://database-files";
+var saltRounds = 10;
+var secret = "Solbær syltetøj";
+var registerTokenMaxAgeInDays = 7;
+var sessionLengthInMinutes = 10080;
+var httpsSessionsOnly = false;
+var config = {
+	port: port,
+	connectionString: connectionString,
+	saltRounds: saltRounds,
+	secret: secret,
+	registerTokenMaxAgeInDays: registerTokenMaxAgeInDays,
+	sessionLengthInMinutes: sessionLengthInMinutes,
+	httpsSessionsOnly: httpsSessionsOnly
+};
 
 class User extends camo.Document {
     constructor() {
@@ -53,10 +68,14 @@ class RegisterToken extends camo.Document {
         super();
         this.created = {type: Date, required: true};
     }
+
+    isValid() {
+        const timeDiff = Math.abs(new Date().getTime() - this.created);
+        const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return days <= config.registerTokenMaxAgeInDays;
+    }
 }
 
-//import config from './config.json';
-const config = JSON.parse(fs.readFileSync('config.json', 'UTF8'));
 events.EventEmitter.defaultMaxListeners = Infinity; // To "fix" MaxListenersExceededWarning
 process.setMaxListeners(Infinity);
 process.on('exit', () => console.log("Closing MyPass server..."));
@@ -78,10 +97,6 @@ async function checkFirstStart() {
 }
 
 async function init(app) {
-    if (!config.secret) {
-        console.log("Please configure a secret");
-        process.exit();
-    }
 
     try {
         await camo.connect(config.connectionString);
@@ -105,28 +120,17 @@ async function init(app) {
 
 console.log("Starting MyPass...");
 
-
-const readFile = util.promisify(fs.readFile);
-const unlink = util.promisify(fs.unlink);
-const readdir = util.promisify(fs.readdir);
-
-
-//import config from './config.json';
-const config$1 = JSON.parse(fs.readFileSync('config.json', 'UTF8'));
-
-
 const production = process.env.toString().includes("production");
 
 const app = express();
 
-
 app.use(formidable());
 app.use(session({
-    secret: config$1.secret,
+    secret: config.secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: ms(config$1.sessionLength), // minutes to milliseconds
+        maxAge: config.sessionLengthInMinutes * 60000, // minutes to milliseconds
         sameSite: "strict",
         secure: production
     }
@@ -154,6 +158,15 @@ async function getUserData(userId) {
         }
     });
 }
+
+const readFile = (path, opts = 'utf8') => {
+    return new Promise((res, rej) => {
+        fs.readFile(path, opts, (err, data) => {
+            if (err) rej(err);
+            else res(data);
+        });
+    });
+};
 
 
 app.post("/login", async (req, res) => {
@@ -186,20 +199,21 @@ app.post("/register", async (req, res) => {
             return res.statusCode(400).send("taken");
         }
         const rTok = await RegisterToken.findOne({_id: req.fields.token});
-        if (!rTok) {
+        if (!rTok || !rTok.isValid()) {
             return res.statusCode(400).send("invalid");
         }
 
         const timeDiff = Math.abs(new Date().getTime() - rTok.created);
         const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        if (days > ms(config$1.registerTokenMax)) {
+        if (days > config.registerTokenMaxAgeInDays) {
             await rTok.remove();
             return res.statusCode(400).send("invalid");
         }
 
+        const hashed = await bcryptjs.hash(req.fields.password, config.saltRounds);
         const newUser = {
             username: req.fields.username,
-            password: await bcryptjs.hash(req.fields.password, config$1.saltRounds)
+            password: hashed
         };
         if (await User.count() === 0) {
             newUser.admin = true;
@@ -217,14 +231,13 @@ app.post("/register", async (req, res) => {
 
 
 app.get("/wordlists", auth, async (req, res) => {
-    try {
-        const lists = await readdir(`${__dirname}/public/assets/wordlist`);
+    fs.readdir(`${__dirname}/public/assets/wordlist`, (err, lists) => {
+        if (err) {
+            return res.sendStatus(404);
+        }
         lists = lists.map(l => l.replace(".txt", ""));
         res.json(lists);
-    }
-    catch (err) {
-        res.sendStatus(404);
-    }
+    });
 });
 
 app.get("/user", auth, async (req, res) => {
@@ -360,6 +373,10 @@ app.put("/category", auth, async (req, res) => {
 
 app.delete("/category", auth, async (req, res) => {
     try {
+        if (!deletedCat) {
+            return res.sendStatus(404);
+        }
+
         // Maybe don't even allow deleting category if it contains credentials, since this can be catastrophic.'
         // Otherwise, at least make the Yes button red and require typing the category name in ALL CAPS first.
         await Credential.remove({category_id: req.fields._id, owner: req.session.userId});
@@ -412,15 +429,15 @@ app.post("/import", auth, async (req, res) => {
         const json = await readFile(req.files.file.path);
         const categoryBackup = JSON.parse(json);
 
-        const newCategories = [];
-        const newCredentials = [];
+        const newCats = [];
+        const newCreds = [];
 
         for (const category of categoryBackup) {
             for (let credential of category.credentials) {
                 let found = await Credential.count({_id: credential._id});
                 if (found === 0) {
                     credential.owner = req.session.userId;
-                    newCredentials.push(Credential.create(credential));
+                    newCreds.push(Credential.create(credential));
                 }
             }
             delete category.credentials;
@@ -428,14 +445,16 @@ app.post("/import", auth, async (req, res) => {
 
             let found = await Category.count({_id: category._id});
             if (found === 0) {
-                newCategories.push(Category.create(category));
+                newCats.push(Category.create(category));
             }
         }
 
-        await Promise.all(newCategories.map(c => c.save()));
-        await Promise.all(newCredentials.map(c => c.save()));
+        await Promise.all(newCats.map(c => c.save()));
+        await Promise.all(newCreds.map(c => c.save()));
 
-        await unlink(req.files.file.path);
+        fs.unlink(req.files.file.path, (err) => {
+            console.log(err, "deleted");
+        });
 
         res.json({status: "OK"});
     }
@@ -447,4 +466,4 @@ app.post("/import", auth, async (req, res) => {
 });
 
 init(app);
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=server.js.map

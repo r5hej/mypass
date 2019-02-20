@@ -7,11 +7,14 @@ export default {
     input: 'src/index.js',
     external: ['fs', 'express', 'express-session', 'express-formidable', 'bcryptjs', 'camo', 'events'],
     output: {
-        file: 'dist/index.js',
+        file: 'dist/server.js',
         format: 'cjs',
 		sourcemap: true
     },
     plugins: [
+        json({
+            include: 'src/config.json'
+        }),
         commonjs()
     ]
 }
